@@ -12,41 +12,73 @@ on:
           - testpypi
 
 jobs:
-  build-test:
+  # build-test:
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+  #       python-version: ['3.13', '3.14']
+  #   defaults:
+  #     run:
+  #       shell: bash -l {0}
+
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         submodules: recursive
+
+  #     - name: Dependencies
+  #       run: |
+  #         pip install pytest mypy
+
+  #     - name: Install PyPi
+  #       if: ${{ inputs.index == 'pypi' }}
+  #       run: |
+  #         pip install clingo-funasp
+
+  #     - name: Install PyPi Test
+  #       if: ${{ inputs.index != 'pypi' }}
+  #       run: |
+  #         pip install -i https://test.pypi.org/simple/ clingo-funasp
+
+  #     - name: Test
+  #       run: |
+  #         cd lib/python-api/tests && pytest -v
+
+  #     - name: Mypy
+  #       run: |
+  #         cd lib/python-api/tests && mypy -v *.py
+
+  funasp-test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
-        python-version: ['3.12', '3.13', '3.14']
+        python-version: ['3.13', '3.14']
     defaults:
       run:
         shell: bash -l {0}
 
     steps:
-      - name: Checkout
+      - name: Checkout funasp
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          repository: krr-uno/funasp
+          ref: parser
 
-      - name: Dependencies
+      - name: Pip install packages
+        shell: bash -l {0}
         run: |
-          pip install pytest mypy
+          pip install -r envs/requirements.txt
+          pip install -e .
 
-      - name: Install PyPi
-        if: ${{ inputs.index == 'pypi' }}
+      - name: run application
         run: |
-          pip install clingo-funasp
+          python funasp examples/family.lp || if [ $? -eq 10 ]; then echo "Handled exit code 10"; else exit $?; fi
 
-      - name: Install PyPi Test
-        if: ${{ inputs.index != 'pypi' }}
-        run: |
-          pip install -i https://test.pypi.org/simple/ clingo-funasp
+      - name: run tests
+        run: nox
 
-      - name: Test
-        run: |
-          cd lib/python-api/tests && pytest -v
-
-      - name: Mypy
-        run: |
-          cd lib/python-api/tests && mypy -v *.py
