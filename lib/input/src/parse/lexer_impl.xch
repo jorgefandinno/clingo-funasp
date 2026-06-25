@@ -86,6 +86,7 @@ auto ParserState::lex_() -> TokenType {
             <normal> ".."                  { return TokenType::ddot; }
             <normal> "**"                  { return TokenType::dstar; }
             <normal> "="                   { return TokenType::eq; }
+            <normal> ":="                  { return TokenType::assign; }
             <normal> "=="                  { return TokenType::eq; }
             <normal> ">="                  { return TokenType::ge; }
             <normal> ">"                   { return TokenType::gt; }
@@ -117,8 +118,10 @@ auto ParserState::lex_() -> TokenType {
             <normal> "#project"            { return TokenType::project; }
             <normal> "#script"             { return TokenType::script; }
             <normal> "#show"               { return TokenType::show; }
+            <normal> "#showf"              { return TokenType::showf; }
             <normal> "#sum"                { return TokenType::sum; }
             <normal> "#sum+"               { return TokenType::sump; }
+            <normal> "#some"               { return TokenType::some; }
             <normal> "#theory"             { return TokenType::theory; }
             <normal> "#true"               { return TokenType::true_; }
             <normal> "#end"                { return TokenType::script_end; }

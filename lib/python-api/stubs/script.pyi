@@ -8,10 +8,10 @@ from the main context (just like the embedded one in the standalone clingo).
 
 ```python
 >>> import __main__
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.script import Script, register
->>> from clingo.symbol import Number, Symbol
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.script import Script, register
+>>> from clingo_funasp.symbol import Number, Symbol
 ...
 >>> class PyScript(Script):
 ...     def execute(self, code) -> None:
@@ -34,7 +34,7 @@ from the main context (just like the embedded one in the standalone clingo).
 >>> ctl.parse_string(\"\"\"\\
 ... #script (python)
 ...
-... from clingo.symbol import Number, Symbol
+... from clingo_funasp.symbol import Number, Symbol
 ...
 ... def g(lib, x):
 ...     return Number(lib, x.number * 4)
@@ -59,13 +59,13 @@ from __future__ import annotations
 
 import typing
 
-import clingo.control
-import clingo.core
-import clingo.symbol
+import clingo_funasp.control
+import clingo_funasp.core
+import clingo_funasp.symbol
 
 __all__: list[str] = ["Script", "enable_python", "register"]
 
-def enable_python(lib: clingo.core.Library) -> None:
+def enable_python(lib: clingo_funasp.core.Library) -> None:
     """
     Enable embedded python scripts.
 
@@ -74,7 +74,7 @@ def enable_python(lib: clingo.core.Library) -> None:
             The library to register the script with.
     """
 
-def register(lib: clingo.core.Library, script: Script) -> None:
+def register(lib: clingo_funasp.core.Library, script: Script) -> None:
     """
     Registers a script language which can then be embedded into a logic program.
 
@@ -97,10 +97,10 @@ class Script:
 
     def call(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         name: str,
-        arguments: typing.Sequence[clingo.symbol.Symbol],
-    ) -> typing.Sequence[clingo.symbol.Symbol]:
+        arguments: typing.Sequence[clingo_funasp.symbol.Symbol],
+    ) -> typing.Sequence[clingo_funasp.symbol.Symbol]:
         """
         Call the function with the given name and arguments.
 
@@ -139,7 +139,7 @@ class Script:
                 The code to execute.
         """
 
-    def main(self, lib: clingo.core.Library, control: clingo.control.Control) -> None:
+    def main(self, lib: clingo_funasp.core.Library, control: clingo_funasp.control.Control) -> None:
         """
         Run the main function.
 

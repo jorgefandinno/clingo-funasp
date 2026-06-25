@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.control module.
+Unit tests for clingo_funasp.control module.
 """
 
 from textwrap import dedent
 
-from clingo import ast
-from clingo.control import Control
-from clingo.core import Library
-from clingo.ground import GroundResult
-from clingo.symbol import Number
+from clingo_funasp import ast
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.ground import GroundResult
+from clingo_funasp.symbol import Number
 from util import MCB
 
 

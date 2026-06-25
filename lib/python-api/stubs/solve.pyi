@@ -10,8 +10,8 @@ variants leave room for additional computation before calling blocking functions
 
 The following example shows how to intercept models with a callback:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -24,8 +24,8 @@ The following example shows how to intercept models with a callback:
 
 The following example shows how to yield models:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -42,8 +42,8 @@ The following example shows how to yield models:
 
 The following example shows how to solve asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -56,8 +56,8 @@ The following example shows how to solve asynchronously:
 
 This example shows how to solve both iteratively and asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -80,8 +80,8 @@ import collections.abc
 import enum
 import typing
 
-import clingo.base
-import clingo.symbol
+import clingo_funasp.base
+import clingo_funasp.symbol
 
 __all__: list[str] = [
     "Model",
@@ -120,7 +120,7 @@ class Model:
         Get a string representation of the model.
         """
 
-    def contains(self, atom: clingo.symbol.Symbol) -> bool:
+    def contains(self, atom: clingo_funasp.symbol.Symbol) -> bool:
         """
         Check if the model contains the given atom.
 
@@ -130,7 +130,7 @@ class Model:
             Whether the atom is contained.
         """
 
-    def extend(self, symbols: typing.Sequence[clingo.symbol.Symbol]) -> None:
+    def extend(self, symbols: typing.Sequence[clingo_funasp.symbol.Symbol]) -> None:
         """
         Extend a model with the given symbols.
 
@@ -179,7 +179,7 @@ class Model:
         atoms: bool = False,
         terms: bool = False,
         theory: bool = False,
-    ) -> typing.Sequence[clingo.symbol.Symbol]:
+    ) -> typing.Sequence[clingo_funasp.symbol.Symbol]:
         """
         Get the symbols in the model.
 
@@ -241,7 +241,7 @@ class SolveControl:
     """
 
     def add_clause(
-        self, clause: typing.Sequence[tuple[clingo.symbol.Symbol, bool] | int]
+        self, clause: typing.Sequence[tuple[clingo_funasp.symbol.Symbol, bool] | int]
     ) -> None:
         """
         Add a clause that applies to the current solving step during the search.
@@ -251,7 +251,7 @@ class SolveControl:
         """
 
     def add_nogood(
-        self, nogood: typing.Sequence[tuple[clingo.symbol.Symbol, bool] | int]
+        self, nogood: typing.Sequence[tuple[clingo_funasp.symbol.Symbol, bool] | int]
     ) -> None:
         """
         Add a nogood that applies to the current solving step during the search.
@@ -261,7 +261,7 @@ class SolveControl:
         """
 
     @property
-    def base(self) -> clingo.base.Base:
+    def base(self) -> clingo_funasp.base.Base:
         """
         Get the atom/term bases of the program.
         """
@@ -279,7 +279,7 @@ class SolveHandle:
     Blocking functions in this object release the GIL. They are not thread-safe
     though.
 
-    See also: `clingo.control.Control.solve`
+    See also: `clingo_funasp.control.Control.solve`
     """
 
     def __enter__(self) -> SolveHandle:
@@ -303,7 +303,7 @@ class SolveHandle:
         """
         Cancel the running search.
 
-        See also: `clingo.control.Control.interrupt`
+        See also: `clingo_funasp.control.Control.interrupt`
         """
 
     def core(self) -> typing.Sequence[int]:

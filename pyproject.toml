@@ -1,5 +1,5 @@
 [project]
-name = "clingo"
+name = "clingo-funasp"
 version = "6.0.0"
 description="Python bindings to the clingo solver."
 readme = {file = "README.md", content-type = "text/markdown"}

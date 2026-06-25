@@ -1,12 +1,12 @@
 """
-Unit tests for the clingo.config module.
+Unit tests for the clingo_funasp.config module.
 """
 
 import re
 from textwrap import dedent
 
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 from util import MCB
 
 

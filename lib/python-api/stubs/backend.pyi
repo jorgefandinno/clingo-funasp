@@ -6,9 +6,9 @@ Examples
 The first example shows how to add a fact to a program:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function
+>>> from clingo_funasp.control import Control
 ...
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -25,9 +25,9 @@ SAT
 
 The next example shows how to add theory atoms to a program:
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function
+>>> from clingo_funasp.control import Control
 ...
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -50,8 +50,8 @@ from __future__ import annotations
 import enum
 import typing
 
-import clingo.base
-import clingo.symbol
+import clingo_funasp.base
+import clingo_funasp.symbol
 
 __all__: list[str] = [
     "Backend",
@@ -120,7 +120,7 @@ class Backend:
     theory. It allows for low-level manipulation of logic programs.
 
     See Also:
-        clingo.control.Control.backend
+        clingo_funasp.control.Control.backend
     """
 
     def assume(self, literals: typing.Sequence[int]) -> None:
@@ -135,7 +135,7 @@ class Backend:
             literals: Sequence of program literals to assume.
         """
 
-    def atom(self, symbol: clingo.symbol.Symbol | None = None) -> int:
+    def atom(self, symbol: clingo_funasp.symbol.Symbol | None = None) -> int:
         """
         Return a fresh program atom or the atom associated with the given symbol.
 
@@ -253,7 +253,7 @@ class Backend:
     def theory_atom(
         self,
         atom: int | None,
-        name: clingo.symbol.Symbol,
+        name: clingo_funasp.symbol.Symbol,
         elements: typing.Sequence[int],
         guard: tuple[str, int] | None = None,
     ) -> int:
@@ -358,7 +358,7 @@ class Backend:
                 The unique id of the created string theory term.
         """
 
-    def theory_symbol(self, symbol: clingo.symbol.Symbol) -> int:
+    def theory_symbol(self, symbol: clingo_funasp.symbol.Symbol) -> int:
         """
         Convert a symbol into a theory term.
 
@@ -422,7 +422,7 @@ class Observer:
     not needed.
 
     See Also:
-        `clingo.control.Control.observe`
+        `clingo_funasp.control.Control.observe`
     """
 
     def __init__(self) -> None: ...
@@ -453,7 +453,7 @@ class Observer:
             condition: Sequence of literals representing the edge condition.
         """
 
-    def end_step(self, base: clingo.base.Base) -> None:
+    def end_step(self, base: clingo_funasp.base.Base) -> None:
         """
         Called at the end of a step.
         """

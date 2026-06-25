@@ -5,10 +5,10 @@ Functions and classes to implement custom propagators.
 
 ```python
 >>> from typing import Sequence
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.propagate import Assignment, PropagateControl, PropagateInit, Propagator
->>> from clingo.symbol import Function
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.propagate import Assignment, PropagateControl, PropagateInit, Propagator
+>>> from clingo_funasp.symbol import Function
 >>>
 >>> LIB = Library()
 >>>
@@ -60,8 +60,8 @@ import collections.abc
 import enum
 import typing
 
-import clingo.base
-import clingo.core
+import clingo_funasp.base
+import clingo_funasp.core
 
 __all__: list[str] = [
     "Assignment",
@@ -476,7 +476,7 @@ class PropagateInit(PropagateControl):
         """
 
     @property
-    def base(self) -> clingo.base.Base:
+    def base(self) -> clingo_funasp.base.Base:
         """
         The base object to inspect the grounder's base.
         """
@@ -490,7 +490,7 @@ class PropagateInit(PropagateControl):
     @check_mode.setter
     def check_mode(self, arg1: CheckMode) -> None: ...
     @property
-    def library(self) -> clingo.core.Library:
+    def library(self) -> clingo_funasp.core.Library:
         """
         The library object managing symbols.
         """

@@ -6,6 +6,7 @@
 
 #include "parser_state.hh"
 
+
 namespace CppClingo::Input::Parse {
 
 namespace {
@@ -180,6 +181,49 @@ auto parse_show(ParserState &state) -> std::optional<Stm> {
             }
         } else {
             return state.expected<std::nullopt>(TokenType::dot, TokenType::colon);
+        }
+    }
+    return std::nullopt;
+}
+
+//! Parse a showf statement.
+auto parse_showf(ParserState &state) -> std::optional<Stm> {
+    assert(state.token() == TokenType::showf);
+    auto loc = state.loc();
+    state.consume();
+    if (auto term = parse_term(state)) {
+        if (state.token() == TokenType::dot) {
+            state.mark_stms();
+            loc += state.cursor_pos();
+            if (auto res = check_term_sig(*term)) {
+                state.consume();
+                auto [sign, name, arity] = *std::move(res);
+                auto value = true;
+                if (state.branch(TokenType::lbrack)) {
+                    if (!state.expect(TokenType::id)) {
+                        return std::nullopt;
+                    }
+                    auto id = state.str();
+                    if (id == "false") {
+                        value = false;
+                    } else if (id != "true") {
+                        return state.expected<std::nullopt>("true", "false");
+                    }
+                    state.consume();
+                    if (!state.expect(TokenType::rbrack)) {
+                        return std::nullopt;
+                    }
+                    loc += state.cursor_pos();
+                    state.mark_stms();
+                    state.consume();
+                }
+                std::string name_str = "F"; name_str += name.view();
+                name = state.store().string_ref(name_str);
+                return StmShowSig{std::move(loc), sign, name, arity+1, value};
+            }
+            state.expected<std::nullopt>("<signature>");
+            state.consume();
+            return std::nullopt;
         }
     }
     return std::nullopt;
@@ -924,6 +968,9 @@ auto parse_statement(ParserState &state) -> std::optional<Stm> {
         }
         case TokenType::show: {
             return parse_show(state);
+        }
+        case TokenType::showf: {
+            return parse_showf(state);
         }
         case TokenType::const_: {
             return parse_const(state);

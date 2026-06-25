@@ -7,8 +7,8 @@ The following example shows how inpsect the configuration and modify it to
 enumerate all models:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -46,8 +46,8 @@ SAT
 The next example shows how to extend the configuration with a custom entry:
 
 ```python
-from clingo.core import Library
-from clingo.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.control import Control
 
 
 class CustomConfig:

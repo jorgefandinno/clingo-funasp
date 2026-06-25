@@ -5,7 +5,7 @@ Examples
 --------
 
 ```python
->>> from clingo.core import version
+>>> from clingo_funasp.core import version
 >>> version()
 (6, 0, 0)
 ```

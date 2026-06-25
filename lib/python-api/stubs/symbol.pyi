@@ -5,8 +5,8 @@ Examples
 --------
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function, Number, parse_term
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function, Number, parse_term
 >>>
 >>> lib = Library()
 >>>
@@ -30,7 +30,7 @@ from __future__ import annotations
 import enum
 import typing
 
-import clingo.core
+import clingo_funasp.core
 
 __all__: list[str] = [
     "Function",
@@ -45,7 +45,7 @@ __all__: list[str] = [
 ]
 
 def Function(
-    lib: clingo.core.Library,
+    lib: clingo_funasp.core.Library,
     name: str,
     arguments: typing.Sequence[Symbol] = [],
     is_positive: bool = True,
@@ -64,7 +64,7 @@ def Function(
         is_positive: Whether the function is positive.
     """
 
-def Number(lib: clingo.core.Library, number: int) -> Symbol:
+def Number(lib: clingo_funasp.core.Library, number: int) -> Symbol:
     """
     Construct a numeric symbol given a number.
 
@@ -73,7 +73,7 @@ def Number(lib: clingo.core.Library, number: int) -> Symbol:
         number: The given number.
     """
 
-def String(lib: clingo.core.Library, string: str) -> Symbol:
+def String(lib: clingo_funasp.core.Library, string: str) -> Symbol:
     """
     Construct a string symbol given a string.
 
@@ -82,7 +82,7 @@ def String(lib: clingo.core.Library, string: str) -> Symbol:
         string: The given string.
     """
 
-def Tuple_(lib: clingo.core.Library, arguments: typing.Sequence[Symbol]) -> Symbol:
+def Tuple_(lib: clingo_funasp.core.Library, arguments: typing.Sequence[Symbol]) -> Symbol:
     """
     Construct a tuple symbol.
 
@@ -93,7 +93,7 @@ def Tuple_(lib: clingo.core.Library, arguments: typing.Sequence[Symbol]) -> Symb
         arguments: The arguments in form of a list of symbols.
     """
 
-def parse_term(lib: clingo.core.Library, string: str) -> Symbol:
+def parse_term(lib: clingo_funasp.core.Library, string: str) -> Symbol:
     """
     Parse the given string using clingo's term parser for ground terms.
 
@@ -133,7 +133,7 @@ class Symbol:
     constants with `len(arguments) == 0`.
 
     Symbol objects implement Python's rich comparison operators and are ordered
-    like in clingo. They can also be used as keys in dictionaries. Their string
+    like in clingo_funasp. They can also be used as keys in dictionaries. Their string
     representation corresponds to their clingo representation.
 
     Note that this class does not have a constructor. Instead there are the
