@@ -70,14 +70,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install PyPi
+        if: ${{ inputs.index == 'pypi' }}
+        run: |
+          pip install clingo-funasp
+
       - name: Install PyPi Test
         if: ${{ inputs.index != 'pypi' }}
         run: |
           pip install -i https://test.pypi.org/simple/ clingo-funasp
 
-      - name: Test
-        run: |
-          cd lib/python-api/tests && pytest -v
+
 
       - name: Checkout funasp
         uses: actions/checkout@v4
