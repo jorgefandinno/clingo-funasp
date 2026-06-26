@@ -89,7 +89,7 @@ jobs:
       - name: Pip install packages
         shell: bash -l {0}
         run: |
-          pip install -e .
+          pip install .
           pip install -r envs/requirements.txt
           rm -r funasp
 
