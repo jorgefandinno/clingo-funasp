@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: krr-uno/funasp
-          ref: parser
+          ref: develop
 
       - name: Pip install packages
         shell: bash -l {0}
@@ -100,5 +100,7 @@ jobs:
           python funasp examples/family.lp || if [ $? -eq 10 ]; then echo "Handled exit code 10"; else exit $?; fi
 
       - name: run tests
-        run: nox
+        run: |
+          nox -s tests
+          nox -s slow_tests
 
