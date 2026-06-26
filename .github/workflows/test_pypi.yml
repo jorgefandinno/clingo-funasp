@@ -102,5 +102,5 @@ jobs:
       - name: run tests
         run: |
           nox -s tests
-          nox -s slow_tests
+          nox -s slow_test
 
