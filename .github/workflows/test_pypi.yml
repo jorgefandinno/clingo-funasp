@@ -80,8 +80,6 @@ jobs:
         run: |
           pip install -i https://test.pypi.org/simple/ clingo-funasp
 
-
-
       - name: Checkout funasp
         uses: actions/checkout@v4
         with:
@@ -93,7 +91,7 @@ jobs:
         run: |
           pip install -e .
           pip install -r envs/requirements.txt
-
+          rm -r funasp
 
       - name: run application
         run: |
