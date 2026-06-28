@@ -1,0 +1,2 @@
+Plan how to create a python module that checks the safety of a Statement replicating the code `safety.cc`. The module should use the python API for clingo (
+https://docs.potassco.org/clingo-preview/python-api/clingo.html). For example, `StmRule` is should be mapped to `clingo.ast.StatementRule` (https://docs.potassco.org/clingo-preview/python-api/clingo/ast.html#StatementRule).
