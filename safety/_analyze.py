@@ -150,6 +150,19 @@ def _(node: ast.StatementConst, ctx: VariableContext, out: set[str]) -> None:
 # --- linear terms ----------------------------------------------------------
 
 
+def _binary_operator(term: ast.TermBinaryOperation) -> ast.BinaryOperator | None:
+    """Return the binary operator of ``term``, or ``None`` for an interval.
+
+    The interval operator ``a..b`` is not part of the public ``BinaryOperator``
+    enum, so reading ``operator_type`` on it raises ``ValueError``; an interval is
+    not an arithmetic operator for the purposes of linearity.
+    """
+    try:
+        return term.operator_type
+    except ValueError:
+        return None
+
+
 def check_linear(term: ast.Term) -> str | None:
     """Return the variable ``X`` if ``term`` is the canonical linear ``m*X+n``.
 
@@ -160,12 +173,12 @@ def check_linear(term: ast.Term) -> str | None:
     """
     if not isinstance(term, ast.TermBinaryOperation):
         return None
-    if term.operator_type != ast.BinaryOperator.Plus:
+    if _binary_operator(term) != ast.BinaryOperator.Plus:
         return None
     mul = term.left
     if (
         not isinstance(mul, ast.TermBinaryOperation)
-        or mul.operator_type != ast.BinaryOperator.Multiplication
+        or _binary_operator(mul) != ast.BinaryOperator.Multiplication
     ):
         return None
     coeff = mul.left
