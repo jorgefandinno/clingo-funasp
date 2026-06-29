@@ -85,6 +85,40 @@ Primary correctness is still the differential oracle: every program — stratifi
 
 One follow-up worth noting: double negation (not not a) is handled conservatively (kept, never proved fact-true), which is sound but less simplified — a natural next refinement alongside semi-naive generations.
 
+## Request
+
+Implement semi-naive generations.
+
+## Answer
+
+What I built
+
+The two grounding fixpoints (domain and facts) now use semi-naive evaluation with generation tracking, mirroring lib/ground's GenerationCounts.
+
+_atombase.py — each predicate relation (_GenRelation) keeps atoms in insertion order with two offsets defining OLD / NEW / ALL windows:
+- enter_generation() promotes last gen's new atoms to old and snapshots the current length;
+- atoms added during a generation sit beyond all_offset and are only seen as NEW next generation.
+- Tracked separately for the possible (domain) and fact relations.
+
+_ground.py — a windowed delta-rule join (_join) replaces the naive full re-scan:
+- recursive positive literals (predicate in the current SCC) range over a generation window; non-recursive/lower-component literals range over the full relation;
+- each generation runs delta rules using the first-new split (_window_for: literals before the delta → OLD, the delta → NEW, after → ALL), so every new combination is generated exactly once;
+- seed rules (no recursive literal, including negation-recursive rules) fire only in generation 0;
+- both _domain_fixpoint and _fact_fixpoint iterate generations until a pass adds nothing.
+
+The emit phase stays a single full enumeration over the final domain (semi-naive doesn't apply there), and negation handling is unchanged.
+
+Verified
+
+- It's genuinely semi-naive: on a length-12 transitive-closure chain, the recursive literal's NEW windows were 12, 11, …, 1 summing to exactly 78 = the total t-atoms — each atom consumed as "new" once, not re-scanned every pass (naive would be ~12×78).
+- Correctness preserved: 58 pygringo tests pass (random hash seed), including all differential cases (stratified/non-stratified negation, recursion, choice); cyclic transitive closure also checked.
+- mypy --strict clean, isort/black clean, 33 safety tests still pass.
+
+I also updated the README and module docstrings — semi-naive is no longer described as a "future optimization."
+
+One honest caveat on fidelity: this is the textbook delta-rule formulation of semi-naive, which matches lib/ground's generation semantics, but not its exact machinery — clingo uses per-literal semi-naive indices with an instantiator queue that re-activates rules per newly-derived atom, whereas pygringo re-evaluates each component's rules once per generation. Same asymptotic benefit (joins touch only the delta), simpler control flow.
+
+
 ---
 
 Incorporate support for aggregtes in `pygringo` using the code in `lib/ground` as guide.

@@ -51,6 +51,13 @@ The pipeline follows the C++ grounder at a high level:
 5. **emit** the ground program, simplifying each body literal from the atom
    states, then ground the integrity **constraints**.
 
+The two fixpoints use **semi-naive evaluation** (the C++ `GenerationCounts`):
+each relation tracks old/new/all *generations*, and a recursive rule is matched
+as delta rules so that, in each generation, one recursive literal ranges over the
+freshly-derived *new* atoms while the others range over *old*/*all* — every new
+combination is generated exactly once instead of re-scanning the whole relation
+each pass.
+
 ### Negation
 
 Following `lib/ground`'s `NonFactMatcher` / `StateAtom`, a negative literal never

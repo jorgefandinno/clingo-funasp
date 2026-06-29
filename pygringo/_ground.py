@@ -30,7 +30,7 @@ raise :class:`GroundError`.
 from __future__ import annotations
 
 import enum
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 
 from clingo import ast
@@ -39,11 +39,11 @@ from clingo.symbol import Symbol
 
 from safety import check_safety
 
-from ._atombase import AtomBase, Signature
+from ._atombase import AtomBase, Signature, Window
 from ._depend import order_components
 from ._error import GroundError, _Undefined
-from ._literal import match_body
-from ._term import Assignment, atom_signature, eval_term
+from ._literal import match_body, match_literal
+from ._term import Assignment, atom_signature, eval_term, match_term
 
 
 class _Kind(enum.Enum):
@@ -143,16 +143,135 @@ def _head_atoms(rule: _Rule, asgn: Assignment, lib: Library) -> list[Symbol]:
     return []
 
 
-# --- domain and fact fixpoints ---------------------------------------------
+# --- semi-naive matching ---------------------------------------------------
 
 
-def _domain_fixpoint(rules: list[_Rule], base: AtomBase, lib: Library) -> None:
-    """Add every possibly-true atom of ``rules`` to ``base`` (ignoring negation)."""
-    changed = True
-    while changed:
+def _recursive_positions(
+    body: list[ast.BodyLiteral], component: frozenset[Signature]
+) -> list[int]:
+    """Positions of positive symbolic literals whose predicate is in ``component``."""
+    positions: list[int] = []
+    for index, blit in enumerate(body):
+        if isinstance(blit, ast.BodySimpleLiteral):
+            lit = blit.literal
+            if isinstance(lit, ast.LiteralSymbolic) and lit.sign == ast.Sign.NoSign:
+                if atom_signature(lit.atom) in component:
+                    positions.append(index)
+    return positions
+
+
+def _window_for(index: int, delta: int) -> Window:
+    """Window of a recursive literal when ``delta`` is the designated delta position.
+
+    Uses the *first-new* split (each tuple with >=1 new atom is generated once):
+    literals before the delta range over old atoms, the delta over new, the rest
+    over all.
+    """
+    if index < delta:
+        return Window.OLD
+    if index == delta:
+        return Window.NEW
+    return Window.ALL
+
+
+def _join(
+    body: list[ast.BodyLiteral],
+    index: int,
+    asgn: Assignment,
+    base: AtomBase,
+    lib: Library,
+    recursive: frozenset[int],
+    delta: int | None,
+    facts: bool,
+) -> Iterator[Assignment]:
+    """Backtracking join of ``body`` with semi-naive windows on recursive literals.
+
+    Positive symbolic literals over the current component (``recursive``) range
+    over a generation window (relative to ``delta``); other positive literals
+    range over the whole relation.  When ``facts`` is set, positive literals match
+    the *fact* relation and a negative literal prunes unless its atom is impossible
+    (the body must be trivially true for the head to be a fact); otherwise negation
+    is ignored (domain phase).
+    """
+    if index == len(body):
+        yield asgn
+        return
+    lit = _simple_literal(body[index])
+
+    if isinstance(lit, ast.LiteralSymbolic):
+        atom = lit.atom
+        if lit.sign == ast.Sign.NoSign:
+            name, arity, positive = atom_signature(atom)
+            if index in recursive:
+                assert delta is not None
+                candidates = base.window(
+                    name, arity, positive, _window_for(index, delta), facts
+                )
+            else:
+                candidates = base.relation(name, arity, positive, facts)
+            for sym in candidates:
+                extended = dict(asgn)
+                try:
+                    matched = match_term(atom, sym, extended, lib)
+                except _Undefined:
+                    continue
+                if matched:
+                    yield from _join(
+                        body, index + 1, extended, base, lib, recursive, delta, facts
+                    )
+            return
+
+        # Negative literal: ground (variables bound by earlier positives).
+        try:
+            sym = eval_term(atom, asgn, lib)
+        except _Undefined:
+            return
+        if sym is None:
+            raise GroundError(f"unbound variable in negative literal: {lit}")
+        if facts and (lit.sign != ast.Sign.Single or base.is_possible(sym)):
+            return  # not trivially true (possible atom, or conservative double negation)
+        yield from _join(body, index + 1, asgn, base, lib, recursive, delta, facts)
+        return
+
+    # Comparisons / intervals / booleans are window-independent.
+    try:
+        extensions = list(match_literal(lit, asgn, base, lib))
+    except _Undefined:
+        return
+    for extension in extensions:
+        yield from _join(body, index + 1, extension, base, lib, recursive, delta, facts)
+
+
+def _rule_groundings(
+    rule: _Rule,
+    component: frozenset[Signature],
+    base: AtomBase,
+    lib: Library,
+    gen: int,
+    facts: bool,
+) -> Iterator[Assignment]:
+    """Yield the rule's groundings for generation ``gen`` (semi-naive delta rules)."""
+    recursive = _recursive_positions(rule.body, component)
+    if not recursive:
+        # No recursive literal: a seed rule, evaluated once in generation 0.
+        if gen == 0:
+            yield from _join(rule.body, 0, {}, base, lib, frozenset(), None, facts)
+        return
+    rec_set = frozenset(recursive)
+    for delta in recursive:
+        yield from _join(rule.body, 0, {}, base, lib, rec_set, delta, facts)
+
+
+def _domain_fixpoint(
+    rules: list[_Rule], component: frozenset[Signature], base: AtomBase, lib: Library
+) -> None:
+    """Add every possibly-true atom of ``rules`` to ``base`` (semi-naive, ignoring negation)."""
+    gen = 0
+    while True:
+        base.enter_generation(component, facts=False)
         changed = False
         for rule in rules:
-            for asgn in match_body(rule.body, {}, base, lib):
+            for asgn in _rule_groundings(rule, component, base, lib, gen, facts=False):
                 try:
                     atoms = _head_atoms(rule, asgn, lib)
                 except _Undefined:
@@ -160,51 +279,31 @@ def _domain_fixpoint(rules: list[_Rule], base: AtomBase, lib: Library) -> None:
                 for sym in atoms:
                     if base.add(sym):
                         changed = True
+        if not changed:
+            break
+        gen += 1
 
 
-def _body_is_fact_true(
-    rule: _Rule, asgn: Assignment, base: AtomBase, lib: Library
-) -> bool:
-    """True iff the matched body is trivially true (so a normal head is a fact).
-
-    A positive atom must be a fact; a (single) negated atom must be impossible
-    (not in the domain); comparisons/booleans already held during matching.
-    Double negation is treated conservatively as non-trivial.
-    """
-    for blit in rule.body:
-        lit = _simple_literal(blit)
-        if not isinstance(lit, ast.LiteralSymbolic):
-            continue
-        sym = eval_term(lit.atom, asgn, lib)
-        assert sym is not None
-        if lit.sign == ast.Sign.NoSign:
-            if not base.is_fact(sym):
-                return False
-        elif lit.sign == ast.Sign.Single:
-            if base.is_possible(sym):
-                return False
-        else:  # Sign.Double: keep conservatively
-            return False
-    return True
-
-
-def _fact_fixpoint(rules: list[_Rule], base: AtomBase, lib: Library) -> None:
+def _fact_fixpoint(
+    rules: list[_Rule], component: frozenset[Signature], base: AtomBase, lib: Library
+) -> None:
     """Mark as facts the atoms derivable by a normal rule with a trivially-true body."""
-    changed = True
-    while changed:
+    normal = [rule for rule in rules if rule.kind == _Kind.NORMAL]
+    gen = 0
+    while True:
+        base.enter_generation(component, facts=True)
         changed = False
-        for rule in rules:
-            if rule.kind != _Kind.NORMAL:
-                continue
-            for asgn in match_body(rule.body, {}, base, lib):
-                if not _body_is_fact_true(rule, asgn, base, lib):
-                    continue
+        for rule in normal:
+            for asgn in _rule_groundings(rule, component, base, lib, gen, facts=True):
                 try:
                     (sym,) = _head_atoms(rule, asgn, lib)
                 except _Undefined:
                     continue
                 if base.add_fact(sym):
                     changed = True
+        if not changed:
+            break
+        gen += 1
 
 
 # --- output construction ---------------------------------------------------
@@ -351,9 +450,10 @@ def ground(lib: Library, statements: Sequence[ast.Statement]) -> list[ast.Statem
     by_component = [
         [r for r in rules if r.component == ci] for ci in range(len(components))
     ]
-    for comp_rules in by_component:
-        _domain_fixpoint(comp_rules, base, lib)
-        _fact_fixpoint(comp_rules, base, lib)
+    comp_sigs = [frozenset(comp) for comp in components]
+    for ci, comp_rules in enumerate(by_component):
+        _domain_fixpoint(comp_rules, comp_sigs[ci], base, lib)
+        _fact_fixpoint(comp_rules, comp_sigs[ci], base, lib)
 
     # Emit once all atom states are final: rules (dependency order), then constraints.
     out: list[ast.Statement] = []
