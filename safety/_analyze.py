@@ -14,7 +14,9 @@ Python port of the parts of ``lib/input/src/rewrite/analyze.cc`` and
 from __future__ import annotations
 
 import enum
+from collections.abc import Container, Iterable
 from functools import singledispatch
+from typing import Any
 
 from clingo import ast
 from clingo.symbol import SymbolType
@@ -35,7 +37,7 @@ class VariableContext(enum.Enum):
 # --- variable collection ---------------------------------------------------
 
 
-def select_variables(node, ctx: VariableContext = VariableContext.ALL) -> set[str]:
+def select_variables(node: Any, ctx: VariableContext = VariableContext.ALL) -> set[str]:
     """Return the set of variable names occurring in ``node``.
 
     With :data:`VariableContext.GLOBAL`, occurrences inside aggregate / theory
@@ -49,7 +51,7 @@ def select_variables(node, ctx: VariableContext = VariableContext.ALL) -> set[st
 
 
 @singledispatch
-def _collect(node, ctx: VariableContext, out: set[str]) -> None:
+def _collect(node: Any, ctx: VariableContext, out: set[str]) -> None:
     # Generic case: descend into all direct AST children. ``visit`` forwards the
     # extra ``ctx``/``out`` arguments to the callback (see clingo.ast docs).
     node.visit(_collect, ctx, out)
@@ -69,7 +71,7 @@ def _(node: ast.TheoryTermVariable, ctx: VariableContext, out: set[str]) -> None
 # (and conditional-literal contents) are local.
 
 
-def _collect_guarded(node, ctx: VariableContext, out: set[str]) -> None:
+def _collect_guarded(node: Any, ctx: VariableContext, out: set[str]) -> None:
     left = getattr(node, "left", None)
     if left is not None:
         _collect(left, ctx, out)
@@ -101,7 +103,7 @@ def _(node: ast.HeadSetAggregate, ctx: VariableContext, out: set[str]) -> None:
     _collect_guarded(node, ctx, out)
 
 
-def _collect_theory(node, ctx: VariableContext, out: set[str]) -> None:
+def _collect_theory(node: Any, ctx: VariableContext, out: set[str]) -> None:
     _collect(node.name, ctx, out)
     right = getattr(node, "right", None)
     if right is not None:
@@ -148,11 +150,7 @@ def _(node: ast.StatementConst, ctx: VariableContext, out: set[str]) -> None:
 # --- linear terms ----------------------------------------------------------
 
 
-def _is_number(term) -> bool:
-    return isinstance(term, ast.TermSymbolic) and term.symbol.type == SymbolType.Number
-
-
-def check_linear(term) -> str | None:
+def check_linear(term: ast.Term) -> str | None:
     """Return the variable ``X`` if ``term`` is the canonical linear ``m*X+n``.
 
     Mirrors ``is_linear`` / ``check_linear`` in ``analyze.cc``: the term must be
@@ -170,19 +168,29 @@ def check_linear(term) -> str | None:
         or mul.operator_type != ast.BinaryOperator.Multiplication
     ):
         return None
-    if not _is_number(term.right):
+    coeff = mul.left
+    const = term.right
+    var = mul.right
+    if (
+        not isinstance(const, ast.TermSymbolic)
+        or const.symbol.type != SymbolType.Number
+    ):
         return None
-    if not _is_number(mul.left) or mul.left.symbol.number == 0:
+    if (
+        not isinstance(coeff, ast.TermSymbolic)
+        or coeff.symbol.type != SymbolType.Number
+        or coeff.symbol.number == 0
+    ):
         return None
-    if not isinstance(mul.right, ast.TermVariable):
+    if not isinstance(var, ast.TermVariable):
         return None
-    return mul.right.name
+    return var.name
 
 
 # --- safety predicate ------------------------------------------------------
 
 
-def is_provided(provided, names) -> bool:
+def is_provided(provided: Container[str], names: Iterable[str]) -> bool:
     """True iff every name in ``names`` is provided.
 
     A name counts as provided if it is in ``provided`` or starts with ``$``

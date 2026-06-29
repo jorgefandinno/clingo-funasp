@@ -13,12 +13,39 @@ equalities), so it cannot be used to feed inputs to this checker.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from functools import singledispatch
+from typing import Any, NamedTuple
 
 from clingo import ast
+from clingo.core import Library
 
 from ._analyze import VariableContext, check_linear, is_provided, select_variables
+
+
+class _DepNode(NamedTuple):
+    """A dependency node produced for one literal.
+
+    Attributes:
+        provide: Variables the literal can bind.
+        depend: Variables that must already be bound.
+        swap: Whether the literal is an equality bound via its right-hand side
+            (and so must be flipped when emitted).
+    """
+
+    provide: list[str]
+    depend: list[str]
+    swap: bool
+
+
+class _PrepNode(NamedTuple):
+    """A :class:`_DepNode` tagged with its source literal index in :func:`_prepare_lits`."""
+
+    node_index: int
+    provide: list[str]
+    depend: list[str]
+    swap: bool
 
 
 class SafetyError(Exception):
@@ -38,7 +65,7 @@ class SafetyResult:
     """
 
     safe: bool
-    statement: object
+    statement: ast.Statement
     unsafe_variables: list[str] = field(default_factory=list)
 
 
@@ -46,7 +73,13 @@ class SafetyResult:
 
 
 @singledispatch
-def _get_dep(term, can_provide: bool, ignore, provide, depend) -> None:
+def _get_dep(
+    term: Any,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     # Conservative fallback for any term kind not special-cased: it can only
     # depend on its variables, never provide them.
     for name in select_variables(term, VariableContext.ALL):
@@ -55,30 +88,60 @@ def _get_dep(term, can_provide: bool, ignore, provide, depend) -> None:
 
 
 @_get_dep.register
-def _(term: ast.TermVariable, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermVariable,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     if term.name not in ignore:
         (provide if can_provide else depend).append(term.name)
 
 
 @_get_dep.register
-def _(term: ast.TermSymbolic, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermSymbolic,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     return None
 
 
 @_get_dep.register
-def _(term: ast.TermAbsolute, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermAbsolute,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     for arg in term.pool:
         _get_dep(arg, False, ignore, provide, depend)
 
 
 @_get_dep.register
-def _(term: ast.TermUnaryOperation, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermUnaryOperation,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     provides = can_provide and term.operator_type == ast.UnaryOperator.Minus
     _get_dep(term.right, provides, ignore, provide, depend)
 
 
 @_get_dep.register
-def _(term: ast.TermBinaryOperation, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermBinaryOperation,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     var = check_linear(term)
     if can_provide and var is not None and var not in ignore:
         provide.append(var)
@@ -88,25 +151,49 @@ def _(term: ast.TermBinaryOperation, can_provide, ignore, provide, depend) -> No
 
 
 @_get_dep.register
-def _(term: ast.TermTuple, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermTuple,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     for elem in term.pool:
         _get_dep(elem, can_provide, ignore, provide, depend)
 
 
 @_get_dep.register
-def _(term: ast.ArgumentTuple, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.ArgumentTuple,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     for arg in term.arguments:
         _get_dep(arg, can_provide, ignore, provide, depend)
 
 
 @_get_dep.register
-def _(term: ast.TermFunction, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermFunction,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     for argtuple in term.pool:
         _get_dep(argtuple, can_provide, ignore, provide, depend)
 
 
 @_get_dep.register
-def _(term: ast.TermFormatString, can_provide, ignore, provide, depend) -> None:
+def _(
+    term: ast.TermFormatString,
+    can_provide: bool,
+    ignore: set[str],
+    provide: list[str],
+    depend: list[str],
+) -> None:
     for fld in term.elements:
         if isinstance(fld, ast.FormatFieldExpression):
             _get_dep(fld.left, False, ignore, provide, depend)
@@ -116,43 +203,53 @@ def _(term: ast.TermFormatString, can_provide, ignore, provide, depend) -> None:
 # --- per-literal dependency nodes (MakeNode) -------------------------------
 
 
-def _globals_in(node, global_set) -> list[str]:
+def _globals_in(node: Any, global_set: set[str]) -> list[str]:
     return [v for v in select_variables(node, VariableContext.ALL) if v in global_set]
 
 
 @singledispatch
-def _make_nodes(lit, can_provide: bool, global_set, bound):
+def _make_nodes(
+    lit: Any, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     """Return a list of ``(provide, depend, swap)`` nodes for ``lit``."""
     raise SafetyError(f"unexpected literal: {type(lit).__name__}")
 
 
 @_make_nodes.register
-def _(lit: ast.BodySimpleLiteral, can_provide, global_set, bound):
+def _(
+    lit: ast.BodySimpleLiteral, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     return _make_nodes(lit.literal, can_provide, global_set, bound)
 
 
 @_make_nodes.register
-def _(lit: ast.LiteralBoolean, can_provide, global_set, bound):
-    return [([], [], False)]
+def _(
+    lit: ast.LiteralBoolean, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
+    return [_DepNode([], [], False)]
 
 
 @_make_nodes.register
-def _(lit: ast.LiteralSymbolic, can_provide, global_set, bound):
+def _(
+    lit: ast.LiteralSymbolic, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     provide: list[str] = []
     depend: list[str] = []
     _get_dep(
         lit.atom, can_provide and lit.sign == ast.Sign.NoSign, bound, provide, depend
     )
-    return [(provide, depend, False)]
+    return [_DepNode(provide, depend, False)]
 
 
 @_make_nodes.register
-def _(lit: ast.LiteralComparison, can_provide, global_set, bound):
+def _(
+    lit: ast.LiteralComparison, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     if len(lit.right) != 1:
         raise SafetyError("comparison must have a single guard (unpool first)")
     relation = lit.right[0].relation
     rhs_term = lit.right[0].term
-    nodes = []
+    nodes: list[_DepNode] = []
 
     def add(lhs_provides: bool, rhs_provides: bool) -> None:
         provide: list[str] = []
@@ -161,7 +258,7 @@ def _(lit: ast.LiteralComparison, can_provide, global_set, bound):
         _get_dep(rhs_term, rhs_provides, bound, provide, depend)
         # suppress the right-binding candidate when it provides nothing
         if not rhs_provides or provide:
-            nodes.append((provide, depend, rhs_provides))
+            nodes.append(_DepNode(provide, depend, rhs_provides))
 
     if relation == ast.Relation.Equal and can_provide:
         add(True, False)
@@ -172,17 +269,26 @@ def _(lit: ast.LiteralComparison, can_provide, global_set, bound):
 
 
 @_make_nodes.register
-def _(lit: ast.BodyConditionalLiteral, can_provide, global_set, bound):
-    return [([], _globals_in(lit, global_set), False)]
+def _(
+    lit: ast.BodyConditionalLiteral,
+    can_provide: bool,
+    global_set: set[str],
+    bound: set[str],
+) -> list[_DepNode]:
+    return [_DepNode([], _globals_in(lit, global_set), False)]
 
 
 @_make_nodes.register
-def _(lit: ast.BodyTheoryAtom, can_provide, global_set, bound):
-    return [([], _globals_in(lit, global_set), False)]
+def _(
+    lit: ast.BodyTheoryAtom, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
+    return [_DepNode([], _globals_in(lit, global_set), False)]
 
 
 @_make_nodes.register
-def _(lit: ast.BodyAggregate, can_provide, global_set, bound):
+def _(
+    lit: ast.BodyAggregate, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     left = lit.left
     right = lit.right
     provides = (
@@ -200,51 +306,63 @@ def _(lit: ast.BodyAggregate, can_provide, global_set, bound):
         _get_dep(right.term, False, bound, provide, depend)
     for elem in lit.elements:
         depend.extend(_globals_in(elem, global_set))
-    return [(provide, depend, False)]
+    return [_DepNode(provide, depend, False)]
 
 
 @_make_nodes.register
-def _(lit: ast.BodySetAggregate, can_provide, global_set, bound):
+def _(
+    lit: ast.BodySetAggregate, can_provide: bool, global_set: set[str], bound: set[str]
+) -> list[_DepNode]:
     raise SafetyError("set aggregate: unpool must be called before safety checking")
 
 
 # --- equality flip ---------------------------------------------------------
 
 
-def _flip_comparison(lib, comp):
+def _flip_comparison(
+    lib: Library, comp: ast.LiteralComparison
+) -> ast.LiteralComparison:
     guard = comp.right[0]
     new_right = [ast.RightGuard(lib, guard.relation, comp.left)]
     return ast.LiteralComparison(lib, comp.location, comp.sign, guard.term, new_right)
 
 
-def _flip(lib, item):
+def _flip(lib: Library, item: Any) -> Any:
     """Flip an equality literal so the binding side is on the left."""
     if isinstance(item, ast.BodySimpleLiteral):
-        return ast.BodySimpleLiteral(lib, _flip_comparison(lib, item.literal))
+        literal = item.literal
+        assert isinstance(literal, ast.LiteralComparison)
+        return ast.BodySimpleLiteral(lib, _flip_comparison(lib, literal))
+    assert isinstance(item, ast.LiteralComparison)
     return _flip_comparison(lib, item)
 
 
 # --- groundable ordering (prepare_lits) ------------------------------------
 
 
-def _prepare_lits(lib, lits, global_set, bound, extra=()):
+def _prepare_lits(
+    lib: Library,
+    lits: Sequence[Any],
+    global_set: set[str],
+    bound: set[str],
+    extra: Iterable[str] = (),
+) -> tuple[list[tuple[int, bool]], set[str], bool]:
     """Order ``lits`` into a groundable sequence.
 
     Returns ``(order, provided, complete)`` where ``order`` is a list of
     ``(index, swap)`` pairs into ``lits`` and ``complete`` is true iff every
     literal could be ordered. Mirrors ``prepare_lits`` in ``safety.cc``.
     """
-    lits = list(lits)
+    items = list(lits)
     provided: set[str] = set(extra)
-    bound = set(bound)
 
-    # build candidate nodes: [src_index, provide, depend, swap]
-    nodes = []
-    for index, lit in enumerate(lits):
-        for provide, depend, swap in _make_nodes(lit, True, global_set, bound):
-            nodes.append([index, provide, depend, swap])
+    # build candidate nodes tagged with their source literal index
+    nodes: list[_PrepNode] = []
+    for index, lit in enumerate(items):
+        for dep in _make_nodes(lit, True, global_set, bound):
+            nodes.append(_PrepNode(index, dep.provide, dep.depend, dep.swap))
 
-    done = [False] * len(lits)
+    done = [False] * len(items)
     order: list[tuple[int, bool]] = []
 
     # fixpoint: repeatedly stable-partition the not-yet-fixed nodes whose whole
@@ -252,31 +370,33 @@ def _prepare_lits(lib, lits, global_set, bound, extra=()):
     start = 0
     while start < len(nodes):
         rest = nodes[start:]
-        front = [nd for nd in rest if is_provided(provided, nd[2])]
-        back = [nd for nd in rest if not is_provided(provided, nd[2])]
+        front = [nd for nd in rest if is_provided(provided, nd.depend)]
+        back = [nd for nd in rest if not is_provided(provided, nd.depend)]
         if not front:
             break  # no progress
         nodes[start:] = front + back
         stop = start + len(front)
-        for index, provide, depend, swap in nodes[start:stop]:
-            if not done[index]:
-                done[index] = True
-                provided.update(provide)
-                order.append((index, swap))
+        for nd in nodes[start:stop]:
+            if not done[nd.node_index]:
+                done[nd.node_index] = True
+                provided.update(nd.provide)
+                order.append((nd.node_index, nd.swap))
         start = stop
 
     return order, provided, all(done)
 
 
-def _reorder(lib, lits, order):
-    lits = list(lits)
-    return [_flip(lib, lits[index]) if swap else lits[index] for index, swap in order]
+def _reorder(
+    lib: Library, lits: Sequence[Any], order: list[tuple[int, bool]]
+) -> list[Any]:
+    items = list(lits)
+    return [_flip(lib, items[index]) if swap else items[index] for index, swap in order]
 
 
 # --- nested local checks (CheckLocal) --------------------------------------
 
 
-def _attr_vars(node, out: set[str]) -> None:
+def _attr_vars(node: Any, out: set[str]) -> None:
     if hasattr(node, "visit"):  # an AST node
         out |= select_variables(node, VariableContext.ALL)
     else:  # a sequence of AST nodes (e.g. an element tuple)
@@ -284,7 +404,13 @@ def _attr_vars(node, out: set[str]) -> None:
             _attr_vars(elem, out)
 
 
-def _handle_element(lib, bound, elem, attr_values, unsafe):
+def _handle_element(
+    lib: Library,
+    bound: set[str],
+    elem: Any,
+    attr_values: Sequence[Any],
+    unsafe: list[str],
+) -> tuple[bool, Any]:
     """Check and reorder a single element condition.
 
     ``attr_values`` are the element's non-condition parts (tuple/literal) which
@@ -298,7 +424,7 @@ def _handle_element(lib, bound, elem, attr_values, unsafe):
     depend = {v for v in depend if v not in bound}
 
     if not complete or not is_provided(provided, depend):
-        local = select_variables(elem, VariableContext.ALL) - set(bound)
+        local = select_variables(elem, VariableContext.ALL) - bound
         unsafe.extend(v for v in local if v not in provided)
         return False, None
 
@@ -306,10 +432,12 @@ def _handle_element(lib, bound, elem, attr_values, unsafe):
     return True, elem.update(lib, condition=new_cond)
 
 
-def _handle_agg_elements(lib, bound, lit, with_literal, unsafe):
-    new_elems = []
+def _handle_agg_elements(
+    lib: Library, bound: set[str], lit: Any, with_literal: bool, unsafe: list[str]
+) -> tuple[bool, Any]:
+    new_elems: list[Any] = []
     for elem in lit.elements:
-        attrs = [elem.tuple]
+        attrs: list[Any] = [elem.tuple]
         if with_literal:
             attrs.append(elem.literal)
         state, new_elem = _handle_element(lib, bound, elem, attrs, unsafe)
@@ -319,7 +447,9 @@ def _handle_agg_elements(lib, bound, lit, with_literal, unsafe):
     return True, lit.update(lib, elements=new_elems)
 
 
-def _check_local(lib, bound, item, unsafe):
+def _check_local(
+    lib: Library, bound: set[str], item: Any, unsafe: list[str]
+) -> tuple[bool, Any]:
     """Check nested element conditions of a body/head literal.
 
     ``bound`` is the set of already-provided (global) variables. Returns
@@ -332,7 +462,7 @@ def _check_local(lib, bound, item, unsafe):
         return _handle_element(lib, bound, item, [item.literal], unsafe)
 
     if isinstance(item, ast.HeadDisjunction):
-        new_elems = []
+        new_elems: list[Any] = []
         for elem in item.elements:
             if isinstance(elem, ast.HeadConditionalLiteral):
                 state, new_elem = _handle_element(
@@ -377,7 +507,9 @@ _TRIVIALLY_SAFE = (
 )
 
 
-def _handle_body(lib, global_set, stm, unsafe, atom=None):
+def _handle_body(
+    lib: Library, global_set: set[str], stm: Any, unsafe: list[str], atom: Any = None
+) -> tuple[bool, list[Any] | None, set[str]]:
     """Order/check the body and recurse into nested scopes.
 
     Returns ``(state, new_body, provided)`` so callers can also check a head.
@@ -389,7 +521,7 @@ def _handle_body(lib, global_set, stm, unsafe, atom=None):
         unsafe.extend(v for v in global_set if v not in provided)
         return False, None, provided
 
-    new_body = []
+    new_body: list[Any] = []
     for item in _reorder(lib, stm.body, order):
         state, new_item = _check_local(lib, provided, item, unsafe)
         if not state:
@@ -399,7 +531,9 @@ def _handle_body(lib, global_set, stm, unsafe, atom=None):
     return True, new_body, provided
 
 
-def _check_global(lib, global_set, stm, unsafe):
+def _check_global(
+    lib: Library, global_set: set[str], stm: Any, unsafe: list[str]
+) -> tuple[bool, Any]:
     if isinstance(stm, ast.StatementRule):
         state, new_body, provided = _handle_body(lib, global_set, stm, unsafe)
         if not state:
@@ -422,13 +556,15 @@ def _check_global(lib, global_set, stm, unsafe):
             ast.StatementEdge,
         ),
     ):
-        state, new_body, _ = _handle_body(lib, global_set, stm, unsafe)
+        state, new_body, _provided = _handle_body(lib, global_set, stm, unsafe)
         if not state:
             return False, None
         return True, stm.update(lib, body=new_body)
 
     if isinstance(stm, (ast.StatementProject, ast.StatementHeuristic)):
-        state, new_body, _ = _handle_body(lib, global_set, stm, unsafe, atom=stm.atom)
+        state, new_body, _provided = _handle_body(
+            lib, global_set, stm, unsafe, atom=stm.atom
+        )
         if not state:
             return False, None
         return True, stm.update(lib, body=new_body)
@@ -439,7 +575,7 @@ def _check_global(lib, global_set, stm, unsafe):
     raise SafetyError(f"unexpected statement: {type(stm).__name__}")
 
 
-def check_safety(lib, stm) -> SafetyResult:
+def check_safety(lib: Library, stm: ast.Statement) -> SafetyResult:
     """Check whether ``stm`` is safe, replicating ``safety.cc``.
 
     Args:
