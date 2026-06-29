@@ -39,7 +39,7 @@ from clingo.symbol import Symbol
 
 from safety import check_safety
 
-from ._atombase import AtomBase, Signature, Window
+from ._atombase import AtomBase, Signature, Window, signature_of
 from ._depend import order_components
 from ._error import GroundError, _Undefined
 from ._literal import match_body, match_literal
@@ -52,9 +52,12 @@ class _Kind(enum.Enum):
     CHOICE = "choice"
 
 
-@dataclass
+@dataclass(eq=False)
 class _Rule:
-    """A safety-checked, reordered rule together with its dependency signatures."""
+    """A safety-checked, reordered rule together with its dependency signatures.
+
+    ``eq=False`` gives identity equality/hashing so rules can key the worklist.
+    """
 
     kind: _Kind
     location: Location
@@ -63,6 +66,23 @@ class _Rule:
     head_sigs: list[Signature]
     body_sigs: list[Signature]
     component: int = -1
+
+
+@dataclass(eq=False)
+class _Instantiator:
+    """One delta rule of a rule, in clingo's sense (``statement.cc`` ``todos_``).
+
+    A *seed* instantiator (``delta is None``) has no recursive literal and runs
+    only in generation 0.  A *delta* instantiator designates ``delta`` as its
+    *new* recursive literal (earlier recursive literals range over old atoms,
+    later over all); it ``watch``es that literal's predicate and is re-queued
+    whenever that predicate gains atoms.
+    """
+
+    rule: _Rule
+    recursive: frozenset[int]
+    delta: int | None
+    watch: Signature | None
 
 
 # --- classification --------------------------------------------------------
@@ -242,68 +262,69 @@ def _join(
         yield from _join(body, index + 1, extension, base, lib, recursive, delta, facts)
 
 
-def _rule_groundings(
-    rule: _Rule,
+def _build_instantiators(
+    rules: list[_Rule], component: frozenset[Signature]
+) -> list[_Instantiator]:
+    """Expand each rule into its delta rules (one instantiator per delta position)."""
+    instantiators: list[_Instantiator] = []
+    for rule in rules:
+        recursive = _recursive_positions(rule.body, component)
+        if not recursive:
+            instantiators.append(_Instantiator(rule, frozenset(), None, None))
+            continue
+        rec_set = frozenset(recursive)
+        for delta in recursive:
+            lit = rule.body[delta]
+            assert isinstance(lit, ast.BodySimpleLiteral)
+            assert isinstance(lit.literal, ast.LiteralSymbolic)
+            watch = atom_signature(lit.literal.atom)
+            instantiators.append(_Instantiator(rule, rec_set, delta, watch))
+    return instantiators
+
+
+def _instantiate(
+    rules: list[_Rule],
     component: frozenset[Signature],
     base: AtomBase,
     lib: Library,
-    gen: int,
     facts: bool,
-) -> Iterator[Assignment]:
-    """Yield the rule's groundings for generation ``gen`` (semi-naive delta rules)."""
-    recursive = _recursive_positions(rule.body, component)
-    if not recursive:
-        # No recursive literal: a seed rule, evaluated once in generation 0.
-        if gen == 0:
-            yield from _join(rule.body, 0, {}, base, lib, frozenset(), None, facts)
-        return
-    rec_set = frozenset(recursive)
-    for delta in recursive:
-        yield from _join(rule.body, 0, {}, base, lib, rec_set, delta, facts)
-
-
-def _domain_fixpoint(
-    rules: list[_Rule], component: frozenset[Signature], base: AtomBase, lib: Library
 ) -> None:
-    """Add every possibly-true atom of ``rules`` to ``base`` (semi-naive, ignoring negation)."""
-    gen = 0
-    while True:
-        base.enter_generation(component, facts=False)
-        changed = False
-        for rule in rules:
-            for asgn in _rule_groundings(rule, component, base, lib, gen, facts=False):
+    """Run the queue-driven semi-naive fixpoint over ``rules``.
+
+    With ``facts`` set this derives *facts* from normal rules (a body trivially
+    true under the current states); otherwise it derives the *domain* (possible
+    atoms, ignoring negation).  An instantiator is re-queued only when a predicate
+    it watches gains atoms -- clingo's ``Queue::propagate`` keyed on the
+    per-literal semi-naive index.
+    """
+    eligible = [r for r in rules if not facts or r.kind == _Kind.NORMAL]
+    instantiators = _build_instantiators(eligible, component)
+    watchers: dict[Signature, list[_Instantiator]] = {}
+    for inst in instantiators:
+        if inst.watch is not None:
+            watchers.setdefault(inst.watch, []).append(inst)
+
+    queue: dict[_Instantiator, None] = dict.fromkeys(instantiators)
+    while queue:
+        base.enter_generation(component, facts=facts)
+        current = list(queue)
+        queue = {}
+        grew: dict[Signature, None] = {}
+        for inst in current:
+            for asgn in _join(
+                inst.rule.body, 0, {}, base, lib, inst.recursive, inst.delta, facts
+            ):
                 try:
-                    atoms = _head_atoms(rule, asgn, lib)
+                    atoms = _head_atoms(inst.rule, asgn, lib)
                 except _Undefined:
                     continue
                 for sym in atoms:
-                    if base.add(sym):
-                        changed = True
-        if not changed:
-            break
-        gen += 1
-
-
-def _fact_fixpoint(
-    rules: list[_Rule], component: frozenset[Signature], base: AtomBase, lib: Library
-) -> None:
-    """Mark as facts the atoms derivable by a normal rule with a trivially-true body."""
-    normal = [rule for rule in rules if rule.kind == _Kind.NORMAL]
-    gen = 0
-    while True:
-        base.enter_generation(component, facts=True)
-        changed = False
-        for rule in normal:
-            for asgn in _rule_groundings(rule, component, base, lib, gen, facts=True):
-                try:
-                    (sym,) = _head_atoms(rule, asgn, lib)
-                except _Undefined:
-                    continue
-                if base.add_fact(sym):
-                    changed = True
-        if not changed:
-            break
-        gen += 1
+                    added = base.add_fact(sym) if facts else base.add(sym)
+                    if added:
+                        grew[signature_of(sym)] = None
+        for sig in grew:
+            for inst in watchers.get(sig, ()):
+                queue[inst] = None
 
 
 # --- output construction ---------------------------------------------------
@@ -452,8 +473,8 @@ def ground(lib: Library, statements: Sequence[ast.Statement]) -> list[ast.Statem
     ]
     comp_sigs = [frozenset(comp) for comp in components]
     for ci, comp_rules in enumerate(by_component):
-        _domain_fixpoint(comp_rules, comp_sigs[ci], base, lib)
-        _fact_fixpoint(comp_rules, comp_sigs[ci], base, lib)
+        _instantiate(comp_rules, comp_sigs[ci], base, lib, facts=False)
+        _instantiate(comp_rules, comp_sigs[ci], base, lib, facts=True)
 
     # Emit once all atom states are final: rules (dependency order), then constraints.
     out: list[ast.Statement] = []

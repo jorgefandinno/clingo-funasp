@@ -99,6 +99,38 @@ def test_exact_negation_simplified() -> None:
     assert grounded.splitlines() == ["even(2).", "q(1).", "q(2).", "odd(1)."]
 
 
+def test_queue_reactivates_selectively(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The instantiator queue re-runs a rule only when a watched predicate grows.
+
+    Seed rules (empty/static body) are instantiated once, in generation 0; the
+    recursive rule is re-activated across generations as ``reach`` grows.  Under a
+    per-generation scheme every rule would run once per generation instead.
+    """
+    import pygringo._ground as engine
+
+    domain_body_lengths: list[int] = []
+    original = engine._join
+
+    def spy(
+        body: object,
+        index: int,
+        *args: object,
+        **kwargs: object,
+    ) -> object:
+        facts = args[-1] if args else kwargs.get("facts")
+        if index == 0 and facts is False:
+            domain_body_lengths.append(len(body))  # type: ignore[arg-type]
+        return original(body, index, *args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(engine, "_join", spy)
+    ground_program("reach(a). edge(a,b). edge(b,c). reach(Y) :- reach(X), edge(X,Y).")
+
+    # Three seed rules (reach(a)., edge(a,b)., edge(b,c).) each instantiated once.
+    assert domain_body_lengths.count(0) == 3
+    # The recursive rule (body length 2) is re-activated across several generations.
+    assert domain_body_lengths.count(2) >= 2
+
+
 def _statements(lib: Library, program: str) -> list[ast.Statement]:
     out: list[ast.Statement] = []
     ast.parse_string(lib, program, out.append)

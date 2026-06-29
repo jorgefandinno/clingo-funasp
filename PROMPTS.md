@@ -118,7 +118,33 @@ I also updated the README and module docstrings — semi-naive is no longer desc
 
 One honest caveat on fidelity: this is the textbook delta-rule formulation of semi-naive, which matches lib/ground's generation semantics, but not its exact machinery — clingo uses per-literal semi-naive indices with an instantiator queue that re-activates rules per newly-derived atom, whereas pygringo re-evaluates each component's rules once per generation. Same asymptotic benefit (joins touch only the delta), simpler control flow.
 
+## Request
 
+Implement per-literal semi-naive indices with an instantiator queue that re-activates rules per newly-derived atom as clingo does.
+
+
+## Answer
+
+- _Instantiator (new, @dataclass(eq=False)) — one delta rule per recursive literal, exactly clingo's statement.cc todos_ decomposition. A seed instantiator (delta=None) has no recursive literal and runs only in generation 0; a delta instantiator designates one recursive literal as NEW (earlier→OLD, later→ALL, via the existing _window_for) and watches that literal's predicate. _Rule is now eq=False too, so both can key the worklist.
+- _build_instantiators expands each rule into its delta rules and records each delta instantiator's watched signature.
+- _instantiate — a single queue-driven engine replacing the two for rule in rules generation loops:
+  - all instantiators enqueued for generation 0 (clingo's "enqueue all initially");
+  - each generation runs only the queued instantiators, then propagates: a predicate that gained atoms re-enqueues exactly the instantiators watching it (clingo's Queue::propagate(index) keyed on the per-literal semi-naive index = the delta predicate);
+  - drives both the domain phase and the fact phase via the facts flag.
+
+_atombase.py, _literal.py, _depend.py, _term.py are untouched — the generation windows and negation/fact handling are reused unchanged.
+
+Why it's correct
+
+This is a sound optimization of the already-tested generation version: a delta instantiator that isn't queued in a generation has an empty NEW window, so it would derive nothing — skipping it changes nothing. The differential tests are the guard.
+
+Verified
+
+- 59 tests pass (random hash seed), including all differential cases (stratified/non-stratified negation, recursion, transitive closure, cycles, choice); mypy --strict clean; isort/black clean; 33 safety tests still pass.
+- Delta property preserved: on a length-12 transitive-closure chain the NEW(t) windows are 12,11,…,1, summing to 78 — each atom consumed as new once.
+- Selective re-activation locked in by a new test (test_queue_reactivates_selectively): for reach(a). edge(a,b). edge(b,c). reach(Y):-reach(X),edge(X,Y). the three seed rules are each instantiated exactly once while the recursive rule re-activates across generations — under the old per-generation scheme the seed counts would have been higher.
+
+This is now faithful to clingo's scheduling: per-literal indices + a queue that re-activates a rule only when a predicate it reads gains atoms, with a single priority queue (sufficient for the supported normal/constraint/choice rules).
 ---
 
 Incorporate support for aggregtes in `pygringo` using the code in `lib/ground` as guide.
