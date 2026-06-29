@@ -9,11 +9,16 @@ mirrors the C++ grounder at a high level:
    ``X = lo..hi`` comparisons) -- the precondition the ``safety`` pilot assumes;
 2. **check safety** and obtain the body in *groundable order* via
    :func:`safety.check_safety`;
-3. **stratify** the predicates into dependency components (:mod:`._depend`);
-4. **instantiate** each component with a bottom-up fixpoint, joining body
-   literals over the :class:`AtomBase` (:mod:`._literal`) and emitting the ground
-   rules;
-5. ground the integrity **constraints** over the completed atom base.
+3. group the predicates into dependency **components** (:mod:`._depend`);
+4. per component, run a **domain** fixpoint (possible atoms, ignoring negation)
+   then a **fact** fixpoint (atoms derived by a trivially-true body);
+5. **emit** the ground program, simplifying body literals from the atom states.
+
+Negation -- including recursion through negation -- is supported: following
+``lib/ground``'s ``NonFactMatcher`` / ``StateAtom``, a negative literal does not
+bind variables or restrict the domain; at emit time a negated atom that is a fact
+kills the rule, one that is not in the domain is dropped (trivially true), and an
+otherwise possible one is kept for the solver.
 
 Scope (core milestone): normal rules, integrity constraints and plain choice
 rules (``{ ... }`` without bounds or conditional elements).  Aggregates with
@@ -56,7 +61,7 @@ class _Rule:
     head: ast.HeadLiteral
     body: list[ast.BodyLiteral]
     head_sigs: list[Signature]
-    body_sigs: list[tuple[Signature, bool]]
+    body_sigs: list[Signature]
     component: int = -1
 
 
@@ -70,12 +75,12 @@ def _simple_literal(blit: ast.BodyLiteral) -> ast.Literal:
     return blit.literal
 
 
-def _body_signatures(body: Sequence[ast.BodyLiteral]) -> list[tuple[Signature, bool]]:
-    sigs: list[tuple[Signature, bool]] = []
+def _body_signatures(body: Sequence[ast.BodyLiteral]) -> list[Signature]:
+    sigs: list[Signature] = []
     for blit in body:
         lit = _simple_literal(blit)
         if isinstance(lit, ast.LiteralSymbolic):
-            sigs.append((atom_signature(lit.atom), lit.sign != ast.Sign.NoSign))
+            sigs.append(atom_signature(lit.atom))
     return sigs
 
 
@@ -112,6 +117,96 @@ def _classify(stm: ast.StatementRule) -> _Rule:
     raise GroundError(f"unsupported rule head: {type(head).__name__}")
 
 
+# --- head atoms ------------------------------------------------------------
+
+
+def _head_atoms(rule: _Rule, asgn: Assignment, lib: Library) -> list[Symbol]:
+    """Evaluate the ground atoms a rule derives under ``asgn`` (empty for constraints).
+
+    May raise :class:`_Undefined` if head arithmetic is undefined.
+    """
+    if rule.kind == _Kind.NORMAL:
+        assert isinstance(rule.head, ast.HeadSimpleLiteral)
+        assert isinstance(rule.head.literal, ast.LiteralSymbolic)
+        sym = eval_term(rule.head.literal.atom, asgn, lib)
+        assert sym is not None
+        return [sym]
+    if rule.kind == _Kind.CHOICE:
+        assert isinstance(rule.head, ast.HeadAggregate)
+        atoms: list[Symbol] = []
+        for elem in rule.head.elements:
+            assert isinstance(elem.literal, ast.LiteralSymbolic)
+            sym = eval_term(elem.literal.atom, asgn, lib)
+            assert sym is not None
+            atoms.append(sym)
+        return atoms
+    return []
+
+
+# --- domain and fact fixpoints ---------------------------------------------
+
+
+def _domain_fixpoint(rules: list[_Rule], base: AtomBase, lib: Library) -> None:
+    """Add every possibly-true atom of ``rules`` to ``base`` (ignoring negation)."""
+    changed = True
+    while changed:
+        changed = False
+        for rule in rules:
+            for asgn in match_body(rule.body, {}, base, lib):
+                try:
+                    atoms = _head_atoms(rule, asgn, lib)
+                except _Undefined:
+                    continue
+                for sym in atoms:
+                    if base.add(sym):
+                        changed = True
+
+
+def _body_is_fact_true(
+    rule: _Rule, asgn: Assignment, base: AtomBase, lib: Library
+) -> bool:
+    """True iff the matched body is trivially true (so a normal head is a fact).
+
+    A positive atom must be a fact; a (single) negated atom must be impossible
+    (not in the domain); comparisons/booleans already held during matching.
+    Double negation is treated conservatively as non-trivial.
+    """
+    for blit in rule.body:
+        lit = _simple_literal(blit)
+        if not isinstance(lit, ast.LiteralSymbolic):
+            continue
+        sym = eval_term(lit.atom, asgn, lib)
+        assert sym is not None
+        if lit.sign == ast.Sign.NoSign:
+            if not base.is_fact(sym):
+                return False
+        elif lit.sign == ast.Sign.Single:
+            if base.is_possible(sym):
+                return False
+        else:  # Sign.Double: keep conservatively
+            return False
+    return True
+
+
+def _fact_fixpoint(rules: list[_Rule], base: AtomBase, lib: Library) -> None:
+    """Mark as facts the atoms derivable by a normal rule with a trivially-true body."""
+    changed = True
+    while changed:
+        changed = False
+        for rule in rules:
+            if rule.kind != _Kind.NORMAL:
+                continue
+            for asgn in match_body(rule.body, {}, base, lib):
+                if not _body_is_fact_true(rule, asgn, base, lib):
+                    continue
+                try:
+                    (sym,) = _head_atoms(rule, asgn, lib)
+                except _Undefined:
+                    continue
+                if base.add_fact(sym):
+                    changed = True
+
+
 # --- output construction ---------------------------------------------------
 
 
@@ -121,93 +216,81 @@ def _symbol_literal(
     return ast.LiteralSymbolic(lib, loc, sign, ast.TermSymbolic(lib, loc, sym))
 
 
-def _ground_body(rule: _Rule, asgn: Assignment, lib: Library) -> list[ast.BodyLiteral]:
-    """Render the matched body as ground symbolic literals.
+def _build_body(
+    rule: _Rule, asgn: Assignment, base: AtomBase, lib: Library
+) -> list[ast.BodyLiteral] | None:
+    """Render the matched body as ground literals, simplifying from atom states.
 
-    Comparisons and boolean literals are dropped: they were verified during
-    matching, so the surviving rule instance only carries its (ground) atoms.
+    Returns ``None`` if the rule is killed (a negated atom is a fact).  Positive
+    facts and impossible negative literals are dropped (trivially true);
+    comparisons/booleans are dropped (verified during matching).
     """
+    loc = rule.location
     out: list[ast.BodyLiteral] = []
     for blit in rule.body:
         lit = _simple_literal(blit)
-        if isinstance(lit, ast.LiteralSymbolic):
-            sym = eval_term(lit.atom, asgn, lib)
-            assert sym is not None  # body variables are bound after a full match
-            out.append(
-                ast.BodySimpleLiteral(
-                    lib, _symbol_literal(lib, rule.location, sym, lit.sign)
-                )
-            )
+        if not isinstance(lit, ast.LiteralSymbolic):
+            continue
+        sym = eval_term(lit.atom, asgn, lib)
+        assert sym is not None
+        if lit.sign == ast.Sign.NoSign:
+            if base.is_fact(sym):
+                continue  # trivially true
+        elif lit.sign == ast.Sign.Single:
+            if base.is_fact(sym):
+                return None  # body is false; the rule is deleted
+            if not base.is_possible(sym):
+                continue  # trivially true
+        out.append(ast.BodySimpleLiteral(lib, _symbol_literal(lib, loc, sym, lit.sign)))
     return out
 
 
-def _emit_normal(
-    rule: _Rule,
-    asgn: Assignment,
-    base: AtomBase,
-    lib: Library,
-    out: list[ast.Statement],
-    seen: set[str],
-) -> bool:
-    assert isinstance(rule.head, ast.HeadSimpleLiteral)
-    assert isinstance(rule.head.literal, ast.LiteralSymbolic)
-    sym = eval_term(rule.head.literal.atom, asgn, lib)
-    assert sym is not None
-    is_new = base.add(sym)
-    head = ast.HeadSimpleLiteral(
-        lib, _symbol_literal(lib, rule.location, sym, ast.Sign.NoSign)
-    )
-    stm = ast.StatementRule(lib, rule.location, head, _ground_body(rule, asgn, lib))
-    _record(stm, out, seen)
-    return is_new
-
-
-def _emit_choice(
-    rule: _Rule,
-    asgn: Assignment,
-    base: AtomBase,
-    lib: Library,
-    out: list[ast.Statement],
-    seen: set[str],
-) -> bool:
-    assert isinstance(rule.head, ast.HeadAggregate)
+def _build_ground(
+    rule: _Rule, asgn: Assignment, base: AtomBase, lib: Library
+) -> ast.Statement | None:
+    """Build the ground statement for one matched instance, or ``None`` if killed."""
+    body = _build_body(rule, asgn, base, lib)
+    if body is None:
+        return None
     loc = rule.location
+
+    if rule.kind == _Kind.CONSTRAINT:
+        return ast.StatementRule(lib, loc, rule.head, body)
+
+    if rule.kind == _Kind.NORMAL:
+        (sym,) = _head_atoms(rule, asgn, lib)
+        head = ast.HeadSimpleLiteral(
+            lib, _symbol_literal(lib, loc, sym, ast.Sign.NoSign)
+        )
+        return ast.StatementRule(lib, loc, head, body)
+
+    # choice
+    assert isinstance(rule.head, ast.HeadAggregate)
     elements: list[ast.HeadAggregateElement] = []
-    is_new = False
-    for elem in rule.head.elements:
-        assert isinstance(elem.literal, ast.LiteralSymbolic)
-        sym = eval_term(elem.literal.atom, asgn, lib)
-        assert sym is not None
-        is_new = base.add(sym) or is_new
+    for sym in _head_atoms(rule, asgn, lib):
         term = ast.TermSymbolic(lib, loc, sym)
         literal = ast.LiteralSymbolic(lib, loc, ast.Sign.NoSign, term)
         elements.append(ast.HeadAggregateElement(lib, loc, [term], literal, []))
     head = ast.HeadAggregate(
         lib, loc, None, ast.AggregateFunction.Count, elements, None
     )
-    stm = ast.StatementRule(lib, loc, head, _ground_body(rule, asgn, lib))
-    _record(stm, out, seen)
-    return is_new
+    return ast.StatementRule(lib, loc, head, body)
 
 
-def _emit_constraint(
-    rule: _Rule,
-    asgn: Assignment,
-    lib: Library,
-    out: list[ast.Statement],
-    seen: set[str],
+def _emit(
+    rule: _Rule, base: AtomBase, lib: Library, out: list[ast.Statement], seen: set[str]
 ) -> None:
-    stm = ast.StatementRule(
-        lib, rule.location, rule.head, _ground_body(rule, asgn, lib)
-    )
-    _record(stm, out, seen)
-
-
-def _record(stm: ast.Statement, out: list[ast.Statement], seen: set[str]) -> None:
-    key = str(stm)
-    if key not in seen:
-        seen.add(key)
-        out.append(stm)
+    for asgn in match_body(rule.body, {}, base, lib):
+        try:
+            stm = _build_ground(rule, asgn, base, lib)
+        except _Undefined:
+            continue
+        if stm is None:
+            continue
+        key = str(stm)
+        if key not in seen:
+            seen.add(key)
+            out.append(stm)
 
 
 # --- driver ----------------------------------------------------------------
@@ -246,48 +329,39 @@ def ground(lib: Library, statements: Sequence[ast.Statement]) -> list[ast.Statem
             rule = _classify(result.statement)
             (constraints if rule.kind == _Kind.CONSTRAINT else rules).append(rule)
 
-    # Dependency components over predicate signatures.
-    nodes: set[Signature] = set()
-    edges: list[tuple[Signature, Signature, bool]] = []
+    # Dependency components over predicate signatures (negative cycles allowed).
+    # Nodes are kept in first-seen order so component order -- and hence the output
+    # order -- is deterministic for a given input, independent of hash seeding.
+    nodes: dict[Signature, None] = {}
+    edges: list[tuple[Signature, Signature]] = []
     for rule in rules:
-        nodes.update(rule.head_sigs)
-        for sig, _ in rule.body_sigs:
-            nodes.add(sig)
+        for sig in (*rule.head_sigs, *rule.body_sigs):
+            nodes.setdefault(sig, None)
         for head_sig in rule.head_sigs:
-            for sig, negative in rule.body_sigs:
-                edges.append((sig, head_sig, negative))
+            for sig in rule.body_sigs:
+                edges.append((sig, head_sig))
 
     components = order_components(nodes, edges)
     comp_index = {sig: i for i, comp in enumerate(components) for sig in comp}
     for rule in rules:
         rule.component = max((comp_index[s] for s in rule.head_sigs), default=0)
 
-    # Bottom-up fixpoint, component by component.
+    # Per component (dependency order): domain fixpoint, then fact fixpoint.
     base = AtomBase()
+    by_component = [
+        [r for r in rules if r.component == ci] for ci in range(len(components))
+    ]
+    for comp_rules in by_component:
+        _domain_fixpoint(comp_rules, base, lib)
+        _fact_fixpoint(comp_rules, base, lib)
+
+    # Emit once all atom states are final: rules (dependency order), then constraints.
     out: list[ast.Statement] = []
     seen: set[str] = set()
-    for ci in range(len(components)):
-        comp_rules = [r for r in rules if r.component == ci]
-        changed = True
-        while changed:
-            changed = False
-            for rule in comp_rules:
-                for asgn in match_body(rule.body, {}, base, lib):
-                    try:
-                        if rule.kind == _Kind.NORMAL:
-                            new = _emit_normal(rule, asgn, base, lib, out, seen)
-                        else:
-                            new = _emit_choice(rule, asgn, base, lib, out, seen)
-                    except _Undefined:
-                        continue
-                    changed = changed or new
-
-    # Constraints derive nothing; ground them once over the completed base.
+    for comp_rules in by_component:
+        for rule in comp_rules:
+            _emit(rule, base, lib, out, seen)
     for rule in constraints:
-        for asgn in match_body(rule.body, {}, base, lib):
-            try:
-                _emit_constraint(rule, asgn, lib, out, seen)
-            except _Undefined:
-                continue
+        _emit(rule, base, lib, out, seen)
 
     return out

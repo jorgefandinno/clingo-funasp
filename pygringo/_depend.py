@@ -2,11 +2,9 @@
 
 A small, self-contained analogue of the component computation the C++ grounder
 performs before instantiation (``program.hh``'s ``Component``).  Predicates that
-depend on one another cyclically form a component that must be grounded together
-by a fixpoint; components are returned in an order where every dependency is
-grounded before the predicates that use it.  Recursion through negation is
-rejected (the program is not stratified), which is out of scope for the core
-milestone.
+depend on one another cyclically -- including through negation -- form a component
+that must be grounded together by a fixpoint; components are returned in an order
+where every dependency is grounded before the predicates that use it.
 """
 
 from __future__ import annotations
@@ -14,34 +12,31 @@ from __future__ import annotations
 from collections.abc import Hashable, Iterable
 from typing import TypeVar
 
-from ._error import GroundError
-
 T = TypeVar("T", bound=Hashable)
 
 
 def order_components(
     nodes: Iterable[T],
-    edges: Iterable[tuple[T, T, bool]],
+    edges: Iterable[tuple[T, T]],
 ) -> list[list[T]]:
     """Group ``nodes`` into strongly-connected components in evaluation order.
 
-    Each edge ``(src, dst, negative)`` means *dst depends on src*, so ``src``
-    must be grounded before ``dst``; ``negative`` marks dependency through
-    negation.  Returns the components as lists, ordered so that dependencies come
-    first.  Raises :class:`GroundError` if any component contains a negative edge
-    (recursion through negation).
+    Each edge ``(src, dst)`` means *dst depends on src*, so ``src`` must be
+    grounded before ``dst``.  Returns the components as lists, ordered so that
+    dependencies come first.  Negative dependencies (recursion through negation)
+    are not special-cased here: such cycles simply form one component, grounded
+    together by a fixpoint.
     """
     adj: dict[T, list[T]] = {n: [] for n in nodes}
     edge_list = list(edges)
-    for src, dst, _ in edge_list:
+    for src, dst in edge_list:
         adj.setdefault(src, [])
         adj.setdefault(dst, [])
-    for src, dst, _ in edge_list:
+    for src, dst in edge_list:
         adj[src].append(dst)
 
     index: dict[T, int] = {}
     low: dict[T, int] = {}
-    comp_of: dict[T, int] = {}
     on_stack: set[T] = set()
     stack: list[T] = []
     comps: list[list[T]] = []
@@ -72,7 +67,6 @@ def order_components(
                     while True:
                         w = stack.pop()
                         on_stack.discard(w)
-                        comp_of[w] = len(comps)
                         comp.append(w)
                         if w == node:
                             break
@@ -81,10 +75,6 @@ def order_components(
                 if work:
                     parent = work[-1][0]
                     low[parent] = min(low[parent], low[node])
-
-    for src, dst, negative in edge_list:
-        if negative and comp_of[src] == comp_of[dst]:
-            raise GroundError("recursion through negation is not supported")
 
     # Tarjan closes components in reverse topological order (sinks first); we
     # want dependencies (sources) first.

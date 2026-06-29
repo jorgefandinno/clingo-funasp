@@ -52,21 +52,20 @@ def _(
     atom = lit.atom
     name, arity, positive = atom_signature(atom)
     if lit.sign == ast.Sign.NoSign:
-        # Positive: join against every derived atom with a matching signature.
+        # Positive: join against every domain atom with a matching signature.
         for sym in base.by_signature(name, arity, positive):
             candidate = dict(asgn)
             if match_term(atom, sym, candidate, lib):
                 yield candidate
         return
-    # Negative (single or double negation): the atom must be fully bound; it
-    # holds iff it has not been derived (the defining stratum is complete).
+    # Negative literals never bind variables (safety guarantees they are bound by
+    # earlier positive literals); here we only enumerate, confirming the atom is
+    # ground and yielding once.  Whether the literal is kept, dropped or kills the
+    # rule is decided later from the atom's fact/domain state (see ``_ground``).
     sym = eval_term(atom, asgn, lib)
     if sym is None:
         raise GroundError(f"unbound variable in negative literal: {lit}")
-    present = base.contains(sym)
-    holds = present if lit.sign == ast.Sign.Double else not present
-    if holds:
-        yield asgn
+    yield asgn
 
 
 @match_literal.register

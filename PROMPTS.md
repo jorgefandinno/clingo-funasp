@@ -48,3 +48,43 @@ Two things worth flagging for the next phase:
 - Output is correct but unsimplified — matched comparisons/intervals are dropped, but true facts aren't propagated out of bodies the way clingo's grounder does (answer sets are identical, which is what the tests assert).
 - Choice rules round-trip through clingo's #count-as-choice representation; bounded/conditional aggregates were deliberately deferred as they need the full aggregate machinery.
 
+
+---
+
+## Request
+
+Incorporate support for non-stratified negation in `pygringo` using the code in `lib/ground` as guide.
+
+## Answer
+
+What changed
+
+Following lib/ground's NonFactMatcher / StateAtom design, negation is now gated on fact-vs-derived state rather than mere presence, which both adds recursion-through-negation support and fixes a latent bug.
+
+- _atombase.py — atoms now carry state: a possible (domain) set plus a facts subset (add, add_fact, is_possible, is_fact), mirroring StateAtom { fact, derived, unknown }.
+- _depend.py — no longer rejects negative cycles; they simply form one component (the negative edge flag is gone).
+- _literal.py — the negative-literal matcher is now pure enumeration (bind-check + yield); semantic decisions moved to the emitter.
+- _ground.py — restructured into three phases per component, in dependency order, which avoids the fact-ordering hazard:
+  a. domain fixpoint — possible atoms, ignoring negation (negatives don't bind or restrict the domain);
+  b. fact fixpoint — atoms derived by a trivially-true normal-rule body become facts;
+  c. emit — simplify each body literal from final atom states: positive fact → drop; negated fact → delete rule; negated impossible → drop (trivially true); otherwise keep for the solver. Node ordering is now first-seen (deterministic output regardless of hash seed).
+- README updated; new tests/test_atombase.py; differential corpus extended with non-stratified cases.
+
+Behaviour
+
+The previously-confirmed bug is fixed — {a}. b :- not a. now yields {a},{b} — and genuine non-stratified programs work: p :- not q. q :- not p. → {p},{q}; p :- not p. → no answer set. Output is also now properly simplified (facts propagate, dead rules removed): q(1). q(2). p(X):-q(X). grounds to q(1). q(2). p(1). p(2)..
+
+Verification — all green
+
+pytest pygringo/tests            58 passed  (PYTHONHASHSEED=random)
+mypy --strict --local-partial-types --allow-redefinition-new pygringo   clean
+pytest safety/tests              33 passed  (no regression; mypy clean)
+isort --profile black / black    clean
+
+Primary correctness is still the differential oracle: every program — stratified and non-stratified — grounds to a program whose clingo answer sets exactly match clingo's own ground()+solve().
+
+One follow-up worth noting: double negation (not not a) is handled conservatively (kept, never proved fact-true), which is sound but less simplified — a natural next refinement alongside semi-naive generations.
+
+---
+
+Incorporate support for aggregtes in `pygringo` using the code in `lib/ground` as guide.

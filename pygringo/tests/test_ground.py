@@ -49,6 +49,18 @@ DIFFERENTIAL_PROGRAMS = [
     "q(1..3). p(2). :- q(X), not p(X), X>1.",
     # multiple strata
     "a(1..3). b(X) :- a(X), not c(X). c(2). d(X) :- b(X), X>1.",
+    # negation against a possibly-true (choice) atom -- the regression case
+    "{a}. b :- not a.",
+    "{ q(X) } :- dom(X). dom(1..2). p(X) :- dom(X), not q(X).",
+    # non-stratified negation (recursion through negation)
+    "p :- not q. q :- not p.",
+    "a. p :- not q. q :- not p.",
+    "p :- not q. q :- not p. r :- p. r :- q.",
+    "p :- not p.",  # no answer set
+    # even/odd loop through negation
+    "n(1..4). even(X) :- n(X), not odd(X). odd(X) :- n(X), not even(X).",
+    # non-stratified negation combined with a constraint
+    "{a;b}. p :- not q. q :- not p. :- p, a. :- q, b.",
 ]
 
 
@@ -58,13 +70,10 @@ def test_differential(program: str) -> None:
 
 
 def test_exact_projection() -> None:
+    # Positive body atoms that are facts are dropped, so derived atoms whose body
+    # is trivially true become facts themselves.
     grounded = ground_program("q(1). q(2). p(X) :- q(X).")
-    assert grounded.splitlines() == [
-        "q(1).",
-        "q(2).",
-        "p(1) :- q(1).",
-        "p(2) :- q(2).",
-    ]
+    assert grounded.splitlines() == ["q(1).", "q(2).", "p(1).", "p(2)."]
 
 
 def test_exact_interval() -> None:
@@ -74,7 +83,20 @@ def test_exact_interval() -> None:
 
 def test_exact_arithmetic() -> None:
     grounded = ground_program("num(2). twice(X+X) :- num(X).")
-    assert grounded.splitlines() == ["num(2).", "twice(4) :- num(2)."]
+    assert grounded.splitlines() == ["num(2).", "twice(4)."]
+
+
+def test_exact_negation_kept_for_possible_atom() -> None:
+    # `a` is only possibly true (a choice atom), so `not a` is kept for the solver.
+    grounded = ground_program("{a}. b :- not a.")
+    assert grounded.splitlines() == ["#count { a: a }.", "b :- not a."]
+
+
+def test_exact_negation_simplified() -> None:
+    # `not even(2)` kills odd(2) (even(2) is a fact); `not even(1)` is dropped as
+    # trivially true (even(1) is not in the domain), so odd(1) becomes a fact.
+    grounded = ground_program("q(1..2). even(2). odd(X) :- q(X), not even(X).")
+    assert grounded.splitlines() == ["even(2).", "q(1).", "q(2).", "odd(1)."]
 
 
 def _statements(lib: Library, program: str) -> list[ast.Statement]:
@@ -103,7 +125,6 @@ def test_unsafe_raises(program: str) -> None:
         "1 { a; b } 2.",  # bounded aggregate
         "#minimize { 1 : a }.",  # optimize
         "{ p(X) : q(X) } :- r(X).",  # conditional choice element
-        "p :- not q. q :- not p.",  # recursion through negation
     ],
 )
 def test_unsupported_raises(program: str) -> None:

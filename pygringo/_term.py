@@ -274,9 +274,9 @@ def _match_value(term: ast.Term, sym: Symbol, asgn: Assignment, lib: Library) ->
     if value is not None:
         return bool(value == sym)
 
-    from safety import (
+    from safety import (  # noqa: PLC0415  (avoid import cycle at module load)
         check_linear,
-    )  # noqa: PLC0415  (avoid import cycle at module load)
+    )
 
     name = check_linear(term)
     if name is None or name in asgn:
