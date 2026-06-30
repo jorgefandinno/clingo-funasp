@@ -220,4 +220,30 @@ The key correctness property: the reorder only changes how a body join is evalua
 
 ---
 
+Done. The AssignmentAnalyzer back-substitution factor is now ported into pygringo's matcher reordering.
+
+What changed (all in pygringo/_order.py + docs)
+
+AssignmentAnalyzer class — a faithful port of lib/ground/src/statement.cc:13, over variable names with a plain fixpoint (bodies are tiny) instead of the C++ watched-variable scheme:
+- add(need, gives) — registers a literal with swapped edges (need = its provided vars, gives = its dependencies). A literal that provides nothing seeds its dependencies into the base.
+- propagate(provide) — returns the variables back-substituted once provide is bound (knowing an equality's outputs determines its inputs).
+- backtrack() — undoes the last propagate; the seeded base persists.
+
+linearize — builds the analyzer once from the swapped deps, precomputes extra[i] per literal (constant, since the analyzer base is independent of greedy progress — a key fact from the C++), and scales only generating scores: s = raw * (1 + extra[i]). The new-atoms tie rule and everything else are unchanged.
+
+Docs — matcher-ordering.md and the _order.py docstring now describe the factor as ported.
+
+A notable finding
+
+The factor is faithful but largely inert on pygringo's actual input: rewrite_statement inlines equalities and seeds interval variables via bound-check comparisons (X>=1), so few back-substitution edges survive — and C++ would seed identically. I documented this rather than hiding it.
+
+Verification
+
+- 124 passed (4 new) — crucially the entire pre-existing suite is unchanged, confirming the factor alters only evaluation order, never output.
+- mypy --strict clean.
+- New tests prove the mechanism directly (back-substitution propagate({Z})=={X,Y}, input doesn't fire it, seeding excludes base vars, multi-hop cascade) and that the factor flips linearize's choice (demotes an equality-feeding matcher past an equal-sized one).
+- black/isort clean.
+
+---
+
 Incorporate support for aggregtes in `pygringo` using the code in `lib/ground` as guide.

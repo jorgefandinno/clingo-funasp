@@ -8,7 +8,7 @@ from clingo.symbol import Function, Number
 
 import pygringo._ground as engine
 from pygringo._atombase import AtomBase
-from pygringo._order import _term_score, linearize
+from pygringo._order import AssignmentAnalyzer, _term_score, linearize
 from safety import check_safety
 
 
@@ -81,3 +81,55 @@ def test_order_is_a_permutation() -> None:
     base = AtomBase()
     order = linearize(rule.body, rule.deps, None, base)
     assert sorted(order) == list(range(len(rule.body)))
+
+
+def test_assignment_analyzer_back_substitution() -> None:
+    # An equality providing Z and depending on X, Y: knowing Z back-substitutes
+    # X and Y; knowing an input (X) does not fire the node.
+    an = AssignmentAnalyzer()
+    an.add({"Z"}, {"X", "Y"})
+    assert an.propagate({"Z"}) == {"X", "Y"}
+    an.backtrack()
+    assert an.propagate({"X"}) == set()
+    an.backtrack()
+
+
+def test_assignment_analyzer_seeding() -> None:
+    # A literal that provides nothing (a filter) seeds its dependencies into the
+    # base, so they never count as "extra" for any candidate.
+    an = AssignmentAnalyzer()
+    an.add(frozenset(), {"X"})  # e.g. a comparison depending on X
+    an.add({"Z"}, {"X", "Y"})
+    assert an.propagate({"Z"}) == {"Y"}
+
+
+def test_assignment_analyzer_multi_hop() -> None:
+    # Back-substitution cascades: Z -> Y -> X.
+    an = AssignmentAnalyzer()
+    an.add({"Z"}, {"Y"})
+    an.add({"Y"}, {"X"})
+    assert an.propagate({"Z"}) == {"X", "Y"}
+
+
+def test_factor_demotes_equality_feeder() -> None:
+    # Two equally sized generating atoms a(X), b(Y); a third literal is an equality
+    # node X -> W (providing X fixes W by back-substitution).  The factor scales
+    # a(X)'s estimate by 1+|{W}| = 2, so b(Y) is matched first even though a(X)
+    # comes earlier (an exact size tie would otherwise pick the lower index).
+    lib = Library()
+    statements: list[ast.Statement] = []
+    ast.parse_string(lib, "q :- a(X), b(Y), c(W).", statements.append)
+    rule = next(s for s in statements if isinstance(s, ast.StatementRule))
+    body = list(rule.body)
+    deps = [
+        (frozenset({"X"}), frozenset()),  # a(X): generating, provides X
+        (frozenset({"Y"}), frozenset()),  # b(Y): generating, provides Y
+        (frozenset({"X"}), frozenset({"W"})),  # equality node: X bound -> W
+    ]
+    base = AtomBase()
+    for i in range(20):
+        base.add(Function(lib, "a", [Number(lib, i)]))
+        base.add(Function(lib, "b", [Number(lib, i)]))
+
+    order = linearize(body, deps, None, base)
+    assert "b(Y)" in str(body[order[0]])

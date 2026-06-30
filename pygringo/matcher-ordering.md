@@ -144,13 +144,16 @@ join results as small as the heuristic can manage.
 
 ### Relation to pygringo
 
-pygringo ports the **core** of this algorithm in `pygringo/_order.py`
-(`linearize`), wired into the fixpoint via `_build_instantiators` / `_join` in
-`pygringo/_ground.py`. The `safety` pilot supplies the readiness half — it orders
-the body for *groundability* and now exposes per-literal `(provide, depend)` via
+pygringo ports this algorithm in `pygringo/_order.py` (`linearize`), wired into
+the fixpoint via `_build_instantiators` / `_join` in `pygringo/_ground.py`. The
+`safety` pilot supplies the readiness half — it orders the body for
+*groundability* and exposes per-literal `(provide, depend)` via
 `safety.literal_dependencies` — and `_order.py` adds the cost model: the ported
-`Term::score`/`Lit::score` (`_term_score`/`_literal_score`) and the greedy
-min-cost selection with the semi-naive new-atoms tie rule. The
-`AssignmentAnalyzer` back-substitution factor is intentionally **not** ported.
-Reordering changes only the join's evaluation, never its result, so ground output
-is unchanged. See [[pygringo-lean-on-rewrite-and-safety]].
+`Term::score`/`Lit::score` (`_term_score`/`_literal_score`), the greedy min-cost
+selection with the semi-naive new-atoms tie rule, and the `AssignmentAnalyzer`
+back-substitution factor (the `AssignmentAnalyzer` class; its `extra` per literal
+is constant, so it is precomputed once per body). Note the factor is largely
+*inert* on pygringo's input: `rewrite_statement` inlines equalities and seeds
+interval variables with bound-check comparisons, so few back-substitution edges
+survive. Reordering changes only the join's evaluation, never its result, so
+ground output is unchanged. See [[pygringo-lean-on-rewrite-and-safety]].

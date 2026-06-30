@@ -9,12 +9,14 @@ generating matcher, keeping the semi-naive *delta* literal in a valid slot.
 
 This reorders only the *evaluation* of a join, never its result set, so grounding
 output is unchanged -- only the fixpoint's efficiency.  The ``AssignmentAnalyzer``
-back-substitution refinement of the C++ code is intentionally not ported.
+back-substitution refinement is also ported (see the class below); note it is
+largely inert on pygringo's *rewritten* input, because ``rewrite_statement``
+inlines equalities and seeds interval variables with bound-check comparisons.
 """
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from functools import cmp_to_key
 
 from clingo import ast
@@ -124,6 +126,69 @@ def _literal_score(
     return _SCORE_FAST
 
 
+class AssignmentAnalyzer:
+    """Estimate variables fixed by back-substitution through equalities.
+
+    Port of clingo's ``AssignmentAnalyzer`` (``lib/ground/src/statement.cc:13``)
+    over variable names.  Nodes use *swapped* depend/provide: a literal that
+    provides ``P`` and depends on ``D`` is added as a node that binds ``D`` once
+    all of ``P`` is bound -- knowing an equality's outputs determines its inputs.
+    A literal that provides nothing (a comparison or negative atom) instead seeds
+    its dependencies into the base on :meth:`add`.
+
+    Bodies are small, so a plain fixpoint replaces the C++ watched-variable scheme.
+    The base bound-state is fixed once everything is added; :meth:`propagate` then
+    estimates, for a candidate's provided variables, how many *extra* variables
+    become determined, and :meth:`backtrack` undoes it for the next query.
+    """
+
+    def __init__(self) -> None:
+        self._bound: set[str] = set()
+        self._nodes: list[tuple[frozenset[str], frozenset[str]]] = []
+        self._trail: list[str] = []
+        self._mark = 0
+
+    def _bind(self, var: str) -> None:
+        if var not in self._bound:
+            self._bound.add(var)
+            self._trail.append(var)
+
+    def _cascade(self) -> None:
+        changed = True
+        while changed:
+            changed = False
+            for need, gives in self._nodes:
+                if need <= self._bound and not (gives <= self._bound):
+                    for var in gives:
+                        self._bind(var)
+                    changed = True
+
+    def add(self, need: Iterable[str], gives: Iterable[str]) -> None:
+        """Register a literal: ``need`` is its provided vars, ``gives`` its deps."""
+        rest = frozenset(need) - self._bound
+        if not rest:  # provides nothing new: seed its dependencies into the base
+            for var in gives:
+                self._bind(var)
+            self._cascade()
+        else:
+            self._nodes.append((rest, frozenset(gives)))
+
+    def propagate(self, provide: Iterable[str]) -> set[str]:
+        """Return the variables back-substituted once ``provide`` is bound."""
+        self._mark = len(self._trail)
+        for var in provide:
+            self._bind(var)
+        start = len(self._trail)  # the initial provide vars are not "extra"
+        self._cascade()
+        return set(self._trail[start:])
+
+    def backtrack(self) -> None:
+        """Undo the last :meth:`propagate` (the seeded base persists)."""
+        for var in self._trail[self._mark :]:
+            self._bound.discard(var)
+        del self._trail[self._mark :]
+
+
 def linearize(
     body: Sequence[ast.BodyLiteral],
     deps: Sequence[Dep],
@@ -136,21 +201,39 @@ def linearize(
     step re-scores the ready literals (binding a variable can turn a scan into a
     lookup) and takes the cheapest, breaking ties by original position.  The
     semi-naive ``delta`` literal sorts first among generating matchers so the
-    first-new enumeration stays correct (cf. the C++ ``order_`` comparator).
+    first-new enumeration stays correct (cf. the C++ ``order_`` comparator).  A
+    generating matcher's estimate is scaled by ``1 + extra`` where ``extra`` is the
+    number of variables it would fix through equalities (the ``AssignmentAnalyzer``
+    back-substitution factor), so such matchers are scheduled later.
     """
     n = len(body)
     placed = [False] * n
     bound: set[str] = set()
     order: list[int] = []
 
+    # Back-substitution factor: built once from the swapped (provide, depend)
+    # edges; its base state is independent of greedy progress, so ``extra`` per
+    # literal is constant and precomputed here (cf. clingo's ``order_``).
+    analyzer = AssignmentAnalyzer()
+    for provide, depend in deps:
+        analyzer.add(provide, depend)
+    extra: list[int] = []
+    for provide, _depend in deps:
+        extra.append(len(analyzer.propagate(provide)))
+        analyzer.backtrack()
+
     def is_new(i: int) -> bool:
         return delta is not None and i == delta
+
+    def score(i: int) -> float:
+        raw = _literal_score(body[i], deps[i][0], bound, base)
+        return raw * (1.0 + extra[i]) if raw > 0 else raw
 
     while len(order) < n:
         ready = [i for i in range(n) if not placed[i] and deps[i][1] <= bound]
         if not ready:  # safety guarantees a groundable order; stay robust anyway
             ready = [i for i in range(n) if not placed[i]]
-        scores = {i: _literal_score(body[i], deps[i][0], bound, base) for i in ready}
+        scores = {i: score(i) for i in ready}
 
         def cmp(i: int, j: int) -> int:
             si, sj = scores[i], scores[j]
