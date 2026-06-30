@@ -6,6 +6,8 @@ on:
       - master
       - wip
       - wip-20
+      - jorge/*
+      - assignments
   pull_request:
 
 jobs:

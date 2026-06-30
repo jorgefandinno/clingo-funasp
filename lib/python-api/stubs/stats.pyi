@@ -6,8 +6,8 @@ Examples
 The following example shows how to add custom stats and access the stats:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> def on_stats(step, accu):
 ...     step.update({"example": [21]})

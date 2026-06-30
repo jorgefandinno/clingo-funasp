@@ -10,9 +10,9 @@ The following example shows how to run clingo without customization:
 
 ```python
 import sys
-from clingo.app import clingo_main
-from clingo.core import Library
-from clingo.script import enable_python
+from clingo_funasp.app import clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.script import enable_python
 
 with Library() as lib:
     enable_python(lib)
@@ -25,11 +25,11 @@ an option to print atoms in models in order:
 ```python
 from typing import Callable, Sequence
 import sys
-from clingo.app import App, AppOptions, Flag, clingo_main
-from clingo.core import Library
-from clingo.control import Control
-from clingo.solve import Model
-from clingo.symbol import Symbol
+from clingo_funasp.app import App, AppOptions, Flag, clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.solve import Model
+from clingo_funasp.symbol import Symbol
 
 Parts = Sequence[Sequence[tuple[str, Sequence[Symbol]]]]
 
@@ -63,15 +63,15 @@ from __future__ import annotations
 import collections.abc
 import typing
 
-import clingo.control
-import clingo.core
-import clingo.solve
+import clingo_funasp.control
+import clingo_funasp.core
+import clingo_funasp.solve
 
 __all__: list[str] = ["App", "AppOptions", "Flag", "clingo_main"]
 
 def _pyclingo() -> int: ...
 def clingo_main(
-    lib: clingo.core.Library, arguments: typing.Sequence[str], app: App | None = None
+    lib: clingo_funasp.core.Library, arguments: typing.Sequence[str], app: App | None = None
 ) -> int:
     """
     Entry point for running the Clingo application.
@@ -118,7 +118,7 @@ class App:
         """
 
     def main(
-        self, control: clingo.control.Control, files: typing.Sequence[str]
+        self, control: clingo_funasp.control.Control, files: typing.Sequence[str]
     ) -> None:
         """
         Run the main execution flow of the application.
@@ -135,7 +135,7 @@ class App:
 
     def print_model(
         self,
-        model: clingo.solve.Model,
+        model: clingo_funasp.solve.Model,
         default_printer: collections.abc.Callable[[], None],
     ) -> None:
         """

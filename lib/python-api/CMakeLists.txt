@@ -54,13 +54,13 @@ target_link_libraries(clingo-python PRIVATE clingo pybind11::pybind11)
 pybind11_add_module(pyclingo "src/module.cc")
 set_target_properties(pyclingo PROPERTIES IMPORT_LIBRARY "pyclingo.lib")
 clingo_target_properties(TARGETS pyclingo FOLDER lib SUBDIR python)
-set_target_properties(pyclingo PROPERTIES OUTPUT_NAME "clingo")
+set_target_properties(pyclingo PROPERTIES OUTPUT_NAME "clingo_funasp")
 target_link_libraries(pyclingo PRIVATE clingo clingo-python)
 if(CLINGO_USE_VERSION_SCRIPT AND UNIX AND NOT APPLE)
     set_target_properties(pyclingo PROPERTIES LINK_FLAGS "-Wl,--version-script='${CMAKE_SOURCE_DIR}/cmake/pyclingo.map'")
 endif()
 if(CLINGO_INSTALL_WHEEL)
-    install(DIRECTORY stubs/ DESTINATION clingo-stubs)
+    install(DIRECTORY stubs/ DESTINATION clingo_funasp-stubs)
     install(TARGETS pyclingo
         RUNTIME DESTINATION "."
         LIBRARY DESTINATION ".")
@@ -90,11 +90,11 @@ elseif(CLINGO_INSTALL_DEFAULT)
     endif()
     message(STATUS "Python module path: ${python_install_dir}")
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/INSTALLER" "pip\n")
-    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/METADATA" "Metadata-Version: 1.1\nName: clingo\nVersion: ${CLINGO_VERSION}\n")
+    file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/METADATA" "Metadata-Version: 1.1\nName: clingo_funasp\nVersion: ${CLINGO_VERSION}\n")
     install(
         FILES "${CMAKE_CURRENT_BINARY_DIR}/INSTALLER" "${CMAKE_CURRENT_BINARY_DIR}/METADATA"
-        DESTINATION "${python_install_dir}/clingo-${CLINGO_VERSION}.dist-info")
-    install(DIRECTORY stubs/ DESTINATION "${python_install_dir}/clingo-stubs")
+        DESTINATION "${python_install_dir}/clingo_funasp-${CLINGO_VERSION}.dist-info")
+    install(DIRECTORY stubs/ DESTINATION "${python_install_dir}/clingo_funasp-stubs")
     install(
         TARGETS pyclingo
         EXPORT clingo-targets

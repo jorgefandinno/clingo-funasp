@@ -4,9 +4,9 @@ Functions and classes to work with atom and term bases.
 # Examples
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function, Number
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function, Number
+>>> from clingo_funasp.control import Control
 >>> lib = Library()
 >>> ctl = Control(lib)
 >>> ctl.parse_string(\"\"\"\\
@@ -39,7 +39,7 @@ import collections.abc
 import enum
 import typing
 
-import clingo.symbol
+import clingo_funasp.symbol
 
 __all__: list[str] = [
     "Atom",
@@ -91,7 +91,7 @@ class Atom:
         """
 
     @property
-    def symbol(self) -> clingo.symbol.Symbol:
+    def symbol(self) -> clingo_funasp.symbol.Symbol:
         """
         Get the symbol of the atom.
         """
@@ -103,17 +103,17 @@ class AtomBase:
     Implements `Mapping[Symbol, Atom]`.
     """
 
-    def __contains__(self, key: clingo.symbol.Symbol) -> bool:
+    def __contains__(self, key: clingo_funasp.symbol.Symbol) -> bool:
         """
         Check if the map contains the given key.
         """
 
-    def __getitem__(self, key: clingo.symbol.Symbol) -> Atom:
+    def __getitem__(self, key: clingo_funasp.symbol.Symbol) -> Atom:
         """
         Get the value for the given key.
         """
 
-    def __iter__(self) -> collections.abc.Iterator[clingo.symbol.Symbol]:
+    def __iter__(self) -> collections.abc.Iterator[clingo_funasp.symbol.Symbol]:
         """
         Get an iterator over the keys in the map.
         """
@@ -124,18 +124,18 @@ class AtomBase:
         """
 
     def get(
-        self, key: clingo.symbol.Symbol, default: Atom | None = None
+        self, key: clingo_funasp.symbol.Symbol, default: Atom | None = None
     ) -> Atom | None:
         """
         Get the value for the given key or the default if absent.
         """
 
-    def items(self) -> collections.abc.Iterator[tuple[clingo.symbol.Symbol, Atom]]:
+    def items(self) -> collections.abc.Iterator[tuple[clingo_funasp.symbol.Symbol, Atom]]:
         """
         Get an iterator over the items in the map.
         """
 
-    def keys(self) -> collections.abc.Iterator[clingo.symbol.Symbol]:
+    def keys(self) -> collections.abc.Iterator[clingo_funasp.symbol.Symbol]:
         """
         Get an iterator over the keys in the map.
         """
@@ -172,7 +172,7 @@ class Base:
         """
 
     @typing.overload
-    def __contains__(self, symbol: clingo.symbol.Symbol) -> bool:
+    def __contains__(self, symbol: clingo_funasp.symbol.Symbol) -> bool:
         """
         Check if there is an atom with the given symbol.
         """
@@ -184,7 +184,7 @@ class Base:
         """
 
     @typing.overload
-    def __getitem__(self, symbol: clingo.symbol.Symbol) -> Atom:
+    def __getitem__(self, symbol: clingo_funasp.symbol.Symbol) -> Atom:
         """
         Get the atom with the given symbol.
         """
@@ -313,7 +313,7 @@ class Term:
         """
 
     @property
-    def symbol(self) -> clingo.symbol.Symbol:
+    def symbol(self) -> clingo_funasp.symbol.Symbol:
         """
         Get the symbol of the term.
         """
@@ -327,17 +327,17 @@ class TermBase:
     Implements `Mapping[Symbol, Term]`.
     """
 
-    def __contains__(self, key: clingo.symbol.Symbol) -> bool:
+    def __contains__(self, key: clingo_funasp.symbol.Symbol) -> bool:
         """
         Check if the map contains the given key.
         """
 
-    def __getitem__(self, key: clingo.symbol.Symbol) -> Term:
+    def __getitem__(self, key: clingo_funasp.symbol.Symbol) -> Term:
         """
         Get the value for the given key.
         """
 
-    def __iter__(self) -> collections.abc.Iterator[clingo.symbol.Symbol]:
+    def __iter__(self) -> collections.abc.Iterator[clingo_funasp.symbol.Symbol]:
         """
         Get an iterator over the keys in the map.
         """
@@ -348,18 +348,18 @@ class TermBase:
         """
 
     def get(
-        self, key: clingo.symbol.Symbol, default: Term | None = None
+        self, key: clingo_funasp.symbol.Symbol, default: Term | None = None
     ) -> Term | None:
         """
         Get the value for the given key or the default if absent.
         """
 
-    def items(self) -> collections.abc.Iterator[tuple[clingo.symbol.Symbol, Term]]:
+    def items(self) -> collections.abc.Iterator[tuple[clingo_funasp.symbol.Symbol, Term]]:
         """
         Get an iterator over the items in the map.
         """
 
-    def keys(self) -> collections.abc.Iterator[clingo.symbol.Symbol]:
+    def keys(self) -> collections.abc.Iterator[clingo_funasp.symbol.Symbol]:
         """
         Get an iterator over the keys in the map.
         """
@@ -482,7 +482,7 @@ class TheoryElement:
 
         True conditions do not have a condition id. A condition id is only valid for
         the current solving step. However, they can be mapped to persistent solver
-        literals using `clingo.propagate.PropagateInit.solver_literal`.
+        literals using `clingo_funasp.propagate.PropagateInit.solver_literal`.
         """
 
     @property
