@@ -1,5 +1,5 @@
 [project]
-name = "clingo"
+name = "clingo-funasp"
 dynamic = ["version"]
 description = "Python bindings to the clingo solver."
 readme = { file = "README.md", content-type = "text/markdown" }
