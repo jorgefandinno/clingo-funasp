@@ -90,6 +90,7 @@ enum class AggregateFunction : uint8_t {
     sump,  //! The <tt>\#sum+</tt> function.
     min,   //! The <tt>\#min</tt> function.
     max,   //! The <tt>\#max</tt> function.
+    some,
 };
 
 //! Output the given aggregate function.
@@ -113,6 +114,9 @@ inline auto neutral_val(AggregateFunction fun) -> Symbol {
         case AggregateFunction::count: {
             throw std::invalid_argument("count function has no neutral value");
         }
+        case AggregateFunction::some: {
+            throw std::invalid_argument("some function has no neutral value");
+        }
     }
     Util::unreachable();
 }
@@ -132,6 +136,9 @@ inline auto neutral_num(AggregateFunction fun) -> std::variant<Number, Symbol> {
         }
         case AggregateFunction::count: {
             throw std::invalid_argument("count function has no neutral value");
+        }
+        case AggregateFunction::some: {
+            throw std::invalid_argument("some function has no neutral value");
         }
     }
     Util::unreachable();
@@ -153,6 +160,9 @@ inline auto relevant_val(AggregateFunction fun, Symbol sym) -> bool {
             return sym.type() == SymbolType::number && sym.num() > 0;
         }
         case AggregateFunction::count: {
+            return true;
+        }
+        case AggregateFunction::some: {
             return true;
         }
     }

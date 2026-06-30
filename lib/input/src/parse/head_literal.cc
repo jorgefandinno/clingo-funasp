@@ -68,31 +68,38 @@ auto cont_disjunction(ParserState &state, Lit lit) -> std::optional<HdLit> {
     return HdLitSimple{std::move(lit)};
 }
 
+//! Continue parsing a head aggregate element.
+auto cont_hd_aggr_elem(ParserState &state, Location loc, std::vector<Term> tuple, Lit lit) -> std::optional<HdLitAggregateElement> {
+    // handle the empty condition
+    if (state.token() != TokenType::colon) {
+        loc += location(lit);
+        return HdLitAggregateElement{std::move(loc), std::move(tuple), std::move(lit), {}};
+    }
+    loc += state.cursor_pos();
+    // consume the colon
+    state.consume();
+    // parse the condition
+    if (auto cond = state.separated_until(parse_literal, TokenType::comma, TokenType::sem, TokenType::rbrace)) {
+        if (!cond->empty()) {
+            loc += location(cond->back());
+        }
+        return HdLitAggregateElement{std::move(loc), std::move(tuple), std::move(lit), *std::move(cond)};
+    }
+    return std::nullopt;
+}
+
 //! Parse a head aggregate element.
 auto parse_hd_aggr_elem(ParserState &state) -> std::optional<HdLitAggregateElement> {
-    // parse the tuple
     if (auto tuple = state.separated_until(parse_term, TokenType::comma, TokenType::colon)) {
         auto loc = state.loc();
         // consume the colon
         state.consume();
-        // parse the literal
-        if (auto lit = parse_literal(state)) {
-            // handle the empty condition
-            if (state.token() != TokenType::colon) {
-                loc += location(*lit);
-                return HdLitAggregateElement{std::move(loc), *std::move(tuple), *std::move(lit), {}};
-            }
-            loc += state.cursor_pos();
-            // consume the colon
-            state.consume();
-            // parse the condition
-            if (auto cond = state.separated_until(parse_literal, TokenType::comma, TokenType::sem, TokenType::rbrace)) {
-                if (!cond->empty()) {
-                    loc += location(cond->back());
-                }
-                return HdLitAggregateElement{std::move(loc), *std::move(tuple), *std::move(lit), *std::move(cond)};
-            }
+        // parse the literal or assignment
+        auto lit = parse_literal_or_simple_assignment(state);
+        if (!lit) {
+            return std::nullopt;
         }
+        return cont_hd_aggr_elem(state, std::move(loc), *std::move(tuple), *std::move(lit));
     }
     return std::nullopt;
 }
@@ -117,10 +124,36 @@ auto cont_hd_aggregate(ParserState &state, Position pos, LGuard lguard, Aggregat
     return std::nullopt;
 }
 
+auto cont_assignment_set_aggr_elem(ParserState &state, Lit lit) -> std::optional<SetAggregateElement> {
+    if (state.token() != TokenType::colon) {
+        auto loc = location(lit);
+        return SetAggregateElement{std::move(loc), std::move(lit), {}};
+    }
+    auto loc = location(lit) + state.cursor_pos();
+    // consume colon
+    state.consume();
+    // parse condition
+    if (auto cond = state.separated_until(parse_literal, TokenType::comma, TokenType::sem, TokenType::rbrace)) {
+        if (!cond->empty()) {
+            loc += location(cond->back());
+        }
+        return SetAggregateElement{std::move(loc), std::move(lit), *std::move(cond)};
+    }
+    return std::nullopt;
+}
+
+auto parse_assignment_set_aggr_elem(ParserState &state) -> std::optional<SetAggregateElement> {
+    // parse literal
+    if (auto lit = parse_literal_or_simple_assignment(state)) {
+        return cont_assignment_set_aggr_elem(state, std::move(*lit));
+    }
+    return std::nullopt;
+}
+
 //! Continue parsing a head aggregate.
 auto cont_hd_set_aggregate(ParserState &state, Position pos, LGuard lguard) -> std::optional<HdLit> {
     // parse the elements
-    if (auto elems = state.delimited(TokenType::lbrace, parse_set_aggr_elem, TokenType::sem, TokenType::rbrace)) {
+    if (auto elems = state.delimited(TokenType::lbrace, parse_assignment_set_aggr_elem, TokenType::sem, TokenType::rbrace)) {
         auto loc = std::move(pos) + state.cursor_pos();
         // consume the closing brace
         state.consume();
@@ -140,7 +173,6 @@ auto cont_hd_set_aggregate(ParserState &state, Position pos, LGuard lguard) -> s
 auto parse_head_literal(ParserState &state) -> std::optional<HdLit> {
     auto pos = state.token_pos();
     auto sign = parse_sign(state);
-
     // only literals in disjunction can have signs
     if (sign != Sign::none) {
         if (auto term = parse_term(state)) {
@@ -182,6 +214,11 @@ auto parse_head_literal(ParserState &state) -> std::optional<HdLit> {
                 return cont_disjunction(state, *std::move(lit));
             }
             return std::nullopt;
+        }
+        // handle set assignments
+        if (state.token() == TokenType::assign) {
+            state.consume();
+            return cont_assignment(state, std::move(pos), *std::move(term));
         }
         // handle symbolic literals/conjunctions
         if (auto lit = cont_literal(state, std::move(pos), Sign::none, *std::move(term))) {
