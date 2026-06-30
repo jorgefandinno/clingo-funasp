@@ -24,12 +24,18 @@ Example::
 """
 
 from ._analyze import VariableContext, check_linear, is_provided, select_variables
-from ._safety import SafetyError, SafetyResult, check_safety
+from ._safety import (
+    SafetyError,
+    SafetyResult,
+    check_safety,
+    literal_dependencies,
+)
 
 __all__ = [
     "check_safety",
     "SafetyResult",
     "SafetyError",
+    "literal_dependencies",
     "select_variables",
     "check_linear",
     "is_provided",

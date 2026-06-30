@@ -135,6 +135,16 @@ class AtomBase:
         rel = self._store(facts).get((name, arity, positive))
         return rel.atoms if rel is not None else ()
 
+    def size(
+        self, name: str, arity: int, positive: bool = True, facts: bool = False
+    ) -> int:
+        """Return the number of atoms of a signature (0 if unknown).
+
+        Used by the matcher cost model to estimate a relation's size.
+        """
+        rel = self._store(facts).get((name, arity, positive))
+        return len(rel.atoms) if rel is not None else 0
+
     def by_signature(
         self, name: str, arity: int, positive: bool = True
     ) -> Iterable[Symbol]:

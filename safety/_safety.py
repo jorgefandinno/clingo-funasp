@@ -316,6 +316,27 @@ def _(
     raise SafetyError("set aggregate: unpool must be called before safety checking")
 
 
+def literal_dependencies(
+    lit: ast.BodyLiteral,
+    global_set: Iterable[str] = (),
+    bound: Iterable[str] = (),
+) -> list[_DepNode]:
+    """Return the dependency nodes of a single body literal.
+
+    A public view of the per-literal analysis :func:`check_safety` uses
+    internally (:func:`_make_nodes`): each :class:`_DepNode` carries the variables
+    the literal can ``provide`` (bind), the variables it ``depend``\\ s on (which
+    must already be bound), and whether an equality must be ``swap``\\ ped.  Most
+    literals yield a single node.
+
+    ``global_set`` is the enclosing statement's global variables (needed to
+    classify which aggregate-element variables are dependencies); ``bound`` are
+    variables already known to be bound.  The literal is assumed normalised, as
+    required by the rest of this module.
+    """
+    return _make_nodes(lit, True, set(global_set), set(bound))
+
+
 # --- equality flip ---------------------------------------------------------
 
 

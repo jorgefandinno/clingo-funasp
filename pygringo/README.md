@@ -78,16 +78,26 @@ matchers), `_atombase` (atom states by signature), `_depend` (components),
 
 ## Scope and assumptions
 
-Supported: facts, normal rules, integrity constraints, plain choice rules
-(`{ ... }` without bounds or conditional elements), positive recursion,
-stratified **and non-stratified** negation, comparisons, arithmetic and
-intervals.
+Supported: facts, normal rules, integrity constraints, choice rules (including
+bounds and conditional elements, e.g. `1 { p(X) : q(X) } 2`), **body
+aggregates** (`#count`/`#sum`/`#sump`/`#min`/`#max` with guards and conditional
+elements, positive or negated), positive recursion, stratified **and
+non-stratified** negation, comparisons, arithmetic and intervals.
 
-Out of scope for this milestone (each raises `GroundError`): aggregates with
-bounds or conditions, disjunctions, conditional literals, theory atoms,
-`#minimize`/`#maximize` and weak constraints, externals, classical negation in
-heads, and `#show`/`#project`/`#edge`/`#heuristic` statements and scripts. These
-are the subject of later phases.
+Aggregates are emitted *ground* for the solver to evaluate: their elements and
+conditions are instantiated over the domain, mirroring how choice rules are
+handled. `clingo.ast.rewrite_statement` (run by `ground`) normalises every
+aggregate first — choice rules become `#count` head aggregates and double bounds
+become `lo <= … <= hi` — and the `safety` pilot orders the body and each
+element's condition, so the grounder works against a single normalised shape.
+
+Out of scope for this milestone (each raises `GroundError`): **assignment
+aggregates** whose variable escapes (`N = #count{…}`, `… = S`), **recursion
+through an aggregate** (an element-condition predicate in the rule's own
+component), head `#sum`/`#min`/`#max` aggregates, disjunctions, conditional
+literals, theory atoms, `#minimize`/`#maximize` and weak constraints, externals,
+classical negation in heads, and `#show`/`#project`/`#edge`/`#heuristic`
+statements and scripts. These are the subject of later phases.
 
 Other notes:
 

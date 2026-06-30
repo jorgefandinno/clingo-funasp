@@ -11,7 +11,7 @@ order, as produced by :func:`safety.check_safety`.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from functools import singledispatch
 from typing import Any
 
@@ -128,6 +128,27 @@ def _(
         yield asgn
 
 
+def match_condition(
+    condition: Sequence[ast.Literal], asgn: Assignment, base: AtomBase, lib: Library
+) -> Iterator[Assignment]:
+    """Yield every assignment extending ``asgn`` under which a condition holds.
+
+    An aggregate element ``condition`` is a list of bare literals (not wrapped in
+    ``BodySimpleLiteral``), already in groundable order from the ``safety`` pilot;
+    this folds :func:`match_literal` over them.
+    """
+    if not condition:
+        yield asgn
+        return
+    first, rest = condition[0], condition[1:]
+    try:
+        extensions = list(match_literal(first, asgn, base, lib))
+    except _Undefined:
+        return
+    for extended in extensions:
+        yield from match_condition(rest, extended, base, lib)
+
+
 def match_body(
     body: list[ast.BodyLiteral], asgn: Assignment, base: AtomBase, lib: Library
 ) -> Iterator[Assignment]:
@@ -135,12 +156,16 @@ def match_body(
 
     The body literals are matched left to right (the groundable order); arithmetic
     that is undefined for a particular binding prunes that branch, mirroring
-    clingo's *operation undefined* behaviour.
+    clingo's *operation undefined* behaviour.  A body aggregate is transparent here
+    (it binds nothing); it is instantiated separately when the rule is emitted.
     """
     if not body:
         yield asgn
         return
     first, rest = body[0], body[1:]
+    if isinstance(first, ast.BodyAggregate):
+        yield from match_body(rest, asgn, base, lib)
+        return
     if not isinstance(first, ast.BodySimpleLiteral):
         raise GroundError(f"unsupported body literal: {first}")
     try:
