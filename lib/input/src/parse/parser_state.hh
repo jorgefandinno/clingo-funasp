@@ -35,6 +35,7 @@ enum class TokenType : uint8_t {
     edge,
     end,
     eq,
+    assign,
     error,
     error_bc,
     external,
@@ -72,6 +73,7 @@ enum class TokenType : uint8_t {
     script_end,
     sem,
     show,
+    showf,
     slash,
     sort,
     star,
@@ -79,6 +81,7 @@ enum class TokenType : uint8_t {
     str_include,
     sum,
     sump,
+    some,
     sup,
     theory,
     theory_op,
@@ -277,6 +280,9 @@ inline auto operator<<(std::ostream &out, TokenType token) -> std::ostream & {
         case TokenType::sum: {
             return out << "#sum";
         }
+        case TokenType::some: {
+            return out << "#some";
+        }
         case TokenType::sump: {
             return out << "#sum+";
         }
@@ -321,6 +327,9 @@ inline auto operator<<(std::ostream &out, TokenType token) -> std::ostream & {
         }
         case TokenType::eq: {
             return out << "=";
+        }
+        case TokenType::assign: {
+            return out << ":=";
         }
         case TokenType::ne: {
             return out << "!=";
@@ -930,5 +939,9 @@ auto parse_aspif(ParserState &state) -> bool;
 
 //! Scan next statement.
 auto scan_statement(ParserState &state) -> std::pair<std::optional<Stm>, bool>;
+
+auto cont_assignment(ParserState &state, Position pos, Term term) -> std::optional<HdLit>;
+
+auto parse_literal_or_simple_assignment(ParserState &state) -> std::optional<Lit>;
 
 } // namespace CppClingo::Input::Parse
