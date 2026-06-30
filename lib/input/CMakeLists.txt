@@ -54,6 +54,7 @@ set(source-group-parse
     ${RE2C_lexer_impl_OUTPUT}
     "src/parse/lexer_state.hh"
     "src/parse/literal.cc"
+    "src/parse/assignment.cc"
     "src/parse/parser_state.cc"
     "src/parse/parser_state.hh"
     "src/parse/statement.cc"

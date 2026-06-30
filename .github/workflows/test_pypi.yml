@@ -1,0 +1,104 @@
+name: Test-PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      index:
+        description: "Target index: pypi or testpypi"
+        required: true
+        type: choice
+        options:
+          - pypi
+          - testpypi
+
+jobs:
+  build-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        python-version: ['3.13', '3.14']
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Dependencies
+        run: |
+          pip install pytest mypy
+
+      - name: Install PyPi
+        if: ${{ inputs.index == 'pypi' }}
+        run: |
+          pip install clingo-funasp
+
+      - name: Install PyPi Test
+        if: ${{ inputs.index != 'pypi' }}
+        run: |
+          pip install -i https://test.pypi.org/simple/ clingo-funasp
+
+      - name: Test
+        run: |
+          cd lib/python-api/tests && pytest -v
+
+      - name: Mypy
+        run: |
+          cd lib/python-api/tests && mypy -v *.py
+
+  funasp-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        python-version: ['3.13', '3.14']
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install PyPi
+        if: ${{ inputs.index == 'pypi' }}
+        run: |
+          pip install clingo-funasp
+
+      - name: Install PyPi Test
+        if: ${{ inputs.index != 'pypi' }}
+        run: |
+          pip install -i https://test.pypi.org/simple/ clingo-funasp
+
+      - name: Checkout funasp
+        uses: actions/checkout@v4
+        with:
+          repository: krr-uno/funasp
+          ref: develop
+
+      - name: Pip install packages
+        shell: bash -l {0}
+        run: |
+          pip install .
+          pip install -r envs/requirements.txt
+
+      - name: run application
+        run: |
+          python funasp examples/family.lp || if [ $? -eq 10 ]; then echo "Handled exit code 10"; else exit $?; fi
+
+      - name: run tests
+        run: |
+          nox -s tests
+          nox -s slow_test
+
