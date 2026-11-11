@@ -39,7 +39,7 @@ using PyControl = Annotation<Control>;
 
 class Control : public registered_handle<Control, clingo_control_t>, public reference_keeper<Control> {
   public:
-    using HintConstMap = TypeHint<"typing.Mapping[str, clingo.symbol.Symbol]">;
+    using HintConstMap = TypeHint<"typing.Mapping[str, clingo_funasp.symbol.Symbol]">;
 
     Control(Library &lib, std::span<std::string const> args);
 
@@ -60,10 +60,10 @@ class Control : public registered_handle<Control, clingo_control_t>, public refe
                      Annotation<std::optional<StatsCallback>> on_stats,
                      Annotation<std::optional<FinishCallback>> on_finish, bool yield, bool async)
         -> Annotation<SolveHandle>;
-    auto base() -> TypeHint<"clingo.base.Base">;
-    void observe(TypeHint<"clingo.backend.Observer"> &obs, bool preprocess);
-    auto backend() -> TypeHint<"clingo.backend.BackendManager">;
-    auto config() -> TypeHint<"clingo.config.Config">;
+    auto base() -> TypeHint<"clingo_funasp.base.Base">;
+    void observe(TypeHint<"clingo_funasp.backend.Observer"> &obs, bool preprocess);
+    auto backend() -> TypeHint<"clingo_funasp.backend.BackendManager">;
+    auto config() -> TypeHint<"clingo_funasp.config.Config">;
     auto stats() -> StatsView;
     auto profile() -> py::list;
     void main();
@@ -154,7 +154,7 @@ template <> struct type_caster<PyClingo::PartSpan> {
     using params_conv = make_caster<PyClingo::SymbolVec>;
     using type = PyClingo::PartSpan;
 
-    PYBIND11_TYPE_CASTER(type, _("Sequence[Tuple[str, Sequence[clingo.symbol.Symbol]]]"));
+    PYBIND11_TYPE_CASTER(type, _("Sequence[Tuple[str, Sequence[clingo_funasp.symbol.Symbol]]]"));
 
     auto load(handle src, bool convert) -> bool {
         if (!holder_.load(src, convert)) {
@@ -182,7 +182,7 @@ template <> struct type_caster<std::optional<PyClingo::PartSpan>> {
   public:
     using type = std::optional<PyClingo::PartSpan>;
 
-    PYBIND11_TYPE_CASTER(type, _("Optional[Sequence[Tuple[str, Sequence[clingo.symbol.Symbol]]]]"));
+    PYBIND11_TYPE_CASTER(type, _("Optional[Sequence[Tuple[str, Sequence[clingo_funasp.symbol.Symbol]]]]"));
 
     auto load(handle src, bool convert) -> bool {
         if (src.is_none()) {

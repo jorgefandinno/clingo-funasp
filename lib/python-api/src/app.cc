@@ -202,9 +202,9 @@ class App : public reference_keeper<App> {
 
 auto pyentry() -> int {
     py::module sys = py::module::import("sys");
-    py::module app = py::module::import("clingo.app");
-    py::module core = py::module::import("clingo.core");
-    py::module script = py::module::import("clingo.script");
+    py::module app = py::module::import("clingo_funasp.app");
+    py::module core = py::module::import("clingo_funasp.core");
+    py::module script = py::module::import("clingo_funasp.script");
 
     py::object clingo_main = app.attr("clingo_main");
     py::object Library = core.attr("Library");
@@ -263,9 +263,9 @@ The following example shows how to run clingo without customization:
 
 ```python
 import sys
-from clingo.app import clingo_main
-from clingo.core import Library
-from clingo.script import enable_python
+from clingo_funasp.app import clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.script import enable_python
 
 with Library() as lib:
     enable_python(lib)
@@ -278,11 +278,11 @@ an option to print atoms in models in order:
 ```python
 from typing import Callable, Sequence
 import sys
-from clingo.app import App, AppOptions, Flag, clingo_main
-from clingo.core import Library
-from clingo.control import Control
-from clingo.solve import Model
-from clingo.symbol import Symbol
+from clingo_funasp.app import App, AppOptions, Flag, clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.solve import Model
+from clingo_funasp.symbol import Symbol
 
 Parts = Sequence[Sequence[tuple[str, Sequence[Symbol]]]]
 

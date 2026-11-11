@@ -59,14 +59,14 @@ class ModelIterator {
 
 } // namespace
 
-auto SolveControl::base() -> TypeHint<"clingo.base.Base"> {
+auto SolveControl::base() -> TypeHint<"clingo_funasp.base.Base"> {
     clingo_base_t const *base = nullptr;
     handle_error(clingo_solve_control_base(ctl_, &base));
     auto *type = py_base_type_ref();
     if (type == nullptr) {
         throw py::error_already_set();
     }
-    return py::reinterpret_steal<TypeHint<"clingo.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
+    return py::reinterpret_steal<TypeHint<"clingo_funasp.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
 }
 
 auto SolveControl::add_clause(MixedLitSpan const &lits) {
@@ -267,13 +267,13 @@ Examples
 
 The examples below show various ways to intercept models. The asynchronous
 variants leave room for additional computation before calling blocking
-functions like `clingo.solve.SolveHandle.get` or
-`clingo.solve.SolveHandle.model`.
+functions like `clingo_funasp.solve.SolveHandle.get` or
+`clingo_funasp.solve.SolveHandle.model`.
 
 The following example shows how to intercept models with a callback:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -286,8 +286,8 @@ The following example shows how to intercept models with a callback:
 
 The following example shows how to yield models:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -304,8 +304,8 @@ The following example shows how to yield models:
 
 The following example shows how to solve asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -321,8 +321,8 @@ The following example shows how to solve asynchronously:
 
 This example shows how to solve both iteratively and asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -453,7 +453,7 @@ statement.
 Blocking functions in this object release the GIL. They are not thread-safe
 though.
 
-See also: `clingo.control.Control.solve`
+See also: `clingo_funasp.control.Control.solve`
 )"_d)
         .def("get", &SolveHandle::get, R"(
 Get the solve result.
@@ -493,7 +493,7 @@ Returns:
         .def("cancel", &SolveHandle::cancel, R"(
 Cancel the running search.
 
-See also: `clingo.control.Control.interrupt`
+See also: `clingo_funasp.control.Control.interrupt`
 )"_d)
         .def(
             "__enter__", [&](SolveHandle *hnd) -> SolveHandle * { return hnd; }, "Start the search.")

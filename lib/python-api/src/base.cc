@@ -221,7 +221,7 @@ auto py_atom_slots = std::array{
 };
 
 auto py_atom_spec = PyType_Spec{
-    "clingo.base.Atom",
+    "clingo_funasp.base.Atom",
     sizeof(PyAtomObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -326,7 +326,7 @@ auto py_atom_base_iter_slots = std::array{
 };
 
 auto py_atom_base_iter_spec = PyType_Spec{
-    "clingo.base._AtomBaseIter",
+    "clingo_funasp.base._AtomBaseIter",
     sizeof(PyAtomBaseIter),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -509,7 +509,7 @@ auto py_atom_base_slots = std::array{
 };
 
 auto py_atom_base_spec = PyType_Spec{
-    "clingo.base.AtomBase",
+    "clingo_funasp.base.AtomBase",
     sizeof(PyAtomBaseObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_MAPPING | Py_TPFLAGS_HAVE_GC,
@@ -632,7 +632,7 @@ auto py_term_slots = std::array{
 };
 
 auto py_term_spec = PyType_Spec{
-    "clingo.base.Term",
+    "clingo_funasp.base.Term",
     sizeof(PyTermObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -737,7 +737,7 @@ auto py_term_base_iter_slots = std::array{
 };
 
 auto py_term_base_iter_spec = PyType_Spec{
-    "clingo.base._TermBaseIter",
+    "clingo_funasp.base._TermBaseIter",
     sizeof(PyTermBaseIter),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -918,7 +918,7 @@ auto py_term_base_slots = std::array{
 };
 
 auto py_term_base_spec = PyType_Spec{
-    "clingo.base.TermBase",
+    "clingo_funasp.base.TermBase",
     sizeof(PyTermBaseObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_MAPPING | Py_TPFLAGS_HAVE_GC,
@@ -1073,7 +1073,7 @@ auto py_theory_term_slots = std::array{
 };
 
 auto py_theory_term_spec = PyType_Spec{
-    "clingo.base.TheoryTerm",
+    "clingo_funasp.base.TheoryTerm",
     sizeof(PyTheoryTermObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1234,7 +1234,7 @@ auto py_theory_element_slots = std::array{
 };
 
 auto py_theory_element_spec = PyType_Spec{
-    "clingo.base.TheoryElement",
+    "clingo_funasp.base.TheoryElement",
     sizeof(PyTheoryElementObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1412,7 +1412,7 @@ auto py_theory_atom_slots = std::array{
 };
 
 auto py_theory_atom_spec = PyType_Spec{
-    "clingo.base.TheoryAtom",
+    "clingo_funasp.base.TheoryAtom",
     sizeof(PyTheoryAtomObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1527,7 +1527,7 @@ auto py_theory_base_slots = std::array{
 };
 
 auto py_theory_base_spec = PyType_Spec{
-    "clingo.base.TheoryBase",
+    "clingo_funasp.base.TheoryBase",
     sizeof(PyTheoryBaseObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_SEQUENCE | Py_TPFLAGS_HAVE_GC,
@@ -1631,7 +1631,7 @@ auto py_base_iter_slots = std::array{
 };
 
 auto py_base_iter_spec = PyType_Spec{
-    "clingo.base._BaseIter",
+    "clingo_funasp.base._BaseIter",
     sizeof(PyBaseIter),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -2010,7 +2010,7 @@ auto py_base_slots = std::array{
 };
 
 auto py_base_spec = PyType_Spec{
-    "clingo.base.Base",
+    "clingo_funasp.base.Base",
     sizeof(PyBaseObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_MAPPING | Py_TPFLAGS_HAVE_GC,
@@ -2067,7 +2067,7 @@ void base_module_free(void *module) {
 
 PyModuleDef base_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.base",
+    "clingo_funasp.base",
     PyDoc_STR("Functions and classes to inspect atom, term, and theory bases."),
     static_cast<Py_ssize_t>(sizeof(BaseModuleState)),
     nullptr,
@@ -2131,7 +2131,7 @@ auto py_base_new(PyObject *owner, PyObject *type, clingo_base_t const *base) -> 
 }
 
 auto py_base_type_ref() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.base"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.base"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -2140,7 +2140,7 @@ auto py_base_type_ref() -> PyObject * {
         return nullptr;
     }
     if (state->base_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.base.Base type not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.base.Base type not initialized");
         return nullptr;
     }
     return state->base_type;
@@ -2148,13 +2148,13 @@ auto py_base_type_ref() -> PyObject * {
 
 auto py_base_get(PyObject *type, PyObject *obj) -> clingo_base_t const * {
     if (PyObject_TypeCheck(obj, reinterpret_cast<PyTypeObject *>(type)) == 0) {
-        PyErr_SetString(PyExc_TypeError, "object is not of type clingo.base.Base");
+        PyErr_SetString(PyExc_TypeError, "object is not of type clingo_funasp.base.Base");
         return nullptr;
     }
     return reinterpret_cast<PyBaseObject *>(obj)->base;
 }
 
-auto convert(TypeHint<"clingo.base.Base"> base, MixedLitSpan const &lits, bool flip, bool disjunctive) -> LitVec {
+auto convert(TypeHint<"clingo_funasp.base.Base"> base, MixedLitSpan const &lits, bool flip, bool disjunctive) -> LitVec {
     auto *base_type = py_base_type_ref();
     if (base_type == nullptr) {
         throw py::error_already_set{};

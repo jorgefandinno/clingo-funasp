@@ -1,9 +1,9 @@
 """
-Unit tests for clingo.core module.
+Unit tests for clingo_funasp.core module.
 """
 
-from clingo.core import Library
-from clingo.symbol import (
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import (
     Function,
     Infimum,
     Number,
@@ -17,7 +17,7 @@ from clingo.symbol import (
 class TestSymbol:
     # pylint: disable=attribute-defined-outside-init
     """
-    Unit tests for clingo.core module.
+    Unit tests for clingo_funasp.core module.
     """
 
     def setup_method(self, method):

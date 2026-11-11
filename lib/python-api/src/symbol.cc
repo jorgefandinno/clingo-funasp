@@ -818,7 +818,7 @@ auto py_symbol_slots = std::array{
 };
 
 auto py_symbol_spec = PyType_Spec{
-    "clingo.symbol.Symbol", sizeof(PySymbolObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.symbol.Symbol", sizeof(PySymbolObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_symbol_slots.data(),
 };
 
@@ -893,7 +893,7 @@ void symbol_module_free(void *module) {
 
 PyModuleDef symbol_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.symbol",
+    "clingo_funasp.symbol",
     PyDoc_STR("Functions and classes for symbol manipulation."),
     static_cast<Py_ssize_t>(sizeof(SymbolModuleState)),
     symbol_module_methods.data(),
@@ -936,7 +936,7 @@ void register_symbol(pybind11::module &m) {
 }
 
 auto py_symbol_type_ref() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.symbol"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.symbol"));
     if (mod == nullptr) {
         return nullptr;
     }
@@ -970,7 +970,7 @@ auto py_symbol_get(PyObject *type, PyObject *obj, clingo_symbol_t *sym) -> bool 
     assert(type != nullptr && obj != nullptr && sym != nullptr);
     auto *s = check_symbol(obj, type);
     if (s == nullptr) {
-        PyErr_SetString(PyExc_TypeError, "expected clingo.symbol.Symbol");
+        PyErr_SetString(PyExc_TypeError, "expected clingo_funasp.symbol.Symbol");
         return false;
     }
     *sym = s->sym;

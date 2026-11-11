@@ -6,9 +6,9 @@ Examples
 The first example shows how to add a fact to a program:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function
+>>> from clingo_funasp.control import Control
 ...
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -25,9 +25,9 @@ SAT
 
 The next example shows how to add theory atoms to a program:
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function
+>>> from clingo_funasp.control import Control
 ...
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -49,8 +49,8 @@ import enum
 import types
 from collections.abc import Sequence
 
-import clingo.base
-import clingo.symbol
+import clingo_funasp.base
+import clingo_funasp.symbol
 
 __all__: list[str] = [
     "Backend",
@@ -139,7 +139,7 @@ class Observer:
     not needed.
 
     See Also:
-        `clingo.control.Control.observe`
+        `clingo_funasp.control.Control.observe`
     """
 
     def __init__(self) -> None:
@@ -151,7 +151,7 @@ class Observer:
         """
         Called for assumptions in the solver.
 
-        See also `clingo.backend.Backend.assume`.
+        See also `clingo_funasp.backend.Backend.assume`.
 
         Args:
             literals: Sequence of program literals to assume.
@@ -166,7 +166,7 @@ class Observer:
         """
         Called for edge directives in the program.
 
-        See also `clingo.backend.Backend.edge`.
+        See also `clingo_funasp.backend.Backend.edge`.
 
         Args:
             node_u: The start node of the edge.
@@ -174,7 +174,7 @@ class Observer:
             condition: Sequence of literals representing the edge condition.
         """
 
-    def end_step(self, base: clingo.base.Base) -> None:
+    def end_step(self, base: clingo_funasp.base.Base) -> None:
         """
         Called at the end of a step.
 
@@ -186,7 +186,7 @@ class Observer:
         """
         Called for external directives in the program.
 
-        See also `clingo.backend.Backend.external`.
+        See also `clingo_funasp.backend.Backend.external`.
 
         Args:
             atom: The external atom (must be a positive literal).
@@ -204,7 +204,7 @@ class Observer:
         """
         Called for heuristic directives in the program.
 
-        See also `clingo.backend.Backend.heuristic`.
+        See also `clingo_funasp.backend.Backend.heuristic`.
 
         Args:
             atom: The atom to which the heuristic applies.
@@ -229,7 +229,7 @@ class Observer:
         """
         Called for minimize constraints in the program.
 
-        See also `clingo.backend.Backend.minimize`.
+        See also `clingo_funasp.backend.Backend.minimize`.
 
         Args:
             literals: Sequence of (literal, weight) tuples to minimize.
@@ -240,7 +240,7 @@ class Observer:
         """
         Called for projection directives in the program.
 
-        See also `clingo.backend.Backend.project`.
+        See also `clingo_funasp.backend.Backend.project`.
 
         Args:
             atoms: Sequence of atoms to project on.
@@ -250,7 +250,7 @@ class Observer:
         """
         Called for rules in the program.
 
-        See also `clingo.backend.Backend.rule`.
+        See also `clingo_funasp.backend.Backend.rule`.
 
         Args:
             head: Sequence of literals in the rule head.
@@ -268,7 +268,7 @@ class Observer:
         """
         Called for weight rules in the program.
 
-        See also `clingo.backend.Backend.weight_rule`.
+        See also `clingo_funasp.backend.Backend.weight_rule`.
 
         Args:
             head: Sequence of literals in the rule head.
@@ -286,7 +286,7 @@ class Backend:
     theory. It allows for low-level manipulation of logic programs.
 
     See Also:
-        `clingo.control.Control.backend`
+        `clingo_funasp.control.Control.backend`
     """
 
     def assume(self, literals: Sequence[int]) -> None:
@@ -301,7 +301,7 @@ class Backend:
             literals: Sequence of program literals to assume.
         """
 
-    def atom(self, symbol: clingo.symbol.Symbol | None = None) -> int:
+    def atom(self, symbol: clingo_funasp.symbol.Symbol | None = None) -> int:
         """
         Return a fresh program atom or the atom associated with the given symbol.
 
@@ -334,7 +334,7 @@ class Backend:
 
         Declares an atom as external and sets its truth value according to the
         specified type. External atoms can be used as assumptions or for incremental
-        solving. The special value `clingo.backend.ExternalType.Release` can be used to
+        solving. The special value `clingo_funasp.backend.ExternalType.Release` can be used to
         permanently set an external atom to false.
 
         Args:
@@ -418,7 +418,7 @@ class Backend:
     def theory_atom(
         self,
         atom: int | None,
-        name: clingo.symbol.Symbol,
+        name: clingo_funasp.symbol.Symbol,
         elements: Sequence[int],
         guard: tuple[str, int] | None = None,
     ) -> int:
@@ -520,7 +520,7 @@ class Backend:
             The unique id of the created string theory term.
         """
 
-    def theory_symbol(self, symbol: clingo.symbol.Symbol) -> int:
+    def theory_symbol(self, symbol: clingo_funasp.symbol.Symbol) -> int:
         """
         Convert a symbol into a theory term.
 

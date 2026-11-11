@@ -5,10 +5,10 @@ Functions and classes to implement custom propagators.
 
 ```python
 >>> from typing import Sequence
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.propagate import Assignment, PropagateControl, PropagateInit, Propagator
->>> from clingo.symbol import Function
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.propagate import Assignment, PropagateControl, PropagateInit, Propagator
+>>> from clingo_funasp.symbol import Function
 >>>
 >>> LIB = Library()
 >>>
@@ -60,8 +60,8 @@ import collections.abc
 import enum
 import typing
 
-import clingo.base
-import clingo.core
+import clingo_funasp.base
+import clingo_funasp.core
 
 __all__: list[str] = [
     "Assignment",
@@ -433,7 +433,7 @@ class PropagateControl:
         Tagged clauses are deleted after the current solve call finishes while locked
         clauses are exempt from the solvers clause deletion strategy.
 
-        See `clingo.propagate.PropagateControl.propagate` for how to handle the case
+        See `clingo_funasp.propagate.PropagateControl.propagate` for how to handle the case
         that the function returns false.
 
         Args:
@@ -532,8 +532,8 @@ class PropagateControl:
 
         If this function returns False, the propagator must add no further
         clauses/literals and immediately return from the corresponding
-        `clingo.propagate.Propagator.init`, `clingo.propagate.Propagator.propagate`
-        or `clingo.propagate.Propagator.check` call.
+        `clingo_funasp.propagate.Propagator.init`, `clingo_funasp.propagate.Propagator.propagate`
+        or `clingo_funasp.propagate.Propagator.check` call.
 
         Returns:
             True if propagation was successful, False otherwise.
@@ -597,7 +597,7 @@ class PropagateInit(PropagateControl):
         """
 
     @property
-    def base(self) -> clingo.base.Base:
+    def base(self) -> clingo_funasp.base.Base:
         """
         The base object to inspect the grounder's base.
         """
@@ -611,7 +611,7 @@ class PropagateInit(PropagateControl):
     @check_mode.setter
     def check_mode(self, arg1: CheckMode) -> None: ...
     @property
-    def library(self) -> clingo.core.Library:
+    def library(self) -> clingo_funasp.core.Library:
         """
         The library object managing symbols.
         """
@@ -662,7 +662,7 @@ class Propagator:
         Check if the current assignment is valid.
 
         This method is called on propagation fixpoints or total assignments (see
-        `clingo.propagate.PropagateInit.check_mode`). A propagator should add clauses
+        `clingo_funasp.propagate.PropagateInit.check_mode`). A propagator should add clauses
         to implement its constraints here.
 
         Args:
@@ -733,7 +733,7 @@ class Propagator:
 
         This method is called to undo previous assignments.
 
-        See also `clingo.propagate.PropagateInit.undo_mode`.
+        See also `clingo_funasp.propagate.PropagateInit.undo_mode`.
 
         Args:
             assignment:

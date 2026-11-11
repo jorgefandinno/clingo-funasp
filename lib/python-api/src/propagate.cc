@@ -271,14 +271,14 @@ class PropagateInit : public PropagateControl {
         return Library::cast(lib);
     }
 
-    auto base() -> TypeHint<"clingo.base.Base"> {
+    auto base() -> TypeHint<"clingo_funasp.base.Base"> {
         clingo_base_t const *base = nullptr;
         handle_error(clingo_propagate_init_base(init_, &base));
         auto *type = py_base_type_ref();
         if (type == nullptr) {
             throw py::error_already_set();
         }
-        return py::reinterpret_steal<TypeHint<"clingo.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
+        return py::reinterpret_steal<TypeHint<"clingo_funasp.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
     }
 
     auto get_check_mode() -> clingo_propagator_check_mode_e {
@@ -432,10 +432,10 @@ Functions and classes to implement custom propagators.
 
 ```python
 >>> from typing import Sequence
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.propagate import Assignment, PropagateControl, PropagateInit, Propagator
->>> from clingo.symbol import Function
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.propagate import Assignment, PropagateControl, PropagateInit, Propagator
+>>> from clingo_funasp.symbol import Function
 >>>
 >>> LIB = Library()
 >>>
@@ -543,20 +543,20 @@ Returns:
 
     py::native_enum<clingo_propagator_check_mode_e>(propagate, "CheckMode", "enum.IntEnum",
                                                     "Enumeration of check modes.")
-        .value("Off", clingo_propagator_check_mode_none, R"(Do not call `clingo.propagate.Propagator.check` at all.)")
+        .value("Off", clingo_propagator_check_mode_none, R"(Do not call `clingo_funasp.propagate.Propagator.check` at all.)")
         .value("Fixpoint", clingo_propagator_check_mode_fixpoint,
-               R"(Call `clingo.propagate.Propagator.check` on propagation fixpoints.)")
+               R"(Call `clingo_funasp.propagate.Propagator.check` on propagation fixpoints.)")
         .value("Total", clingo_propagator_check_mode_total,
-               R"(Call `clingo.propagate.Propagator.check` on total assignments.)")
+               R"(Call `clingo_funasp.propagate.Propagator.check` on total assignments.)")
         .value("Both", clingo_propagator_check_mode_both,
-               R"(Call `clingo.propagate.Propagator.check` on propagation fixpoints and total assignments.)")
+               R"(Call `clingo_funasp.propagate.Propagator.check` on propagation fixpoints and total assignments.)")
         .finalize();
 
     py::native_enum<clingo_propagator_undo_mode_e>(propagate, "UndoMode", "enum.IntEnum", "Enumeration of undo modes.")
         .value("Default", clingo_propagator_undo_mode_default,
-               R"(Call `clingo.propagate.Propagator.undo` for decision levels with non-emty changes.)")
+               R"(Call `clingo_funasp.propagate.Propagator.undo` for decision levels with non-emty changes.)")
         .value("Always", clingo_propagator_undo_mode_always,
-               R"(Additionally call `clingo.propagate.Propagator.undo` when check has been called.)")
+               R"(Additionally call `clingo_funasp.propagate.Propagator.undo` when check has been called.)")
         .finalize();
 
     make_sequence(py::class_<Assignment>(propagate, "Assignment", R"(
@@ -677,7 +677,7 @@ Add a clause to the solver.
 Tagged clauses are deleted after the current solve call finishes while locked
 clauses are exempt from the solvers clause deletion strategy.
 
-See `clingo.propagate.PropagateControl.propagate` for how to handle the case
+See `clingo_funasp.propagate.PropagateControl.propagate` for how to handle the case
 that the function returns false.
 
 Args:
@@ -760,8 +760,8 @@ Perform propagation in the solver.
 
 If this function returns False, the propagator must add no further
 clauses/literals and immediately return from the corresponding
-`clingo.propagate.Propagator.init`, `clingo.propagate.Propagator.propagate`
-or `clingo.propagate.Propagator.check` call.
+`clingo_funasp.propagate.Propagator.init`, `clingo_funasp.propagate.Propagator.propagate`
+or `clingo_funasp.propagate.Propagator.check` call.
 
 Returns:
     True if propagation was successful, False otherwise.
@@ -889,7 +889,7 @@ Undo previous assignments.
 
 This method is called to undo previous assignments.
 
-See also `clingo.propagate.PropagateInit.undo_mode`.
+See also `clingo_funasp.propagate.PropagateInit.undo_mode`.
 
 Args:
     assignment:
@@ -901,7 +901,7 @@ Args:
 Check if the current assignment is valid.
 
 This method is called on propagation fixpoints or total assignments (see
-`clingo.propagate.PropagateInit.check_mode`). A propagator should add clauses
+`clingo_funasp.propagate.PropagateInit.check_mode`). A propagator should add clauses
 to implement its constraints here.
 
 Args:

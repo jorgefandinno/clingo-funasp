@@ -7,8 +7,8 @@ The example shows the most straightforward way to ground and solve a
 small test program:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -26,16 +26,16 @@ import collections.abc
 import enum
 import typing
 
-import clingo.ast
-import clingo.backend
-import clingo.base
-import clingo.config
-import clingo.core
-import clingo.ground
-import clingo.propagate
-import clingo.solve
-import clingo.stats
-import clingo.symbol
+import clingo_funasp.ast
+import clingo_funasp.backend
+import clingo_funasp.base
+import clingo_funasp.config
+import clingo_funasp.core
+import clingo_funasp.ground
+import clingo_funasp.propagate
+import clingo_funasp.solve
+import clingo_funasp.stats
+import clingo_funasp.symbol
 
 __all__: list[str] = ["Control", "ControlMode"]
 
@@ -59,7 +59,7 @@ class _ConstMap:
         Check if the map contains the given key.
         """
 
-    def __getitem__(self, key: str) -> clingo.symbol.Symbol:
+    def __getitem__(self, key: str) -> clingo_funasp.symbol.Symbol:
         """
         Get the value for the given key.
         """
@@ -75,13 +75,13 @@ class _ConstMap:
         """
 
     def get(
-        self, key: str, default: clingo.symbol.Symbol | None = None
-    ) -> clingo.symbol.Symbol | None:
+        self, key: str, default: clingo_funasp.symbol.Symbol | None = None
+    ) -> clingo_funasp.symbol.Symbol | None:
         """
         Get the value for the given key or the default if absent.
         """
 
-    def items(self) -> collections.abc.Iterator[tuple[str, clingo.symbol.Symbol]]:
+    def items(self) -> collections.abc.Iterator[tuple[str, clingo_funasp.symbol.Symbol]]:
         """
         Get an iterator over the items in the map.
         """
@@ -91,7 +91,7 @@ class _ConstMap:
         Get an iterator over the keys in the map.
         """
 
-    def values(self) -> collections.abc.Iterator[clingo.symbol.Symbol]:
+    def values(self) -> collections.abc.Iterator[clingo_funasp.symbol.Symbol]:
         """
         Get an iterator over the values in the map.
         """
@@ -102,7 +102,7 @@ class Control:
     """
 
     def __init__(
-        self, lib: clingo.core.Library, options: typing.Sequence[str] = []
+        self, lib: clingo_funasp.core.Library, options: typing.Sequence[str] = []
     ) -> None:
         """
         Construct a control object.
@@ -124,7 +124,7 @@ class Control:
     def ground(
         self,
         parts: (
-            typing.Sequence[tuple[str, typing.Sequence[clingo.symbol.Symbol]]] | None
+            typing.Sequence[tuple[str, typing.Sequence[clingo_funasp.symbol.Symbol]]] | None
         ) = None,
         context: typing.Any = None,
     ) -> None:
@@ -151,11 +151,11 @@ class Control:
         """
         Interrupt the active solve call.
 
-        This function is thread-safe. Prefer using `clingo.solve.SolveHandle.cancel` if
+        This function is thread-safe. Prefer using `clingo_funasp.solve.SolveHandle.cancel` if
         possible.
         """
 
-    def join(self, program: clingo.ast.Program) -> None:
+    def join(self, program: clingo_funasp.ast.Program) -> None:
         """
         Join with the given non-ground logic program.
 
@@ -182,7 +182,7 @@ class Control:
         """
 
     def observe(
-        self, observer: clingo.backend.Observer, preprocess: bool = True
+        self, observer: clingo_funasp.backend.Observer, preprocess: bool = True
     ) -> None:
         """
         Inspect the ground program of the current step.
@@ -211,11 +211,11 @@ class Control:
                 The logic program as a string.
         """
 
-    def register_propagator(self, propagator: clingo.propagate.Propagator) -> None:
+    def register_propagator(self, propagator: clingo_funasp.propagate.Propagator) -> None:
         """
         Register the given propagator for theory propagation.
 
-        See the `clingo.propagate` module for an example.
+        See the `clingo_funasp.propagate` module for an example.
 
         Args:
             propagator:
@@ -224,19 +224,19 @@ class Control:
 
     def solve(
         self,
-        assumptions: typing.Sequence[tuple[clingo.symbol.Symbol, bool] | int] = [],
+        assumptions: typing.Sequence[tuple[clingo_funasp.symbol.Symbol, bool] | int] = [],
         on_model: (
-            collections.abc.Callable[[clingo.solve.Model], bool | None] | None
+            collections.abc.Callable[[clingo_funasp.solve.Model], bool | None] | None
         ) = None,
         on_unsat: collections.abc.Callable[[typing.Sequence[int]], None] | None = None,
         on_stats: (
-            collections.abc.Callable[[clingo.stats.Stats, clingo.stats.Stats], None]
+            collections.abc.Callable[[clingo_funasp.stats.Stats, clingo_funasp.stats.Stats], None]
             | None
         ) = None,
         on_finish: (
-            collections.abc.Callable[[clingo.solve.SolveResult], None] | None
+            collections.abc.Callable[[clingo_funasp.solve.SolveResult], None] | None
         ) = None,
-    ) -> clingo.solve.SolveResult:
+    ) -> clingo_funasp.solve.SolveResult:
         """
         Solve the current ground program.
 
@@ -259,24 +259,24 @@ class Control:
             on_finish:
                 Optional callback called once search has finished.
         Returns:
-            A `clingo.solve.SolveResult` representing the result of the search.
+            A `clingo_funasp.solve.SolveResult` representing the result of the search.
         """
 
     def start_ground(
         self,
         parts: (
-            typing.Sequence[tuple[str, typing.Sequence[clingo.symbol.Symbol]]] | None
+            typing.Sequence[tuple[str, typing.Sequence[clingo_funasp.symbol.Symbol]]] | None
         ) = None,
         context: typing.Any = None,
         on_finish: (
-            collections.abc.Callable[[clingo.ground.GroundResult], None] | None
+            collections.abc.Callable[[clingo_funasp.ground.GroundResult], None] | None
         ) = None,
-    ) -> clingo.ground.GroundHandle:
+    ) -> clingo_funasp.ground.GroundHandle:
         """
         Ground the given program parts.
 
-        Starts grounding in the background and returns a `clingo.ground.GroundHandle`
-        to the running grounding. See `clingo.control.Control.ground` for details on
+        Starts grounding in the background and returns a `clingo_funasp.ground.GroundHandle`
+        to the running grounding. See `clingo_funasp.control.Control.ground` for details on
         grounding program parts.
 
         Args:
@@ -291,21 +291,21 @@ class Control:
 
     def start_solve(
         self,
-        assumptions: typing.Sequence[tuple[clingo.symbol.Symbol, bool] | int] = [],
+        assumptions: typing.Sequence[tuple[clingo_funasp.symbol.Symbol, bool] | int] = [],
         on_model: (
-            collections.abc.Callable[[clingo.solve.Model], bool | None] | None
+            collections.abc.Callable[[clingo_funasp.solve.Model], bool | None] | None
         ) = None,
         on_unsat: collections.abc.Callable[[typing.Sequence[int]], None] | None = None,
         on_stats: (
-            collections.abc.Callable[[clingo.stats.Stats, clingo.stats.Stats], None]
+            collections.abc.Callable[[clingo_funasp.stats.Stats, clingo_funasp.stats.Stats], None]
             | None
         ) = None,
         on_finish: (
-            collections.abc.Callable[[clingo.solve.SolveResult], None] | None
+            collections.abc.Callable[[clingo_funasp.solve.SolveResult], None] | None
         ) = None,
         yield_: bool = False,
         async_: bool = False,
-    ) -> clingo.solve.SolveHandle:
+    ) -> clingo_funasp.solve.SolveHandle:
         """
         Solve the current ground program.
 
@@ -320,38 +320,38 @@ class Control:
         Args:
             assumptions:
                 A list of assumptions that constrain this search. Each assumption is
-                either a `tuple[clingo.symbol.Symbol, bool]` indicating an atom's truth
-                value or a program literal (see `clingo.base.Atom.literal`). For
-                example, using `[(clingo.symbol.Function(lib, "a"), True)]` only admits
+                either a `tuple[clingo_funasp.symbol.Symbol, bool]` indicating an atom's truth
+                value or a program literal (see `clingo_funasp.base.Atom.literal`). For
+                example, using `[(clingo_funasp.symbol.Function(lib, "a"), True)]` only admits
                 answer sets that contain atom `a`.
             on_model:
-                Optional callback that receives a `clingo.solve.Model` object when
+                Optional callback that receives a `clingo_funasp.solve.Model` object when
                 a model is found. Returning `False` from the callback stops solving.
             on_unsat:
                 Optional callback to intercept lower bounds during optimization.
             on_stats:
                 Optional callback that receives statistics updates after each step.
-                Two `clingo.stats.Stats` objects are passed: step-specific and
+                Two `clingo_funasp.stats.Stats` objects are passed: step-specific and
                 accumulated stats.
             on_finish:
                 Optional callback called once search has finished. A
-                `clingo.solve.SolveResult` is passed to the callback.
+                `clingo_funasp.solve.SolveResult` is passed to the callback.
             yield_:
-                If `True`, the returned `clingo.solve.SolveHandle` is iterable,
-                yielding  `clingo.solve.Model` objects during solving.
+                If `True`, the returned `clingo_funasp.solve.SolveHandle` is iterable,
+                yielding  `clingo_funasp.solve.Model` objects during solving.
             async_:
                 If `True`, solving runs asynchronously in a separate thread.
                 Note: Callbacks (`on_model`, `on_stats`, etc.) will also be called
                 from a separate thread.
         Returns:
-            A `clingo.solve.SolveHandle` to control the search.
+            A `clingo_funasp.solve.SolveHandle` to control the search.
 
         Notes:
             Asynchronous solving requires compiling clingo with thread support.
             Blocking methods on `SolveHandle` release the GIL but are not thread-safe.
 
         See Also:
-            `clingo.solve`
+            `clingo_funasp.solve`
         """
 
     def write_aspif(
@@ -370,7 +370,7 @@ class Control:
         for existing files.
 
         If `path` is None, clingo's internal output buffer is used instead of writing
-        to a file. The buffer content is available via `clingo.control.Control.buffer`.
+        to a file. The buffer content is available via `clingo_funasp.control.Control.buffer`.
         If `preamble` is None, the preamble is written only if the buffer is currently
         empty. In application mode, the buffer is printed to stdout and cleared after
         each major operation like grounding, so the preamble flag should be set
@@ -389,13 +389,13 @@ class Control:
         """
 
     @property
-    def backend(self) -> clingo.backend.BackendManager:
+    def backend(self) -> clingo_funasp.backend.BackendManager:
         """
         Get a backend manager to extend the ground program.
         """
 
     @property
-    def base(self) -> clingo.base.Base:
+    def base(self) -> clingo_funasp.base.Base:
         """
         Get the atom/term bases of the program.
         """
@@ -407,13 +407,13 @@ class Control:
         """
 
     @property
-    def config(self) -> clingo.config.Config:
+    def config(self) -> clingo_funasp.config.Config:
         """
         Get the solver config.
         """
 
     @property
-    def const_map(self) -> typing.Mapping[str, clingo.symbol.Symbol]:
+    def const_map(self) -> typing.Mapping[str, clingo_funasp.symbol.Symbol]:
         """
         Get the map of constants defined by `#const` directives.
         """
@@ -427,7 +427,7 @@ class Control:
     @property
     def parts(
         self,
-    ) -> typing.Sequence[tuple[str, typing.Sequence[clingo.symbol.Symbol]]] | None:
+    ) -> typing.Sequence[tuple[str, typing.Sequence[clingo_funasp.symbol.Symbol]]] | None:
         """
         Get/set the program parts to ground.
         """
@@ -435,7 +435,7 @@ class Control:
     @parts.setter
     def parts(
         self,
-        arg1: typing.Sequence[tuple[str, typing.Sequence[clingo.symbol.Symbol]]] | None,
+        arg1: typing.Sequence[tuple[str, typing.Sequence[clingo_funasp.symbol.Symbol]]] | None,
     ) -> None: ...
     @property
     def profile(self) -> list:
@@ -450,7 +450,7 @@ class Control:
         """
 
     @property
-    def stats(self) -> clingo.stats.StatsView:
+    def stats(self) -> clingo_funasp.stats.StatsView:
         """
         Get the solver stats.
         """

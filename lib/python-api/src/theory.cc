@@ -143,7 +143,7 @@ class Theory {
         }
     }
 
-    void register_options(TypeHint<"clingo.app.AppOptions"> const &opts) const {
+    void register_options(TypeHint<"clingo_funasp.app.AppOptions"> const &opts) const {
         if (theory_.register_options != nullptr) {
             handle_error(theory_.register_options(theory_.self, convert_options(opts)));
         }
@@ -221,12 +221,12 @@ class Theory {
     }
 
     using PyStatement = TypeHint<
-        "clingo.ast.StatementRule | clingo.ast.StatementTheory | clingo.ast.StatementOptimize | "
-        "clingo.ast.StatementWeakConstraint | clingo.ast.StatementShow | clingo.ast.StatementShowNothing | "
-        "clingo.ast.StatementShowSignature | clingo.ast.StatementProject | clingo.ast.StatementProjectSignature | "
-        "clingo.ast.StatementDefined | clingo.ast.StatementExternal | clingo.ast.StatementEdge | "
-        "clingo.ast.StatementHeuristic | clingo.ast.StatementScript | clingo.ast.StatementInclude | "
-        "clingo.ast.StatementProgram | clingo.ast.StatementConst | clingo.ast.StatementComment">;
+        "clingo_funasp.ast.StatementRule | clingo_funasp.ast.StatementTheory | clingo_funasp.ast.StatementOptimize | "
+        "clingo_funasp.ast.StatementWeakConstraint | clingo_funasp.ast.StatementShow | clingo_funasp.ast.StatementShowNothing | "
+        "clingo_funasp.ast.StatementShowSignature | clingo_funasp.ast.StatementProject | clingo_funasp.ast.StatementProjectSignature | "
+        "clingo_funasp.ast.StatementDefined | clingo_funasp.ast.StatementExternal | clingo_funasp.ast.StatementEdge | "
+        "clingo_funasp.ast.StatementHeuristic | clingo_funasp.ast.StatementScript | clingo_funasp.ast.StatementInclude | "
+        "clingo_funasp.ast.StatementProgram | clingo_funasp.ast.StatementConst | clingo_funasp.ast.StatementComment">;
 
     void rewrite(PyStatement const &stm, std::function<void(PyStatement const &)> fun) const {
         if (theory_.rewrite_ast != nullptr) {
@@ -378,12 +378,12 @@ Register theory related options.
 Args:
     options: The application options.
 
-See also: `clingo.app.App.register_options`
+See also: `clingo_funasp.app.App.register_options`
 )"_d)
         .def("validate_options", &Theory::validate_options, R"(
 Check the registered options.
 
-See also: `clingo.app.App.validate_options`
+See also: `clingo_funasp.app.App.validate_options`
 )"_d)
         .def("prepare", &Theory::prepare, py::arg("control"), R"(
 Prepare the theory for solving.
@@ -414,7 +414,7 @@ Args:
 Get the value of the symbol in the assignment of the given thread.
 
 It depends on the theory when this function can be called. Generally, it can be
-called after `clingo.theory.Theory.on_model` while the solver is still holding
+called after `clingo_funasp.theory.Theory.on_model` while the solver is still holding
 its current model.
 
 Args:
@@ -428,7 +428,7 @@ Returns:
 Get the symbols and values currently assigned by the theory
 
 It depends on the theory when this function can be called. Generally, it can be
-called after `clingo.theory.Theory.on_model` while the solver is still holding
+called after `clingo_funasp.theory.Theory.on_model` while the solver is still holding
 its current model.
 
 Args:
