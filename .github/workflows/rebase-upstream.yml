@@ -111,7 +111,8 @@ jobs:
       - name: Dependencies
         if: steps.gate.outputs.test == 'true'
         run: |
-          pkgs=(cmake ninja pytest python pip c-compiler cxx-compiler re2c)
+          # conda-forge python 3.15 ships without libpython, so CMake cannot find Python Development
+          pkgs=(cmake ninja pytest "python=3.14" pip c-compiler cxx-compiler re2c)
           conda install "${pkgs[@]}"
 
       - name: Build clingo
