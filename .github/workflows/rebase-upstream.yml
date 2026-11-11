@@ -2,7 +2,8 @@ name: Rebase on upstream
 
 # Rebases the fork commits onto potassco/clingo wip-20 (see rebase.sh), builds
 # and tests the result (clingo C++/Python tests and the funasp test suite), and
-# force-pushes the branch only if everything passes.
+# force-pushes the branch only if everything passes. After a successful push,
+# it triggers the PyPI workflow (cibw.yml) to publish the new version.
 #
 # Pushing needs a token that may update workflow files, because upstream
 # commits can touch .github/workflows (GITHUB_TOKEN cannot). Create a
@@ -27,9 +28,18 @@ on:
         description: "Push the result if all tests pass"
         type: boolean
         default: true
+      publish:
+        description: "Where to publish after a successful push"
+        type: choice
+        options:
+          - pypi
+          - testpypi
+          - none
+        default: pypi
 
 permissions:
   contents: write
+  actions: write # to trigger the PyPI workflow
 
 concurrency:
   group: rebase-upstream
@@ -40,6 +50,8 @@ env:
   FUNASP_REF: ${{ inputs.funasp_ref || 'develop' }}
   # Scheduled runs always push; manual runs push only if requested.
   PUSH: ${{ github.event_name == 'schedule' || inputs.push }}
+  # Scheduled runs publish to PyPI.
+  PUBLISH: ${{ inputs.publish || 'pypi' }}
 
 jobs:
   rebase:
@@ -179,6 +191,18 @@ jobs:
           git push origin "+$OLD_SHA:refs/heads/backup/$BRANCH"
           git push --force-with-lease="$BRANCH:$OLD_SHA" origin "HEAD:refs/heads/$BRANCH"
           echo "Pushed \`$BRANCH\`. Previous state kept in \`backup/$BRANCH\` ($OLD_SHA)." >> "$GITHUB_STEP_SUMMARY"
+
+      # Runs cibw.yml on the commit just pushed. Its `wip` input selects
+      # TestPyPI (true) or PyPI (false). workflow_dispatch events created with
+      # GITHUB_TOKEN do start workflows, so no extra token is needed here.
+      - name: Publish
+        if: steps.rebase.outputs.changed == 'true' && env.PUSH == 'true' && env.PUBLISH != 'none'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          WIP=$([ "$PUBLISH" = testpypi ] && echo true || echo false)
+          gh workflow run cibw.yml --repo "$GITHUB_REPOSITORY" --ref "$BRANCH" -f wip="$WIP"
+          echo "Triggered the PyPI workflow (cibw.yml) for \`$BRANCH\`, publishing to $PUBLISH." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Not pushed
         if: steps.rebase.outputs.changed == 'true' && env.PUSH != 'true'
