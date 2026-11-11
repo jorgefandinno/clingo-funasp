@@ -1,0 +1,184 @@
+name: Rebase on upstream
+
+# Rebases the fork commits onto potassco/clingo wip-20 (see rebase.sh), builds
+# and tests the result (clingo C++/Python tests and the funasp test suite), and
+# force-pushes the branch only if everything passes.
+#
+# Pushing needs a token that may update workflow files, because upstream
+# commits can touch .github/workflows (GITHUB_TOKEN cannot). Create a
+# fine-grained personal access token for this repository with
+# "Contents: read and write" and "Workflows: read and write", and store it as
+# the repository secret REBASE_TOKEN. Pushes made with it also trigger CI.
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # every day at 00:00 UTC
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Fork branch to rebase"
+        type: string
+        default: assignments
+      funasp_ref:
+        description: "krr-uno/funasp ref to test against"
+        type: string
+        default: develop
+      push:
+        description: "Push the result if all tests pass"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebase-upstream
+  cancel-in-progress: false
+
+env:
+  BRANCH: ${{ inputs.branch || 'assignments' }}
+  FUNASP_REF: ${{ inputs.funasp_ref || 'develop' }}
+  # Scheduled runs always push; manual runs push only if requested.
+  PUSH: ${{ github.event_name == 'schedule' || inputs.push }}
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.REBASE_TOKEN || github.token }}
+
+      - name: Rebase
+        id: rebase
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/potassco/clingo.git
+
+          OLD_SHA=$(git rev-parse HEAD)
+          echo "old_sha=$OLD_SHA" >> "$GITHUB_OUTPUT"
+          ./rebase.sh
+          NEW_SHA=$(git rev-parse HEAD)
+          echo "new_sha=$NEW_SHA" >> "$GITHUB_OUTPUT"
+
+          if [ "$OLD_SHA" = "$NEW_SHA" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Already up to date with upstream wip-20." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "## Rebased \`$BRANCH\` onto upstream wip-20 ($(git rev-parse --short wip-20))"
+              echo '```'
+              git range-diff "$(git merge-base "$OLD_SHA" wip-20)..$OLD_SHA" "wip-20..$NEW_SHA"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Scheduled runs stop here when there is nothing new; manual runs
+      # always build and test, so the pipeline can be checked on demand.
+      - name: Decide whether to test
+        id: gate
+        run: |
+          if [ "${{ steps.rebase.outputs.changed }}" = true ] || [ "${{ github.event_name }}" = workflow_dispatch ]; then
+            echo "test=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "test=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update submodules
+        if: steps.gate.outputs.test == 'true'
+        run: git submodule update --init --recursive
+
+      - name: Miniconda
+        if: steps.gate.outputs.test == 'true'
+        uses: conda-incubator/setup-miniconda@v4
+        with:
+          miniforge-version: latest
+          channels: conda-forge
+          channel-priority: strict
+          activate-environment: build-env
+          auto-update-conda: true
+
+      - name: Dependencies
+        if: steps.gate.outputs.test == 'true'
+        run: |
+          pkgs=(cmake ninja pytest python pip c-compiler cxx-compiler re2c)
+          conda install "${pkgs[@]}"
+
+      - name: Build clingo
+        if: steps.gate.outputs.test == 'true'
+        run: |
+          cmake -S . -B build -G "Ninja Multi-Config" \
+            -DCLINGO_BUILD_TESTS=On \
+            -DCLINGO_BUILD_APP=On \
+            -DCLINGO_BUILD_EXAMPLES=On \
+            -DCLASP_BUILD_TESTS=On \
+            -DCLASP_BUILD_EXAMPLES=On \
+            -DLIB_POTASSCO_BUILD_TESTS=On
+          cmake --build build --config Release
+
+      - name: Test clingo (C++ and Python API)
+        if: steps.gate.outputs.test == 'true'
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Install clingo-funasp
+        if: steps.gate.outputs.test == 'true'
+        run: |
+          pip install -v .
+          python -c "import importlib.metadata as m, clingo_funasp; print(m.version('clingo-funasp'), clingo_funasp.__file__)"
+
+      - name: Checkout funasp
+        if: steps.gate.outputs.test == 'true'
+        uses: actions/checkout@v6
+        with:
+          repository: krr-uno/funasp
+          ref: ${{ env.FUNASP_REF }}
+          path: funasp-src
+
+      - name: Install funasp
+        if: steps.gate.outputs.test == 'true'
+        working-directory: funasp-src
+        run: |
+          # Keep the clingo-funasp just built: never let pip replace it with
+          # the PyPI release (funasp pins clingo-funasp>=6.0.0.postN, which
+          # a local build does not satisfy).
+          grep -v -i '^clingo-funasp' envs/requirements.txt > "$RUNNER_TEMP/requirements.txt"
+          pip install -r "$RUNNER_TEMP/requirements.txt"
+          pip install --no-deps .
+          pip check || true
+          SITE=$(python -c "import clingo_funasp, os; print(os.path.dirname(clingo_funasp.__file__))")
+          case "$SITE" in
+            "$CONDA_PREFIX"/*) echo "Using clingo_funasp from $SITE" ;;
+            *) echo "clingo_funasp not loaded from the build env: $SITE"; exit 1 ;;
+          esac
+
+      - name: Test funasp
+        if: steps.gate.outputs.test == 'true'
+        working-directory: funasp-src
+        run: |
+          python funasp examples/family.lp || { code=$?; [ "$code" -eq 10 ] || [ "$code" -eq 20 ] || [ "$code" -eq 30 ] || exit "$code"; }
+          nox -s typecheck slow_test
+
+      - name: Push
+        if: steps.rebase.outputs.changed == 'true' && env.PUSH == 'true'
+        env:
+          OLD_SHA: ${{ steps.rebase.outputs.old_sha }}
+        run: |
+          # One-level backup of the previous state, then a push that fails
+          # if someone else updated the branch while this job was running.
+          git push origin "+$OLD_SHA:refs/heads/backup/$BRANCH"
+          git push --force-with-lease="$BRANCH:$OLD_SHA" origin "HEAD:refs/heads/$BRANCH"
+          echo "Pushed \`$BRANCH\`. Previous state kept in \`backup/$BRANCH\` ($OLD_SHA)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Not pushed
+        if: steps.rebase.outputs.changed == 'true' && env.PUSH != 'true'
+        run: echo "All tests passed; not pushed (push input was false)." >> "$GITHUB_STEP_SUMMARY"
