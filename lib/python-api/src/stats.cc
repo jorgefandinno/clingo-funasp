@@ -1256,7 +1256,7 @@ auto py_stats_iter_slots = std::array{
 };
 
 auto py_stats_iter_spec = PyType_Spec{
-    "clingo.stats._StatsIter",
+    "clingo_funasp.stats._StatsIter",
     sizeof(PyStatsIterObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -1292,7 +1292,7 @@ auto py_stats_view_slots = std::array{
 };
 
 auto py_stats_view_spec = PyType_Spec{
-    "clingo.stats.StatsView",
+    "clingo_funasp.stats.StatsView",
     sizeof(PyStatsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,
@@ -1312,7 +1312,7 @@ auto py_stats_array_view_slots = std::array{
 };
 
 auto py_stats_array_view_spec = PyType_Spec{
-    "clingo.stats.StatsArrayView",
+    "clingo_funasp.stats.StatsArrayView",
     sizeof(PyStatsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_SEQUENCE | Py_TPFLAGS_HAVE_GC |
@@ -1338,7 +1338,7 @@ auto py_stats_array_slots = std::array{
 };
 
 auto py_stats_array_spec = PyType_Spec{
-    "clingo.stats.StatsArray",
+    "clingo_funasp.stats.StatsArray",
     sizeof(PyStatsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_SEQUENCE,
@@ -1368,7 +1368,7 @@ auto py_stats_map_view_slots = std::array{
 };
 
 auto py_stats_map_view_spec = PyType_Spec{
-    "clingo.stats.StatsMapView",
+    "clingo_funasp.stats.StatsMapView",
     sizeof(PyStatsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_MAPPING | Py_TPFLAGS_HAVE_GC |
@@ -1423,7 +1423,7 @@ auto py_stats_map_slots = std::array{
 };
 
 auto py_stats_map_spec = PyType_Spec{
-    "clingo.stats.StatsMap",
+    "clingo_funasp.stats.StatsMap",
     sizeof(PyStatsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_MAPPING,
@@ -1456,7 +1456,7 @@ auto py_stats_slots = std::array{
 };
 
 auto py_stats_spec = PyType_Spec{
-    "clingo.stats.Stats",  sizeof(PyStatsObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.stats.Stats",  sizeof(PyStatsObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_stats_slots.data(),
 };
 
@@ -1504,7 +1504,7 @@ void stats_module_free(void *module) {
 
 PyModuleDef stats_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.stats",
+    "clingo_funasp.stats",
     PyDoc_STR("Functions and classes related to solver stats."),
     static_cast<Py_ssize_t>(sizeof(StatsModuleState)),
     nullptr,
@@ -1549,7 +1549,7 @@ auto py_stats_new(PyObject *owner, PyObject *type, clingo_stats_t *stats, uint64
 }
 
 auto py_stats_type_ref() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.stats"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.stats"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1561,7 +1561,7 @@ auto py_stats_type_ref() -> PyObject * {
 }
 
 auto py_stats_view_type_ref() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.stats"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.stats"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1575,7 +1575,7 @@ auto py_stats_view_type_ref() -> PyObject * {
 auto py_stats_get(PyObject *type, PyObject *obj, clingo_stats_t **stats, uint64_t *key) -> bool {
     assert(type != nullptr && obj != nullptr);
     if (PyObject_TypeCheck(obj, reinterpret_cast<PyTypeObject *>(type)) == 0) {
-        PyErr_SetString(PyExc_TypeError, "object is not of expected clingo.stats type");
+        PyErr_SetString(PyExc_TypeError, "object is not of expected clingo_funasp.stats type");
         return false;
     }
     auto *s = reinterpret_cast<PyStatsObject *>(obj);

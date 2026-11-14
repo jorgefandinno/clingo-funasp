@@ -45,9 +45,9 @@ Functions and classes related to grounding.
 The example shows how call external functions during grounding:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Number
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Number
+>>> from clingo_funasp.control import Control
 >>>
 >>> class Context:
 ...     def __init__(self, lib):
@@ -73,8 +73,8 @@ The example below shows how to start grounding in the background and wait for
 grounding to finish:
 
 ```python
->>> from clingo.control import Control
->>> from clingo.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -110,7 +110,7 @@ statement.
 Blocking functions in this object release the GIL. They are not thread-safe
 though.
 
-See also: `clingo.control.Control.ground`
+See also: `clingo_funasp.control.Control.ground`
 )"_d)
         .def("get", &GroundHandle::get, R"(
 Get the ground result.
@@ -136,7 +136,7 @@ Returns:
         .def("cancel", &GroundHandle::cancel, R"(
 Cancel the running search.
 
-See also: `clingo.control.Control.interrupt`
+See also: `clingo_funasp.control.Control.interrupt`
 )"_d)
         .def(
             "__enter__", [&](GroundHandle *hnd) -> GroundHandle * { return hnd; }, "Start the search.")

@@ -4,9 +4,9 @@ Functions and classes to work with atom and term bases.
 # Examples
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function, Number
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function, Number
+>>> from clingo_funasp.control import Control
 >>> lib = Library()
 >>> ctl = Control(lib)
 >>> ctl.parse_string(\"\"\"\\
@@ -37,7 +37,7 @@ import enum
 import typing
 from collections.abc import Iterator, Sequence
 
-from clingo.symbol import Symbol
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = [
     "Atom",
@@ -479,7 +479,7 @@ class TheoryElement:
 
         True conditions do not have a condition id. A condition id is only valid for
         the current solving step. However, they can be mapped to persistent solver
-        literals using `clingo.propagate.PropagateInit.solver_literal`.
+        literals using `clingo_funasp.propagate.PropagateInit.solver_literal`.
         """
 
     @property

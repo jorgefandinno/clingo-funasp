@@ -198,24 +198,24 @@ auto Control::start_ground(std::optional<PartSpan> parts, py::handle ctx,
     return res;
 }
 
-auto Control::base() -> TypeHint<"clingo.base.Base"> {
+auto Control::base() -> TypeHint<"clingo_funasp.base.Base"> {
     clingo_base_t const *base = nullptr;
     clingo_control_base(get(), &base);
     auto *type = py_base_type_ref();
     if (type == nullptr) {
         throw py::error_already_set();
     }
-    return py::reinterpret_steal<TypeHint<"clingo.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
+    return py::reinterpret_steal<TypeHint<"clingo_funasp.base.Base">>(py_base_new(py::cast(this).ptr(), type, base));
 }
 
-void Control::observe(TypeHint<"clingo.backend.Observer"> &obs, bool preprocess) {
-    auto module = py::module::import("clingo.backend");
+void Control::observe(TypeHint<"clingo_funasp.backend.Observer"> &obs, bool preprocess) {
+    auto module = py::module::import("clingo_funasp.backend");
     if (!py_observe(module.ptr(), get(), obs.ptr(), preprocess)) {
         throw py::error_already_set();
     }
 }
 
-auto Control::backend() -> TypeHint<"clingo.backend.BackendManager"> {
+auto Control::backend() -> TypeHint<"clingo_funasp.backend.BackendManager"> {
     PyObject *type = py_backend_manager_type_ref();
     if (type == nullptr) {
         throw py::error_already_set();
@@ -224,10 +224,10 @@ auto Control::backend() -> TypeHint<"clingo.backend.BackendManager"> {
     if (res == nullptr) {
         throw py::error_already_set();
     }
-    return py::reinterpret_steal<TypeHint<"clingo.backend.BackendManager">>(res);
+    return py::reinterpret_steal<TypeHint<"clingo_funasp.backend.BackendManager">>(res);
 }
 
-auto Control::config() -> TypeHint<"clingo.config.Config"> {
+auto Control::config() -> TypeHint<"clingo_funasp.config.Config"> {
     clingo_config_t *config = nullptr;
     handle_error(clingo_control_config(get(), &config));
     clingo_id_t key = 0;
@@ -240,7 +240,7 @@ auto Control::config() -> TypeHint<"clingo.config.Config"> {
     if (cfg.get() == nullptr) {
         throw py::error_already_set();
     }
-    return py::reinterpret_steal<TypeHint<"clingo.config.Config">>(cfg.release());
+    return py::reinterpret_steal<TypeHint<"clingo_funasp.config.Config">>(cfg.release());
 }
 
 auto Control::stats() -> StatsView {
@@ -509,8 +509,8 @@ The example shows the most straightforward way to ground and solve a
 small test program:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -544,7 +544,7 @@ Args:
         .def("register_propagator", &Control::register_propagator, py::arg("propagator"), R"(
 Register the given propagator for theory propagation.
 
-See the `clingo.propagate` module for an example.
+See the `clingo_funasp.propagate` module for an example.
 
 Args:
     propagator:
@@ -580,7 +580,7 @@ None, then the aspif preamble is written for newly created files and omitted
 for existing files.
 
 If `path` is None, clingo's internal output buffer is used instead of writing
-to a file. The buffer content is available via `clingo.control.Control.buffer`.
+to a file. The buffer content is available via `clingo_funasp.control.Control.buffer`.
 If `preamble` is None, the preamble is written only if the buffer is currently
 empty. In application mode, the buffer is printed to stdout and cleared after
 each major operation like grounding, so the preamble flag should be set
@@ -619,8 +619,8 @@ Args:
              py::arg("on_finish") = py::none(), R"(
 Ground the given program parts.
 
-Starts grounding in the background and returns a `clingo.ground.GroundHandle`
-to the running grounding. See `clingo.control.Control.ground` for details on
+Starts grounding in the background and returns a `clingo_funasp.ground.GroundHandle`
+to the running grounding. See `clingo_funasp.control.Control.ground` for details on
 grounding program parts.
 
 Args:
@@ -656,7 +656,7 @@ Args:
     on_finish:
         Optional callback called once search has finished.
 Returns:
-    A `clingo.solve.SolveResult` representing the result of the search.
+    A `clingo_funasp.solve.SolveResult` representing the result of the search.
 )"_d)
         .def("start_solve", &Control::start_solve, py::arg("assumptions") = MixedLitSpan{},
              py::arg("on_model") = std::nullopt, py::arg("on_unsat") = std::nullopt, py::arg("on_stats") = std::nullopt,
@@ -674,38 +674,38 @@ blocks until solving is complete.
 Args:
     assumptions:
         A list of assumptions that constrain this search. Each assumption is
-        either a `tuple[clingo.symbol.Symbol, bool]` indicating an atom's truth
-        value or a program literal (see `clingo.base.Atom.literal`). For
-        example, using `[(clingo.symbol.Function(lib, "a"), True)]` only admits
+        either a `tuple[clingo_funasp.symbol.Symbol, bool]` indicating an atom's truth
+        value or a program literal (see `clingo_funasp.base.Atom.literal`). For
+        example, using `[(clingo_funasp.symbol.Function(lib, "a"), True)]` only admits
         answer sets that contain atom `a`.
     on_model:
-        Optional callback that receives a `clingo.solve.Model` object when
+        Optional callback that receives a `clingo_funasp.solve.Model` object when
         a model is found. Returning `False` from the callback stops solving.
     on_unsat:
         Optional callback to intercept lower bounds during optimization.
     on_stats:
         Optional callback that receives statistics updates after each step.
-        Two `clingo.stats.Stats` objects are passed: step-specific and
+        Two `clingo_funasp.stats.Stats` objects are passed: step-specific and
         accumulated stats.
     on_finish:
         Optional callback called once search has finished. A
-        `clingo.solve.SolveResult` is passed to the callback.
+        `clingo_funasp.solve.SolveResult` is passed to the callback.
     yield_:
-        If `True`, the returned `clingo.solve.SolveHandle` is iterable,
-        yielding  `clingo.solve.Model` objects during solving.
+        If `True`, the returned `clingo_funasp.solve.SolveHandle` is iterable,
+        yielding  `clingo_funasp.solve.Model` objects during solving.
     async_:
         If `True`, solving runs asynchronously in a separate thread.
         Note: Callbacks (`on_model`, `on_stats`, etc.) will also be called
         from a separate thread.
 Returns:
-    A `clingo.solve.SolveHandle` to control the search.
+    A `clingo_funasp.solve.SolveHandle` to control the search.
 
 Notes:
     Asynchronous solving requires compiling clingo with thread support.
     Blocking methods on `SolveHandle` release the GIL but are not thread-safe.
 
 See Also:
-    `clingo.solve`
+    `clingo_funasp.solve`
 )"_d)
         .def("main", &Control::main, R"(
 Ground and solve a logic program based on the current control mode.
@@ -725,7 +725,7 @@ programs, registering propagators, or performing other setup steps.
         .def("interrupt", &Control::interrupt, R"(
 Interrupt the active solve call.
 
-This function is thread-safe. Prefer using `clingo.solve.SolveHandle.cancel` if
+This function is thread-safe. Prefer using `clingo_funasp.solve.SolveHandle.cancel` if
 possible.
 )"_d)
         .def("observe", &Control::observe, py::arg("observer"), py::arg("preprocess") = true, R"(

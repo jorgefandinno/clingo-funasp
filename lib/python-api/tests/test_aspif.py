@@ -7,9 +7,9 @@ import tempfile
 from contextlib import contextmanager
 from textwrap import dedent
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import Function
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import Function
 from util import MCB
 
 

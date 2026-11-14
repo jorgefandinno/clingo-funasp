@@ -6,8 +6,8 @@ Examples
 The following example shows how to add custom stats and access the stats:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> def on_stats(step, accu):
 ...     step.update({"example": [21]})
@@ -257,7 +257,7 @@ class StatsArray(StatsArrayView):
 
     This class provides a mutable sequence interface - array elements can be
     modified but they cannot be deleted. Modifications are implemented via
-    `clingo.stats.Stats.update`.
+    `clingo_funasp.stats.Stats.update`.
 
     Most use cases should be implementable just using the update function of the
     top-level statistics object.
@@ -419,7 +419,7 @@ class StatsMap(StatsMapView):
 
     This class provides a mutable mapping interface - values for keys can be
     modified but they cannot be deleted. Modifications are implemented via
-    `clingo.stats.Stats.update`.
+    `clingo_funasp.stats.Stats.update`.
 
     Most use cases should be implementable just using the update function of
     the top-level statistics object.

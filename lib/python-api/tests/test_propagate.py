@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.propagate module.
+Unit tests for clingo_funasp.propagate module.
 """
 
 from threading import Barrier
 from typing import Optional, Sequence
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
-from clingo.propagate import (
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.propagate import (
     Assignment,
     CheckMode,
     PropagateControl,
@@ -17,7 +17,7 @@ from clingo.propagate import (
     UndoMode,
     WeightConstraintType,
 )
-from clingo.symbol import Function
+from clingo_funasp.symbol import Function
 from util import MCB
 
 

@@ -607,7 +607,7 @@ auto py_observer_slots = std::array{
 };
 
 auto py_observer_spec = PyType_Spec{
-    "clingo.backend.Observer", sizeof(PyObserverObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    "clingo_funasp.backend.Observer", sizeof(PyObserverObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     py_observer_slots.data(),
 };
 
@@ -1257,7 +1257,7 @@ auto py_backend_slots = std::array{
 };
 
 auto py_backend_spec = PyType_Spec{
-    "clingo.backend.Backend",
+    "clingo_funasp.backend.Backend",
     sizeof(PyBackendObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1358,7 +1358,7 @@ auto py_backend_manager_slots = std::array{
 };
 
 auto py_backend_manager_spec = PyType_Spec{
-    "clingo.backend.BackendManager",
+    "clingo_funasp.backend.BackendManager",
     sizeof(PyBackendManagerObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1401,7 +1401,7 @@ void backend_module_free(void *module) {
 
 PyModuleDef backend_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.backend",
+    "clingo_funasp.backend",
     PyDoc_STR("Functions and classes to observe or add ground statements."),
     static_cast<Py_ssize_t>(sizeof(BackendModuleState)),
     nullptr,
@@ -1429,7 +1429,7 @@ auto py_backend_manager_new(PyObject *type, clingo_control_t *ctl, PyObject *own
 }
 
 auto py_backend_manager_type_ref() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.backend"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.backend"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
