@@ -193,7 +193,7 @@ auto py_flag_slots = std::array{
 };
 
 auto py_flag_spec = PyType_Spec{
-    "clingo.app.Flag", sizeof(PyFlagObject), 0, Py_TPFLAGS_DEFAULT, py_flag_slots.data(),
+    "clingo_funasp.app.Flag", sizeof(PyFlagObject), 0, Py_TPFLAGS_DEFAULT, py_flag_slots.data(),
 };
 
 // AppOptions
@@ -373,7 +373,7 @@ auto py_options_slots = std::array{
 };
 
 auto py_options_spec = PyType_Spec{
-    "clingo.app.AppOptions",
+    "clingo_funasp.app.AppOptions",
     sizeof(PyOptionsObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -499,7 +499,7 @@ auto py_app_methods = std::array{
     },
 };
 
-// Callbacks passed to clingo. The data pointer is the App instance.
+// Callbacks passed to clingo_funasp. The data pointer is the App instance.
 
 void app_get_program_name_cb(void *data, clingo_string_t *res) {
     *res = app_str(py_app_cast(static_cast<PyObject *>(data))->program_name);
@@ -664,7 +664,7 @@ auto py_app_slots = std::array{
 };
 
 auto py_app_spec = PyType_Spec{
-    "clingo.app.App",    sizeof(PyAppObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,
+    "clingo_funasp.app.App",    sizeof(PyAppObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,
     py_app_slots.data(),
 };
 
@@ -730,8 +730,8 @@ auto py_pyclingo(PyObject *module, [[maybe_unused]] PyObject *arg) -> PyObject *
     }
 
     auto sys = steal(PyImport_ImportModule("sys"));
-    auto core = steal(PyImport_ImportModule("clingo.core"));
-    auto script = steal(PyImport_ImportModule("clingo.script"));
+    auto core = steal(PyImport_ImportModule("clingo_funasp.core"));
+    auto script = steal(PyImport_ImportModule("clingo_funasp.script"));
     if (sys.get() == nullptr || core.get() == nullptr || script.get() == nullptr) {
         return nullptr;
     }
@@ -807,7 +807,7 @@ void app_module_free(void *module) {
 
 PyModuleDef app_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.app",
+    "clingo_funasp.app",
     PyDoc_STR("Module to create custom clingo-based applications."),
     static_cast<Py_ssize_t>(sizeof(AppModuleState)),
     app_module_methods.data(),
@@ -820,7 +820,7 @@ PyModuleDef app_def = {
 } // namespace
 
 auto py_app_options_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.app"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.app"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -829,7 +829,7 @@ auto py_app_options_type() -> PyObject * {
         return nullptr;
     }
     if (state->options_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.app.AppOptions type not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.app.AppOptions type not initialized");
         return nullptr;
     }
     Py_INCREF(state->options_type);

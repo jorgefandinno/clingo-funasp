@@ -5,13 +5,13 @@ This module allows for using theories implemented in C from Python.
 from collections.abc import Callable, Iterator, Sequence
 from typing import TypeAlias
 
-from clingo.app import AppOptions
-from clingo.ast import Statement
-from clingo.control import Control
-from clingo.core import Library
-from clingo.solve import Model
-from clingo.stats import Stats
-from clingo.symbol import Symbol
+from clingo_funasp.app import AppOptions
+from clingo_funasp.ast import Statement
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.solve import Model
+from clingo_funasp.stats import Stats
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = ["Theory", "TheoryAssignment"]
 
@@ -82,7 +82,7 @@ class Theory:
         Get the symbols and values currently assigned by the theory
 
         It depends on the theory when this function can be called. Generally, it can be
-        called after `clingo.theory.Theory.on_model` while the solver is still holding
+        called after `clingo_funasp.theory.Theory.on_model` while the solver is still holding
         its current model.
 
         Args:
@@ -141,7 +141,7 @@ class Theory:
         Args:
             options: The application options.
 
-        See also: `clingo.app.App.register_options`
+        See also: `clingo_funasp.app.App.register_options`
         """
 
     def rewrite(
@@ -184,7 +184,7 @@ class Theory:
         """
         Validate the registered options.
 
-        See also: `clingo.app.App.validate_options`
+        See also: `clingo_funasp.app.App.validate_options`
         """
 
     def value(self, thread_id: int, symbol: Symbol, /) -> ValueType | None:
@@ -192,7 +192,7 @@ class Theory:
         Get the value of the symbol in the assignment of the given thread.
 
         It depends on the theory when this function can be called. Generally, it can be
-        called after `clingo.theory.Theory.on_model` while the solver is still holding
+        called after `clingo_funasp.theory.Theory.on_model` while the solver is still holding
         its current model.
 
         Args:

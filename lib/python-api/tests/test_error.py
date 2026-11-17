@@ -9,20 +9,20 @@ import sys
 from typing import Callable, Sequence
 
 import pytest
-from clingo.app import App, AppOptions, clingo_main
-from clingo.backend import Observer
-from clingo.control import Control
-from clingo.core import Library
-from clingo.propagate import (
+from clingo_funasp.app import App, AppOptions, clingo_main
+from clingo_funasp.backend import Observer
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.propagate import (
     Assignment,
     CheckMode,
     PropagateControl,
     PropagateInit,
     Propagator,
 )
-from clingo.script import Script, register
-from clingo.solve import Model
-from clingo.symbol import Symbol
+from clingo_funasp.script import Script, register
+from clingo_funasp.solve import Model
+from clingo_funasp.symbol import Symbol
 
 
 class ErrorApp(App):

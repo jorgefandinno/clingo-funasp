@@ -10,8 +10,8 @@
 
 namespace PyClingo {
 
-using Stats = TypeHint<"clingo.stats.Stats">;
-using StatsView = TypeHint<"clingo.stats.StatsView">;
+using Stats = TypeHint<"clingo_funasp.stats.Stats">;
+using StatsView = TypeHint<"clingo_funasp.stats.StatsView">;
 
 enum class StatsType : uint8_t {
     value = clingo_stats_type_value,

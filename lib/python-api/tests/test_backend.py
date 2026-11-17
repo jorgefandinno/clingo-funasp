@@ -1,11 +1,11 @@
 """
-Unit tests for clingo.backend module.
+Unit tests for clingo_funasp.backend module.
 """
 
-from clingo.backend import ExternalType, HeuristicType, TheorySequenceType
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import Function, Number
+from clingo_funasp.backend import ExternalType, HeuristicType, TheorySequenceType
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import Function, Number
 from util import MCB
 
 

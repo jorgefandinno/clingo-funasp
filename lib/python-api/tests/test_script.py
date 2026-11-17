@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.script module.
+Unit tests for clingo_funasp.script module.
 """
 
 from textwrap import dedent
 from typing import Sequence
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.script import Script, register
-from clingo.symbol import Number, Symbol
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.script import Script, register
+from clingo_funasp.symbol import Number, Symbol
 from util import MCB
 
 
@@ -92,8 +92,8 @@ class TestScript:
     def _add_script(self, ctl):
         ctl.parse_string(dedent("""\
                 #script (myScript)
-                from clingo.core import Library
-                from clingo.symbol import Symbol, Number
+                from clingo_funasp.core import Library
+                from clingo_funasp.symbol import Symbol, Number
 
                 def fun(lib: Library, num: Symbol) -> Symbol:
                     return Number(

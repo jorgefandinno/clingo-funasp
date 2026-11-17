@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.ast module.
+Unit tests for clingo_funasp.ast module.
 """
 
 from functools import singledispatch
 from textwrap import dedent
 
 import pytest
-from clingo import ast
-from clingo.core import Library, Location, Position
-from clingo.symbol import parse_term
+from clingo_funasp import ast
+from clingo_funasp.core import Library, Location, Position
+from clingo_funasp.symbol import parse_term
 
 
 def noop_logger(code, msg):
@@ -22,7 +22,7 @@ def noop_logger(code, msg):
 class TestAST:
     # pylint: disable=attribute-defined-outside-init
     """
-    Unit tests for clingo.ast module.
+    Unit tests for clingo_funasp.ast module.
     """
 
     def setup_method(self, method):
