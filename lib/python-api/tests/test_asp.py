@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 from util import MCB
 
 FILES = [path.name for path in Path(__file__).parent.joinpath("resources").iterdir()]

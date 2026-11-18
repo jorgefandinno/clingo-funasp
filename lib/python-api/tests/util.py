@@ -2,8 +2,8 @@
 Utilities for testing.
 """
 
-from clingo.solve import Model
-from clingo.symbol import Symbol
+from clingo_funasp.solve import Model
+from clingo_funasp.symbol import Symbol
 
 
 class MCB:

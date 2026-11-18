@@ -27,7 +27,7 @@ class Scope {
             // the interpreter is managed by the python runtime.
             si_ = std::make_unique<py::scoped_interpreter>();
 #endif
-            py::module::import("clingo");
+            py::module::import("clingo_funasp");
         }
         auto gil = py::gil_scoped_acquire{};
         scope_ = py::module_::import("__main__").attr("__dict__");
@@ -190,8 +190,8 @@ class Script {
     }
 
     auto call(const PyLibrary &lib, std::string_view name, SymbolSpan args)
-        -> TypeHint<"Sequence[clingo.symbol.Symbol]"> {
-        PYBIND11_OVERRIDE_PURE(TypeHint<"Sequence[clingo.symbol.Symbol]">, Script, call, lib, name, args);
+        -> TypeHint<"Sequence[clingo_funasp.symbol.Symbol]"> {
+        PYBIND11_OVERRIDE_PURE(TypeHint<"Sequence[clingo_funasp.symbol.Symbol]">, Script, call, lib, name, args);
     }
 
     static auto c_call(clingo_lib_t *lib, [[maybe_unused]] clingo_location_t const *loc, char const *name,
@@ -328,10 +328,10 @@ from the main context (just like the embedded one in the standalone clingo).
 
 ```python
 >>> import __main__
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.script import Script, register
->>> from clingo.symbol import Number, Symbol
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.script import Script, register
+>>> from clingo_funasp.symbol import Number, Symbol
 ...
 >>> class PyScript(Script):
 ...     def execute(self, code) -> None:
@@ -354,7 +354,7 @@ from the main context (just like the embedded one in the standalone clingo).
 >>> ctl.parse_string("""\
 ... #script (python)
 ...
-... from clingo.symbol import Number, Symbol
+... from clingo_funasp.symbol import Number, Symbol
 ...
 ... def g(lib, x):
 ...     return Number(lib, x.number * 4)

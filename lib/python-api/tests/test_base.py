@@ -1,13 +1,13 @@
 """
-Unit tests for clingo.base module.
+Unit tests for clingo_funasp.base module.
 """
 
 from textwrap import dedent
 
-from clingo.base import TheoryTermType
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import Function, Number
+from clingo_funasp.base import TheoryTermType
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import Function, Number
 
 
 class TestBase:

@@ -40,7 +40,7 @@ using PyControl = Annotation<Control>;
 
 class Control : public registered_handle<Control, clingo_control_t>, public reference_keeper<Control> {
   public:
-    using HintConstMap = TypeHint<"typing.Mapping[str, clingo.symbol.Symbol]">;
+    using HintConstMap = TypeHint<"typing.Mapping[str, clingo_funasp.symbol.Symbol]">;
 
     Control(Library &lib, std::span<std::string const> args);
 
@@ -52,23 +52,23 @@ class Control : public registered_handle<Control, clingo_control_t>, public refe
     void join(AST::Program &prg);
     void ground(std::optional<PartSpan> parts, py::handle ctx);
     auto start_ground(std::optional<PartSpan> parts, py::handle ctx,
-                      TypeHint<"collections.abc.Callable[[clingo.ground.GroundResult], None] | None"> on_finish)
-        -> TypeHint<"clingo.ground.GroundHandle">;
-    using ModelCallback = TypeHint<"collections.abc.Callable[[clingo.solve.Model], bool | None] | None">;
+                      TypeHint<"collections.abc.Callable[[clingo_funasp.ground.GroundResult], None] | None"> on_finish)
+        -> TypeHint<"clingo_funasp.ground.GroundHandle">;
+    using ModelCallback = TypeHint<"collections.abc.Callable[[clingo_funasp.solve.Model], bool | None] | None">;
     using UnsatCallback = TypeHint<"collections.abc.Callable[[typing.Sequence[int]], None] | None">;
-    using StatsCallback = TypeHint<"collections.abc.Callable[[clingo.stats.Stats, clingo.stats.Stats], None] | None">;
-    using FinishCallback = TypeHint<"collections.abc.Callable[[clingo.solve.SolveResult], None] | None">;
-    using SolveResult = TypeHint<"clingo.solve.SolveResult">;
-    using SolveHandle = TypeHint<"clingo.solve.SolveHandle">;
+    using StatsCallback = TypeHint<"collections.abc.Callable[[clingo_funasp.stats.Stats, clingo_funasp.stats.Stats], None] | None">;
+    using FinishCallback = TypeHint<"collections.abc.Callable[[clingo_funasp.solve.SolveResult], None] | None">;
+    using SolveResult = TypeHint<"clingo_funasp.solve.SolveResult">;
+    using SolveHandle = TypeHint<"clingo_funasp.solve.SolveHandle">;
     auto solve(MixedLitSpan const &assumptions, ModelCallback on_model, UnsatCallback on_unsat, StatsCallback on_stats,
                FinishCallback on_finish) -> SolveResult;
     auto start_solve(MixedLitSpan const &assumptions, ModelCallback on_model, UnsatCallback on_unsat,
                      StatsCallback on_stats, FinishCallback on_finish, bool yield, bool async)
         -> Annotation<SolveHandle>;
-    auto base() -> TypeHint<"clingo.base.Base">;
-    void observe(TypeHint<"clingo.backend.Observer"> &obs, bool preprocess);
-    auto backend() -> TypeHint<"clingo.backend.BackendManager">;
-    auto config() -> TypeHint<"clingo.config.Config">;
+    auto base() -> TypeHint<"clingo_funasp.base.Base">;
+    void observe(TypeHint<"clingo_funasp.backend.Observer"> &obs, bool preprocess);
+    auto backend() -> TypeHint<"clingo_funasp.backend.BackendManager">;
+    auto config() -> TypeHint<"clingo_funasp.config.Config">;
     auto stats() -> StatsView;
     auto profile() -> py::list;
     void main();
@@ -153,7 +153,7 @@ template <> struct type_caster<PyClingo::PartSpan> {
     using params_conv = make_caster<PyClingo::SymbolVec>;
     using type = PyClingo::PartSpan;
 
-    PYBIND11_TYPE_CASTER(type, _("Sequence[Tuple[str, Sequence[clingo.symbol.Symbol]]]"));
+    PYBIND11_TYPE_CASTER(type, _("Sequence[Tuple[str, Sequence[clingo_funasp.symbol.Symbol]]]"));
 
     auto load(handle src, bool convert) -> bool {
         if (!holder_.load(src, convert)) {
@@ -181,7 +181,7 @@ template <> struct type_caster<std::optional<PyClingo::PartSpan>> {
   public:
     using type = std::optional<PyClingo::PartSpan>;
 
-    PYBIND11_TYPE_CASTER(type, _("Optional[Sequence[Tuple[str, Sequence[clingo.symbol.Symbol]]]]"));
+    PYBIND11_TYPE_CASTER(type, _("Optional[Sequence[Tuple[str, Sequence[clingo_funasp.symbol.Symbol]]]]"));
 
     auto load(handle src, bool convert) -> bool {
         if (src.is_none()) {

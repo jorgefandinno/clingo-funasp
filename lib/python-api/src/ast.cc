@@ -6709,7 +6709,7 @@ auto parse_statement(Library &lib, std::string_view string) -> Statement {
 }
 
 void parse_string(Library const &lib, std::string_view program, std::function<void(Statement)> callback,
-                  TypeHint<"clingo.control.Control|None"> const &ctl) {
+                  TypeHint<"clingo_funasp.control.Control|None"> const &ctl) {
     auto *ptr = !ctl.is_none() ? ctl.cast<Control *>()->c_ptr() : nullptr;
     handle_error(clingo_ast_parse_string(
         lib, program.data(), program.size(), ptr,
@@ -6726,7 +6726,7 @@ void parse_string(Library const &lib, std::string_view program, std::function<vo
 }
 
 inline void parse_files(Library const &lib, std::span<std::string_view const> files,
-                        std::function<void(Statement)> callback, TypeHint<"clingo.control.Control|None"> const &ctl) {
+                        std::function<void(Statement)> callback, TypeHint<"clingo_funasp.control.Control|None"> const &ctl) {
     auto *ptr = !ctl.is_none() ? ctl.cast<Control *>()->c_ptr() : nullptr;
     auto cfiles = transform_vec(files, [](auto const &x) { return clingo_string_t{x.data(), x.size()}; });
     handle_error(clingo_ast_parse_files(
@@ -6826,8 +6826,8 @@ void register_ast(pybind11::module &m) {
 The following example shows how to parse individual statements and add them to a control object.
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>> from clingo import ast
 >>>
 >>> lib = Library()
@@ -6855,7 +6855,7 @@ The next example hows how to visit and AST and collect variables.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
+from clingo_funasp.core import Library
 from clingo import ast
 
 @singledispatch
@@ -6889,7 +6889,7 @@ The last example shows how to use a transformer to modify an AST.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
+from clingo_funasp.core import Library
 from clingo import ast
 
 @singledispatch

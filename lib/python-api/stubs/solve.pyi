@@ -6,13 +6,13 @@ Examples
 
 The examples below show various ways to intercept models. The asynchronous
 variants leave room for additional computation before calling blocking
-functions like `clingo.solve.SolveHandle.get` or
-`clingo.solve.SolveHandle.model`.
+functions like `clingo_funasp.solve.SolveHandle.get` or
+`clingo_funasp.solve.SolveHandle.model`.
 
 The following example shows how to intercept models with a callback:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -25,8 +25,8 @@ The following example shows how to intercept models with a callback:
 
 The following example shows how to yield models:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -43,8 +43,8 @@ The following example shows how to yield models:
 
 The following example shows how to solve asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -60,8 +60,8 @@ The following example shows how to solve asynchronously:
 
 This example shows how to solve both iteratively and asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -85,8 +85,8 @@ from enum import IntEnum
 from types import TracebackType
 from typing import Self
 
-from clingo.base import Base
-from clingo.symbol import Symbol
+from clingo_funasp.base import Base
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = [
     "Model",
@@ -305,7 +305,7 @@ class SolveHandle:
     Blocking functions in this object release the GIL. They are not thread-safe
     though.
 
-    See also: `clingo.control.Control.solve`, `clingo.control.Control.start_solve`
+    See also: `clingo_funasp.control.Control.solve`, `clingo_funasp.control.Control.start_solve`
     """
 
     def __enter__(self) -> Self:
@@ -343,14 +343,14 @@ class SolveHandle:
         """
         Stop the search closing the handle.
 
-        See also: `clingo.solve.SolveHandle.__exit__`
+        See also: `clingo_funasp.solve.SolveHandle.__exit__`
         """
 
     def cancel(self) -> None:
         """
         Cancel the running search.
 
-        See also: `clingo.control.Control.interrupt`
+        See also: `clingo_funasp.control.Control.interrupt`
         """
 
     def core(self) -> Sequence[int]:

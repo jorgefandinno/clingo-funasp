@@ -127,7 +127,7 @@ namespace pybind11::detail {
 
 template <> struct type_caster<PyClingo::Symbol> {
   public:
-    PYBIND11_TYPE_CASTER(PyClingo::Symbol, _("clingo.symbol.Symbol"));
+    PYBIND11_TYPE_CASTER(PyClingo::Symbol, _("clingo_funasp.symbol.Symbol"));
 
     auto load(handle src, bool noclue) -> bool;
     static auto cast(PyClingo::Symbol const &src, return_value_policy policy, handle parent) -> handle;

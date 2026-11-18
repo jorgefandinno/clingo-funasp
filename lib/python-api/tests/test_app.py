@@ -9,9 +9,9 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Callable, List, Sequence, Tuple
 
 import pytest
-from clingo.app import App, AppOptions, Flag, clingo_main
-from clingo.control import Control
-from clingo.core import Library, MessageType
+from clingo_funasp.app import App, AppOptions, Flag, clingo_main
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library, MessageType
 from util import MCB
 
 

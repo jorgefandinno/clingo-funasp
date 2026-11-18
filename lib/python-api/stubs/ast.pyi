@@ -6,9 +6,9 @@ This module provides functions to work with Abstract Syntax Trees of logic progr
 The following example shows how to parse individual statements and add them to a control object.
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
->>> from clingo import ast
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp import ast
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib, ["--convert=text"])
@@ -35,8 +35,8 @@ The next example hows how to visit and AST and collect variables.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
-from clingo import ast
+from clingo_funasp.core import Library
+from clingo_funasp import ast
 
 @singledispatch
 def collect(stm, vars):
@@ -69,8 +69,8 @@ The last example shows how to use a transformer to modify an AST.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
-from clingo import ast
+from clingo_funasp.core import Library
+from clingo_funasp import ast
 
 @singledispatch
 def rename(stm, lib):
@@ -109,9 +109,9 @@ import enum
 import types
 import typing
 
-import clingo.control
-import clingo.core
-import clingo.symbol
+import clingo_funasp.control
+import clingo_funasp.core
+import clingo_funasp.symbol
 
 __all__: list[str] = [
     "AggregateFunction",
@@ -225,7 +225,7 @@ def _type_info_yaml() -> str:
     """
 
 def parse_body_literal(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> (
     BodySimpleLiteral
     | BodyAggregate
@@ -246,7 +246,7 @@ def parse_body_literal(
     """
 
 def parse_files(
-    lib: clingo.core.Library,
+    lib: clingo_funasp.core.Library,
     files: typing.Sequence[str],
     callback: collections.abc.Callable[
         [
@@ -272,7 +272,7 @@ def parse_files(
         ],
         None,
     ],
-    control: clingo.control.Control | None = None,
+    control: clingo_funasp.control.Control | None = None,
 ) -> None:
     """
     Parse the program in the given files.
@@ -289,7 +289,7 @@ def parse_files(
     """
 
 def parse_head_literal(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> (
     HeadSimpleLiteral
     | HeadAggregate
@@ -309,7 +309,7 @@ def parse_head_literal(
     """
 
 def parse_literal(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> LiteralBoolean | LiteralComparison | LiteralSymbolic:
     """
     Parse a literal.
@@ -323,7 +323,7 @@ def parse_literal(
     """
 
 def parse_statement(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> (
     StatementRule
     | StatementTheory
@@ -357,7 +357,7 @@ def parse_statement(
     """
 
 def parse_string(
-    lib: clingo.core.Library,
+    lib: clingo_funasp.core.Library,
     program: str,
     callback: collections.abc.Callable[
         [
@@ -383,7 +383,7 @@ def parse_string(
         ],
         None,
     ],
-    control: clingo.control.Control | None = None,
+    control: clingo_funasp.control.Control | None = None,
 ) -> None:
     """
     Parse the program in the given string.
@@ -396,7 +396,7 @@ def parse_string(
     """
 
 def parse_term(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> (
     TermVariable
     | TermSymbolic
@@ -419,7 +419,7 @@ def parse_term(
     """
 
 def parse_theory_term(
-    lib: clingo.core.Library, string: str
+    lib: clingo_funasp.core.Library, string: str
 ) -> (
     TheoryTermVariable
     | TheoryTermSymbolic
@@ -631,7 +631,7 @@ class FormatFieldLiteral:
         """
 
     def __init__(
-        self, lib: clingo.core.Library, location: clingo.core.Location, value: str
+        self, lib: clingo_funasp.core.Library, location: clingo_funasp.core.Location, value: str
     ) -> None:
         """
         Construct a FormatFieldLiteral object.
@@ -647,7 +647,7 @@ class FormatFieldLiteral:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> FormatFieldLiteral | None:
         """
         Transform the expression.
@@ -661,7 +661,7 @@ class FormatFieldLiteral:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> FormatFieldLiteral:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> FormatFieldLiteral:
         """
         Update the expression.
 
@@ -682,7 +682,7 @@ class FormatFieldLiteral:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the literal.
         """
@@ -708,8 +708,8 @@ class FormatFieldExpression:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         left: (
             TermVariable
             | TermSymbolic
@@ -737,7 +737,7 @@ class FormatFieldExpression:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> FormatFieldExpression | None:
         """
         Transform the expression.
@@ -751,7 +751,7 @@ class FormatFieldExpression:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> FormatFieldExpression:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> FormatFieldExpression:
         """
         Update the expression.
 
@@ -789,7 +789,7 @@ class FormatFieldExpression:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the expression.
         """
@@ -814,7 +814,7 @@ class Projection:
         """
 
     def __init__(
-        self, lib: clingo.core.Library, location: clingo.core.Location
+        self, lib: clingo_funasp.core.Library, location: clingo_funasp.core.Location
     ) -> None:
         """
         Construct a Projection object.
@@ -829,7 +829,7 @@ class Projection:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> Projection | None:
         """
         Transform the expression.
@@ -843,7 +843,7 @@ class Projection:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> Projection:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> Projection:
         """
         Update the expression.
 
@@ -864,7 +864,7 @@ class Projection:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the placeholder.
         """
@@ -884,8 +884,8 @@ class TermFormatString:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         elements: typing.Iterable[FormatFieldLiteral | FormatFieldExpression],
     ) -> None:
         """
@@ -902,7 +902,7 @@ class TermFormatString:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermFormatString | None:
         """
         Transform the expression.
@@ -916,7 +916,7 @@ class TermFormatString:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermFormatString:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermFormatString:
         """
         Update the expression.
 
@@ -943,7 +943,7 @@ class TermFormatString:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the format string.
         """
@@ -963,8 +963,8 @@ class TermVariable:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         anonymous: bool = False,
     ) -> None:
@@ -986,7 +986,7 @@ class TermVariable:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermVariable | None:
         """
         Transform the expression.
@@ -1000,7 +1000,7 @@ class TermVariable:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermVariable:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermVariable:
         """
         Update the expression.
 
@@ -1028,7 +1028,7 @@ class TermVariable:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the variable.
         """
@@ -1054,9 +1054,9 @@ class TermSymbolic:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
-        symbol: clingo.symbol.Symbol,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
+        symbol: clingo_funasp.symbol.Symbol,
     ) -> None:
         """
         Construct a TermSymbolic object.
@@ -1072,7 +1072,7 @@ class TermSymbolic:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermSymbolic | None:
         """
         Transform the expression.
@@ -1086,7 +1086,7 @@ class TermSymbolic:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermSymbolic:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermSymbolic:
         """
         Update the expression.
 
@@ -1107,13 +1107,13 @@ class TermSymbolic:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the symbol.
         """
 
     @property
-    def symbol(self) -> clingo.symbol.Symbol:
+    def symbol(self) -> clingo_funasp.symbol.Symbol:
         """
         The symbol.
         """
@@ -1133,8 +1133,8 @@ class TermAbsolute:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         pool: typing.Iterable[
             TermVariable
             | TermSymbolic
@@ -1163,7 +1163,7 @@ class TermAbsolute:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermAbsolute | None:
         """
         Transform the expression.
@@ -1177,7 +1177,7 @@ class TermAbsolute:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermAbsolute:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermAbsolute:
         """
         Update the expression.
 
@@ -1198,7 +1198,7 @@ class TermAbsolute:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the operation.
         """
@@ -1236,8 +1236,8 @@ class TermUnaryOperation:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         operator_type: UnaryOperator,
         right: (
             TermVariable
@@ -1265,7 +1265,7 @@ class TermUnaryOperation:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermUnaryOperation | None:
         """
         Transform the expression.
@@ -1279,7 +1279,7 @@ class TermUnaryOperation:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermUnaryOperation:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermUnaryOperation:
         """
         Update the expression.
 
@@ -1300,7 +1300,7 @@ class TermUnaryOperation:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the operation.
         """
@@ -1343,8 +1343,8 @@ class TermBinaryOperation:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         left: (
             TermVariable
             | TermSymbolic
@@ -1383,7 +1383,7 @@ class TermBinaryOperation:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermBinaryOperation | None:
         """
         Transform the expression.
@@ -1397,7 +1397,7 @@ class TermBinaryOperation:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermBinaryOperation:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermBinaryOperation:
         """
         Update the expression.
 
@@ -1435,7 +1435,7 @@ class TermBinaryOperation:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the operation.
         """
@@ -1478,8 +1478,8 @@ class TermTuple:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         pool: typing.Iterable[
             TermVariable
             | TermSymbolic
@@ -1509,7 +1509,7 @@ class TermTuple:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermTuple | None:
         """
         Transform the expression.
@@ -1523,7 +1523,7 @@ class TermTuple:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermTuple:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermTuple:
         """
         Update the expression.
 
@@ -1544,7 +1544,7 @@ class TermTuple:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the tuple.
         """
@@ -1583,8 +1583,8 @@ class TermFunction:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         pool: typing.Iterable[ArgumentTuple],
         external: bool = False,
@@ -1608,7 +1608,7 @@ class TermFunction:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TermFunction | None:
         """
         Transform the expression.
@@ -1622,7 +1622,7 @@ class TermFunction:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TermFunction:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TermFunction:
         """
         Update the expression.
 
@@ -1649,7 +1649,7 @@ class TermFunction:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the function.
         """
@@ -1682,7 +1682,7 @@ class ArgumentTuple:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         arguments: typing.Iterable[
             TermVariable
             | TermSymbolic
@@ -1708,7 +1708,7 @@ class ArgumentTuple:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> ArgumentTuple | None:
         """
         Transform the expression.
@@ -1722,7 +1722,7 @@ class ArgumentTuple:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> ArgumentTuple:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> ArgumentTuple:
         """
         Update the expression.
 
@@ -1775,7 +1775,7 @@ class LeftGuard:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         term: (
             TermVariable
             | TermSymbolic
@@ -1802,7 +1802,7 @@ class LeftGuard:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> LeftGuard | None:
         """
         Transform the expression.
@@ -1816,7 +1816,7 @@ class LeftGuard:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> LeftGuard:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> LeftGuard:
         """
         Update the expression.
 
@@ -1874,7 +1874,7 @@ class RightGuard:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         relation: Relation,
         term: (
             TermVariable
@@ -1901,7 +1901,7 @@ class RightGuard:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> RightGuard | None:
         """
         Transform the expression.
@@ -1915,7 +1915,7 @@ class RightGuard:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> RightGuard:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> RightGuard:
         """
         Update the expression.
 
@@ -1973,8 +1973,8 @@ class LiteralBoolean:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         value: bool,
     ) -> None:
@@ -1993,7 +1993,7 @@ class LiteralBoolean:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> LiteralBoolean | None:
         """
         Transform the expression.
@@ -2007,7 +2007,7 @@ class LiteralBoolean:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> LiteralBoolean:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> LiteralBoolean:
         """
         Update the expression.
 
@@ -2028,7 +2028,7 @@ class LiteralBoolean:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the symbol.
         """
@@ -2060,8 +2060,8 @@ class LiteralComparison:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         left: (
             TermVariable
@@ -2093,7 +2093,7 @@ class LiteralComparison:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> LiteralComparison | None:
         """
         Transform the expression.
@@ -2107,7 +2107,7 @@ class LiteralComparison:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> LiteralComparison:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> LiteralComparison:
         """
         Update the expression.
 
@@ -2145,7 +2145,7 @@ class LiteralComparison:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the symbol.
         """
@@ -2178,8 +2178,8 @@ class LiteralSymbolic:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         atom: (
             TermVariable
@@ -2207,7 +2207,7 @@ class LiteralSymbolic:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> LiteralSymbolic | None:
         """
         Transform the expression.
@@ -2221,7 +2221,7 @@ class LiteralSymbolic:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> LiteralSymbolic:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> LiteralSymbolic:
         """
         Update the expression.
 
@@ -2259,7 +2259,7 @@ class LiteralSymbolic:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the symbol.
         """
@@ -2285,7 +2285,7 @@ class UnparsedElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         operators: typing.Iterable[str],
         term: (
             TheoryTermVariable
@@ -2309,7 +2309,7 @@ class UnparsedElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> UnparsedElement | None:
         """
         Transform the expression.
@@ -2323,7 +2323,7 @@ class UnparsedElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> UnparsedElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> UnparsedElement:
         """
         Update the expression.
 
@@ -2378,8 +2378,8 @@ class TheoryTermVariable:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         anonymous: bool = False,
     ) -> None:
@@ -2401,7 +2401,7 @@ class TheoryTermVariable:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermVariable | None:
         """
         Transform the expression.
@@ -2415,7 +2415,7 @@ class TheoryTermVariable:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermVariable:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermVariable:
         """
         Update the expression.
 
@@ -2443,7 +2443,7 @@ class TheoryTermVariable:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the variable.
         """
@@ -2469,9 +2469,9 @@ class TheoryTermSymbolic:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
-        symbol: clingo.symbol.Symbol,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
+        symbol: clingo_funasp.symbol.Symbol,
     ) -> None:
         """
         Construct a TheoryTermSymbolic object.
@@ -2487,7 +2487,7 @@ class TheoryTermSymbolic:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermSymbolic | None:
         """
         Transform the expression.
@@ -2501,7 +2501,7 @@ class TheoryTermSymbolic:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermSymbolic:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermSymbolic:
         """
         Update the expression.
 
@@ -2522,13 +2522,13 @@ class TheoryTermSymbolic:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the symbol.
         """
 
     @property
-    def symbol(self) -> clingo.symbol.Symbol:
+    def symbol(self) -> clingo_funasp.symbol.Symbol:
         """
         The symbol.
         """
@@ -2548,8 +2548,8 @@ class TheoryTermTuple:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         tuple_type: TheoryTupleType,
         arguments: typing.Iterable[
             TheoryTermVariable
@@ -2574,7 +2574,7 @@ class TheoryTermTuple:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermTuple | None:
         """
         Transform the expression.
@@ -2588,7 +2588,7 @@ class TheoryTermTuple:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermTuple:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermTuple:
         """
         Update the expression.
 
@@ -2623,7 +2623,7 @@ class TheoryTermTuple:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the tuple.
         """
@@ -2649,8 +2649,8 @@ class TheoryTermFunction:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arguments: typing.Iterable[
             TheoryTermVariable
@@ -2675,7 +2675,7 @@ class TheoryTermFunction:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermFunction | None:
         """
         Transform the expression.
@@ -2689,7 +2689,7 @@ class TheoryTermFunction:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermFunction:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermFunction:
         """
         Update the expression.
 
@@ -2724,7 +2724,7 @@ class TheoryTermFunction:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the function.
         """
@@ -2750,8 +2750,8 @@ class TheoryTermUnparsed:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         elements: typing.Iterable[UnparsedElement],
     ) -> None:
         """
@@ -2768,7 +2768,7 @@ class TheoryTermUnparsed:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermUnparsed | None:
         """
         Transform the expression.
@@ -2782,7 +2782,7 @@ class TheoryTermUnparsed:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermUnparsed:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermUnparsed:
         """
         Update the expression.
 
@@ -2809,7 +2809,7 @@ class TheoryTermUnparsed:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the theory term.
         """
@@ -2830,7 +2830,7 @@ class TheoryRightGuard:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         theory_operator: str,
         term: (
             TheoryTermVariable
@@ -2854,7 +2854,7 @@ class TheoryRightGuard:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryRightGuard | None:
         """
         Transform the expression.
@@ -2868,7 +2868,7 @@ class TheoryRightGuard:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryRightGuard:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryRightGuard:
         """
         Update the expression.
 
@@ -2923,8 +2923,8 @@ class SetAggregateElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         literal: LiteralBoolean | LiteralComparison | LiteralSymbolic,
         condition: typing.Iterable[
             LiteralBoolean | LiteralComparison | LiteralSymbolic
@@ -2945,7 +2945,7 @@ class SetAggregateElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> SetAggregateElement | None:
         """
         Transform the expression.
@@ -2959,7 +2959,7 @@ class SetAggregateElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> SetAggregateElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> SetAggregateElement:
         """
         Update the expression.
 
@@ -2994,7 +2994,7 @@ class SetAggregateElement:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3014,8 +3014,8 @@ class BodyAggregateElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         tuple: typing.Iterable[
             TermVariable
             | TermSymbolic
@@ -3045,7 +3045,7 @@ class BodyAggregateElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodyAggregateElement | None:
         """
         Transform the expression.
@@ -3059,7 +3059,7 @@ class BodyAggregateElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodyAggregateElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodyAggregateElement:
         """
         Update the expression.
 
@@ -3088,7 +3088,7 @@ class BodyAggregateElement:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3125,8 +3125,8 @@ class TheoryAtomElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         tuple: typing.Iterable[
             TheoryTermVariable
             | TheoryTermSymbolic
@@ -3153,7 +3153,7 @@ class TheoryAtomElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryAtomElement | None:
         """
         Transform the expression.
@@ -3167,7 +3167,7 @@ class TheoryAtomElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryAtomElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryAtomElement:
         """
         Update the expression.
 
@@ -3196,7 +3196,7 @@ class TheoryAtomElement:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3230,7 +3230,7 @@ class BodySimpleLiteral:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         literal: LiteralBoolean | LiteralComparison | LiteralSymbolic,
     ) -> None:
         """
@@ -3246,7 +3246,7 @@ class BodySimpleLiteral:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodySimpleLiteral | None:
         """
         Transform the expression.
@@ -3260,7 +3260,7 @@ class BodySimpleLiteral:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodySimpleLiteral:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodySimpleLiteral:
         """
         Update the expression.
 
@@ -3301,8 +3301,8 @@ class BodyAggregate:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         left: LeftGuard | None,
         function: AggregateFunction,
@@ -3327,7 +3327,7 @@ class BodyAggregate:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodyAggregate | None:
         """
         Transform the expression.
@@ -3341,7 +3341,7 @@ class BodyAggregate:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodyAggregate:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodyAggregate:
         """
         Update the expression.
 
@@ -3380,7 +3380,7 @@ class BodyAggregate:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3412,8 +3412,8 @@ class BodySort:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         left: (
             TermVariable
             | TermSymbolic
@@ -3441,7 +3441,7 @@ class BodySort:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodySort | None:
         """
         Transform the expression.
@@ -3455,7 +3455,7 @@ class BodySort:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodySort:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodySort:
         """
         Update the expression.
 
@@ -3499,7 +3499,7 @@ class BodySort:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the literal.
         """
@@ -3519,8 +3519,8 @@ class BodySetAggregate:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         left: LeftGuard | None,
         elements: typing.Iterable[SetAggregateElement],
@@ -3543,7 +3543,7 @@ class BodySetAggregate:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodySetAggregate | None:
         """
         Transform the expression.
@@ -3557,7 +3557,7 @@ class BodySetAggregate:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodySetAggregate:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodySetAggregate:
         """
         Update the expression.
 
@@ -3590,7 +3590,7 @@ class BodySetAggregate:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3622,8 +3622,8 @@ class BodyTheoryAtom:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         sign: Sign,
         name: (
             TermVariable
@@ -3655,7 +3655,7 @@ class BodyTheoryAtom:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodyTheoryAtom | None:
         """
         Transform the expression.
@@ -3669,7 +3669,7 @@ class BodyTheoryAtom:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodyTheoryAtom:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodyTheoryAtom:
         """
         Update the expression.
 
@@ -3696,7 +3696,7 @@ class BodyTheoryAtom:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3745,8 +3745,8 @@ class BodyConditionalLiteral:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         literal: LiteralBoolean | LiteralComparison | LiteralSymbolic,
         condition: typing.Iterable[
             LiteralBoolean | LiteralComparison | LiteralSymbolic
@@ -3767,7 +3767,7 @@ class BodyConditionalLiteral:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> BodyConditionalLiteral | None:
         """
         Transform the expression.
@@ -3781,7 +3781,7 @@ class BodyConditionalLiteral:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> BodyConditionalLiteral:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> BodyConditionalLiteral:
         """
         Update the expression.
 
@@ -3816,7 +3816,7 @@ class BodyConditionalLiteral:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3836,8 +3836,8 @@ class HeadConditionalLiteral:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         literal: LiteralBoolean | LiteralComparison | LiteralSymbolic,
         condition: typing.Iterable[
             LiteralBoolean | LiteralComparison | LiteralSymbolic
@@ -3858,7 +3858,7 @@ class HeadConditionalLiteral:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadConditionalLiteral | None:
         """
         Transform the expression.
@@ -3872,7 +3872,7 @@ class HeadConditionalLiteral:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadConditionalLiteral:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadConditionalLiteral:
         """
         Update the expression.
 
@@ -3907,7 +3907,7 @@ class HeadConditionalLiteral:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -3927,8 +3927,8 @@ class HeadAggregateElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         tuple: typing.Iterable[
             TermVariable
             | TermSymbolic
@@ -3960,7 +3960,7 @@ class HeadAggregateElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadAggregateElement | None:
         """
         Transform the expression.
@@ -3974,7 +3974,7 @@ class HeadAggregateElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadAggregateElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadAggregateElement:
         """
         Update the expression.
 
@@ -4009,7 +4009,7 @@ class HeadAggregateElement:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -4046,7 +4046,7 @@ class HeadSimpleLiteral:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         literal: LiteralBoolean | LiteralComparison | LiteralSymbolic,
     ) -> None:
         """
@@ -4062,7 +4062,7 @@ class HeadSimpleLiteral:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadSimpleLiteral | None:
         """
         Transform the expression.
@@ -4076,7 +4076,7 @@ class HeadSimpleLiteral:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadSimpleLiteral:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadSimpleLiteral:
         """
         Update the expression.
 
@@ -4117,8 +4117,8 @@ class HeadAggregate:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         left: LeftGuard | None,
         function: AggregateFunction,
         elements: typing.Iterable[HeadAggregateElement],
@@ -4141,7 +4141,7 @@ class HeadAggregate:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadAggregate | None:
         """
         Transform the expression.
@@ -4155,7 +4155,7 @@ class HeadAggregate:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadAggregate:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadAggregate:
         """
         Update the expression.
 
@@ -4194,7 +4194,7 @@ class HeadAggregate:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -4220,8 +4220,8 @@ class HeadSetAggregate:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         left: LeftGuard | None,
         elements: typing.Iterable[SetAggregateElement],
         right: RightGuard | None,
@@ -4242,7 +4242,7 @@ class HeadSetAggregate:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadSetAggregate | None:
         """
         Transform the expression.
@@ -4256,7 +4256,7 @@ class HeadSetAggregate:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadSetAggregate:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadSetAggregate:
         """
         Update the expression.
 
@@ -4289,7 +4289,7 @@ class HeadSetAggregate:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -4315,8 +4315,8 @@ class HeadTheoryAtom:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: (
             TermVariable
             | TermSymbolic
@@ -4346,7 +4346,7 @@ class HeadTheoryAtom:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadTheoryAtom | None:
         """
         Transform the expression.
@@ -4360,7 +4360,7 @@ class HeadTheoryAtom:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadTheoryAtom:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadTheoryAtom:
         """
         Update the expression.
 
@@ -4387,7 +4387,7 @@ class HeadTheoryAtom:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -4430,8 +4430,8 @@ class HeadDisjunction:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         elements: typing.Iterable[
             LiteralBoolean
             | LiteralComparison
@@ -4453,7 +4453,7 @@ class HeadDisjunction:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> HeadDisjunction | None:
         """
         Transform the expression.
@@ -4467,7 +4467,7 @@ class HeadDisjunction:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> HeadDisjunction:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> HeadDisjunction:
         """
         Update the expression.
 
@@ -4498,7 +4498,7 @@ class HeadDisjunction:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the element.
         """
@@ -4518,8 +4518,8 @@ class TheoryOperatorDefinition:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         priority: int,
         operator_type: TheoryOperatorType,
@@ -4540,7 +4540,7 @@ class TheoryOperatorDefinition:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryOperatorDefinition | None:
         """
         Transform the expression.
@@ -4554,7 +4554,7 @@ class TheoryOperatorDefinition:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryOperatorDefinition:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryOperatorDefinition:
         """
         Update the expression.
 
@@ -4575,7 +4575,7 @@ class TheoryOperatorDefinition:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the definition.
         """
@@ -4613,8 +4613,8 @@ class TheoryTermDefinition:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         operators: typing.Iterable[TheoryOperatorDefinition],
     ) -> None:
@@ -4633,7 +4633,7 @@ class TheoryTermDefinition:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryTermDefinition | None:
         """
         Transform the expression.
@@ -4647,7 +4647,7 @@ class TheoryTermDefinition:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryTermDefinition:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryTermDefinition:
         """
         Update the expression.
 
@@ -4668,7 +4668,7 @@ class TheoryTermDefinition:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the definition.
         """
@@ -4699,7 +4699,7 @@ class TheoryGuardDefinition:
         """
 
     def __init__(
-        self, lib: clingo.core.Library, operators: typing.Iterable[str], term: str
+        self, lib: clingo_funasp.core.Library, operators: typing.Iterable[str], term: str
     ) -> None:
         """
         Construct a TheoryGuardDefinition object.
@@ -4715,7 +4715,7 @@ class TheoryGuardDefinition:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryGuardDefinition | None:
         """
         Transform the expression.
@@ -4729,7 +4729,7 @@ class TheoryGuardDefinition:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryGuardDefinition:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryGuardDefinition:
         """
         Update the expression.
 
@@ -4776,8 +4776,8 @@ class TheoryAtomDefinition:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arity: int,
         term: str,
@@ -4802,7 +4802,7 @@ class TheoryAtomDefinition:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> TheoryAtomDefinition | None:
         """
         Transform the expression.
@@ -4816,7 +4816,7 @@ class TheoryAtomDefinition:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> TheoryAtomDefinition:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> TheoryAtomDefinition:
         """
         Update the expression.
 
@@ -4855,7 +4855,7 @@ class TheoryAtomDefinition:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the definition.
         """
@@ -4887,7 +4887,7 @@ class OptimizeTuple:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         weight: (
             TermVariable
             | TermSymbolic
@@ -4935,7 +4935,7 @@ class OptimizeTuple:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> OptimizeTuple | None:
         """
         Transform the expression.
@@ -4949,7 +4949,7 @@ class OptimizeTuple:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> OptimizeTuple:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> OptimizeTuple:
         """
         Update the expression.
 
@@ -5036,7 +5036,7 @@ class OptimizeElement:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         tuple: OptimizeTuple,
         condition: typing.Iterable[
             LiteralBoolean | LiteralComparison | LiteralSymbolic
@@ -5056,7 +5056,7 @@ class OptimizeElement:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> OptimizeElement | None:
         """
         Transform the expression.
@@ -5070,7 +5070,7 @@ class OptimizeElement:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> OptimizeElement:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> OptimizeElement:
         """
         Update the expression.
 
@@ -5119,7 +5119,7 @@ class Edge:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         u: (
             TermVariable
             | TermSymbolic
@@ -5155,7 +5155,7 @@ class Edge:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> Edge | None:
         """
         Transform the expression.
@@ -5169,7 +5169,7 @@ class Edge:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> Edge:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> Edge:
         """
         Update the expression.
 
@@ -5238,9 +5238,9 @@ class ProgramPart:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
+        lib: clingo_funasp.core.Library,
         name: str,
-        arguments: typing.Iterable[clingo.symbol.Symbol],
+        arguments: typing.Iterable[clingo_funasp.symbol.Symbol],
     ) -> None:
         """
         Construct a ProgramPart object.
@@ -5256,7 +5256,7 @@ class ProgramPart:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> ProgramPart | None:
         """
         Transform the expression.
@@ -5270,7 +5270,7 @@ class ProgramPart:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> ProgramPart:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> ProgramPart:
         """
         Update the expression.
 
@@ -5291,7 +5291,7 @@ class ProgramPart:
         """
 
     @property
-    def arguments(self) -> typing.Sequence[clingo.symbol.Symbol]:
+    def arguments(self) -> typing.Sequence[clingo_funasp.symbol.Symbol]:
         """
         The arguments of the program part.
         """
@@ -5317,8 +5317,8 @@ class StatementRule:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         head: (
             HeadSimpleLiteral
             | HeadAggregate
@@ -5350,7 +5350,7 @@ class StatementRule:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementRule | None:
         """
         Transform the expression.
@@ -5364,7 +5364,7 @@ class StatementRule:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementRule:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementRule:
         """
         Update the expression.
 
@@ -5414,7 +5414,7 @@ class StatementRule:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5434,8 +5434,8 @@ class StatementTheory:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         terms: typing.Iterable[TheoryTermDefinition],
         atoms: typing.Iterable[TheoryAtomDefinition],
@@ -5456,7 +5456,7 @@ class StatementTheory:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementTheory | None:
         """
         Transform the expression.
@@ -5470,7 +5470,7 @@ class StatementTheory:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementTheory:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementTheory:
         """
         Update the expression.
 
@@ -5497,7 +5497,7 @@ class StatementTheory:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5529,8 +5529,8 @@ class StatementOptimize:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         elements: typing.Iterable[OptimizeElement],
         optimize_type: OptimizeType,
     ) -> None:
@@ -5549,7 +5549,7 @@ class StatementOptimize:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementOptimize | None:
         """
         Transform the expression.
@@ -5563,7 +5563,7 @@ class StatementOptimize:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementOptimize:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementOptimize:
         """
         Update the expression.
 
@@ -5590,7 +5590,7 @@ class StatementOptimize:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5616,8 +5616,8 @@ class StatementWeakConstraint:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         body: typing.Iterable[
             BodySimpleLiteral
             | BodyAggregate
@@ -5643,7 +5643,7 @@ class StatementWeakConstraint:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementWeakConstraint | None:
         """
         Transform the expression.
@@ -5657,7 +5657,7 @@ class StatementWeakConstraint:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementWeakConstraint:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementWeakConstraint:
         """
         Update the expression.
 
@@ -5693,7 +5693,7 @@ class StatementWeakConstraint:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5719,8 +5719,8 @@ class StatementShow:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         term: (
             TermVariable
             | TermSymbolic
@@ -5755,7 +5755,7 @@ class StatementShow:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementShow | None:
         """
         Transform the expression.
@@ -5769,7 +5769,7 @@ class StatementShow:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementShow:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementShow:
         """
         Update the expression.
 
@@ -5805,7 +5805,7 @@ class StatementShow:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5841,7 +5841,7 @@ class StatementShowNothing:
         """
 
     def __init__(
-        self, lib: clingo.core.Library, location: clingo.core.Location
+        self, lib: clingo_funasp.core.Library, location: clingo_funasp.core.Location
     ) -> None:
         """
         Construct a StatementShowNothing object.
@@ -5856,7 +5856,7 @@ class StatementShowNothing:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementShowNothing | None:
         """
         Transform the expression.
@@ -5870,7 +5870,7 @@ class StatementShowNothing:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementShowNothing:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementShowNothing:
         """
         Update the expression.
 
@@ -5891,7 +5891,7 @@ class StatementShowNothing:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -5911,8 +5911,8 @@ class StatementShowSignature:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arity: int,
         sign: bool = False,
@@ -5935,7 +5935,7 @@ class StatementShowSignature:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementShowSignature | None:
         """
         Transform the expression.
@@ -5949,7 +5949,7 @@ class StatementShowSignature:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementShowSignature:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementShowSignature:
         """
         Update the expression.
 
@@ -5976,7 +5976,7 @@ class StatementShowSignature:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6014,8 +6014,8 @@ class StatementProject:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         atom: (
             TermVariable
             | TermSymbolic
@@ -6050,7 +6050,7 @@ class StatementProject:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementProject | None:
         """
         Transform the expression.
@@ -6064,7 +6064,7 @@ class StatementProject:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementProject:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementProject:
         """
         Update the expression.
 
@@ -6117,7 +6117,7 @@ class StatementProject:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6137,8 +6137,8 @@ class StatementProjectSignature:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arity: int,
         sign: bool = False,
@@ -6159,7 +6159,7 @@ class StatementProjectSignature:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementProjectSignature | None:
         """
         Transform the expression.
@@ -6173,7 +6173,7 @@ class StatementProjectSignature:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementProjectSignature:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementProjectSignature:
         """
         Update the expression.
 
@@ -6200,7 +6200,7 @@ class StatementProjectSignature:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6232,8 +6232,8 @@ class StatementDefined:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arity: int,
         sign: bool = False,
@@ -6254,7 +6254,7 @@ class StatementDefined:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementDefined | None:
         """
         Transform the expression.
@@ -6268,7 +6268,7 @@ class StatementDefined:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementDefined:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementDefined:
         """
         Update the expression.
 
@@ -6295,7 +6295,7 @@ class StatementDefined:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6327,8 +6327,8 @@ class StatementExternal:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         atom: (
             TermVariable
             | TermSymbolic
@@ -6375,7 +6375,7 @@ class StatementExternal:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementExternal | None:
         """
         Transform the expression.
@@ -6389,7 +6389,7 @@ class StatementExternal:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementExternal:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementExternal:
         """
         Update the expression.
 
@@ -6460,7 +6460,7 @@ class StatementExternal:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6480,8 +6480,8 @@ class StatementEdge:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         pool: typing.Iterable[Edge],
         body: typing.Iterable[
             BodySimpleLiteral
@@ -6507,7 +6507,7 @@ class StatementEdge:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementEdge | None:
         """
         Transform the expression.
@@ -6521,7 +6521,7 @@ class StatementEdge:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementEdge:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementEdge:
         """
         Update the expression.
 
@@ -6557,7 +6557,7 @@ class StatementEdge:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6583,8 +6583,8 @@ class StatementHeuristic:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         atom: (
             TermVariable
             | TermSymbolic
@@ -6653,7 +6653,7 @@ class StatementHeuristic:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementHeuristic | None:
         """
         Transform the expression.
@@ -6667,7 +6667,7 @@ class StatementHeuristic:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementHeuristic:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementHeuristic:
         """
         Update the expression.
 
@@ -6720,7 +6720,7 @@ class StatementHeuristic:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6792,8 +6792,8 @@ class StatementScript:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         value: str,
         script_type: str,
     ) -> None:
@@ -6812,7 +6812,7 @@ class StatementScript:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementScript | None:
         """
         Transform the expression.
@@ -6826,7 +6826,7 @@ class StatementScript:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementScript:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementScript:
         """
         Update the expression.
 
@@ -6847,7 +6847,7 @@ class StatementScript:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6879,8 +6879,8 @@ class StatementInclude:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         value: str,
         include_type: IncludeType,
     ) -> None:
@@ -6899,7 +6899,7 @@ class StatementInclude:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementInclude | None:
         """
         Transform the expression.
@@ -6913,7 +6913,7 @@ class StatementInclude:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementInclude:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementInclude:
         """
         Update the expression.
 
@@ -6940,7 +6940,7 @@ class StatementInclude:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -6966,8 +6966,8 @@ class StatementProgram:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         arguments: typing.Iterable[str],
     ) -> None:
@@ -6986,7 +6986,7 @@ class StatementProgram:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementProgram | None:
         """
         Transform the expression.
@@ -7000,7 +7000,7 @@ class StatementProgram:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementProgram:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementProgram:
         """
         Update the expression.
 
@@ -7027,7 +7027,7 @@ class StatementProgram:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -7053,8 +7053,8 @@ class StatementParts:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         elements: typing.Iterable[ProgramPart],
         precedence: Precedence,
     ) -> None:
@@ -7073,7 +7073,7 @@ class StatementParts:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementParts | None:
         """
         Transform the expression.
@@ -7087,7 +7087,7 @@ class StatementParts:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementParts:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementParts:
         """
         Update the expression.
 
@@ -7114,7 +7114,7 @@ class StatementParts:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -7140,8 +7140,8 @@ class StatementConst:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         name: str,
         value: (
             TermVariable
@@ -7171,7 +7171,7 @@ class StatementConst:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementConst | None:
         """
         Transform the expression.
@@ -7185,7 +7185,7 @@ class StatementConst:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementConst:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementConst:
         """
         Update the expression.
 
@@ -7206,7 +7206,7 @@ class StatementConst:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the statement.
         """
@@ -7255,8 +7255,8 @@ class StatementComment:
 
     def __init__(
         self,
-        lib: clingo.core.Library,
-        location: clingo.core.Location,
+        lib: clingo_funasp.core.Library,
+        location: clingo_funasp.core.Location,
         value: str,
         comment_type: CommentType,
     ) -> None:
@@ -7275,7 +7275,7 @@ class StatementComment:
     def __ne__(self, arg0: typing.Any) -> bool: ...
     def __str__(self) -> str: ...
     def transform(
-        self, lib: clingo.core.Library, transformer: typing.Any, *args, **kwargs
+        self, lib: clingo_funasp.core.Library, transformer: typing.Any, *args, **kwargs
     ) -> StatementComment | None:
         """
         Transform the expression.
@@ -7289,7 +7289,7 @@ class StatementComment:
             The transformed object or None.
         """
 
-    def update(self, lib: clingo.core.Library, **kwargs) -> StatementComment:
+    def update(self, lib: clingo_funasp.core.Library, **kwargs) -> StatementComment:
         """
         Update the expression.
 
@@ -7316,7 +7316,7 @@ class StatementComment:
         """
 
     @property
-    def location(self) -> clingo.core.Location:
+    def location(self) -> clingo_funasp.core.Location:
         """
         The location of the comment.
         """
@@ -7332,7 +7332,7 @@ class RewriteContext:
     Context to rewrite statements.
     """
 
-    def __init__(self, lib: clingo.core.Library) -> None:
+    def __init__(self, lib: clingo_funasp.core.Library) -> None:
         """
         Create a context to rewrite statements.
 
@@ -7387,7 +7387,7 @@ class Program:
     A non-ground program.
     """
 
-    def __init__(self, lib: clingo.core.Library) -> None:
+    def __init__(self, lib: clingo_funasp.core.Library) -> None:
         """
         Create an empty non-ground program.
 
@@ -7427,91 +7427,91 @@ class Program:
         """
 
 BodyLiteral: typing.TypeAlias = (
-    clingo.ast.BodySimpleLiteral
-    | clingo.ast.BodyAggregate
-    | clingo.ast.BodySort
-    | clingo.ast.BodySetAggregate
-    | clingo.ast.BodyTheoryAtom
-    | clingo.ast.BodyConditionalLiteral
+    clingo_funasp.ast.BodySimpleLiteral
+    | clingo_funasp.ast.BodyAggregate
+    | clingo_funasp.ast.BodySort
+    | clingo_funasp.ast.BodySetAggregate
+    | clingo_funasp.ast.BodyTheoryAtom
+    | clingo_funasp.ast.BodyConditionalLiteral
 )
 DisjunctionElement: typing.TypeAlias = (
-    clingo.ast.LiteralBoolean
-    | clingo.ast.LiteralComparison
-    | clingo.ast.LiteralSymbolic
-    | clingo.ast.HeadConditionalLiteral
+    clingo_funasp.ast.LiteralBoolean
+    | clingo_funasp.ast.LiteralComparison
+    | clingo_funasp.ast.LiteralSymbolic
+    | clingo_funasp.ast.HeadConditionalLiteral
 )
 FormatField: typing.TypeAlias = (
-    clingo.ast.FormatFieldLiteral | clingo.ast.FormatFieldExpression
+    clingo_funasp.ast.FormatFieldLiteral | clingo_funasp.ast.FormatFieldExpression
 )
 HeadLiteral: typing.TypeAlias = (
-    clingo.ast.HeadSimpleLiteral
-    | clingo.ast.HeadAggregate
-    | clingo.ast.HeadSetAggregate
-    | clingo.ast.HeadTheoryAtom
-    | clingo.ast.HeadDisjunction
+    clingo_funasp.ast.HeadSimpleLiteral
+    | clingo_funasp.ast.HeadAggregate
+    | clingo_funasp.ast.HeadSetAggregate
+    | clingo_funasp.ast.HeadTheoryAtom
+    | clingo_funasp.ast.HeadDisjunction
 )
 Literal: typing.TypeAlias = (
-    clingo.ast.LiteralBoolean
-    | clingo.ast.LiteralComparison
-    | clingo.ast.LiteralSymbolic
+    clingo_funasp.ast.LiteralBoolean
+    | clingo_funasp.ast.LiteralComparison
+    | clingo_funasp.ast.LiteralSymbolic
 )
 Statement: typing.TypeAlias = (
-    clingo.ast.StatementRule
-    | clingo.ast.StatementTheory
-    | clingo.ast.StatementOptimize
-    | clingo.ast.StatementWeakConstraint
-    | clingo.ast.StatementShow
-    | clingo.ast.StatementShowNothing
-    | clingo.ast.StatementShowSignature
-    | clingo.ast.StatementProject
-    | clingo.ast.StatementProjectSignature
-    | clingo.ast.StatementDefined
-    | clingo.ast.StatementExternal
-    | clingo.ast.StatementEdge
-    | clingo.ast.StatementHeuristic
-    | clingo.ast.StatementScript
-    | clingo.ast.StatementInclude
-    | clingo.ast.StatementProgram
-    | clingo.ast.StatementParts
-    | clingo.ast.StatementConst
-    | clingo.ast.StatementComment
+    clingo_funasp.ast.StatementRule
+    | clingo_funasp.ast.StatementTheory
+    | clingo_funasp.ast.StatementOptimize
+    | clingo_funasp.ast.StatementWeakConstraint
+    | clingo_funasp.ast.StatementShow
+    | clingo_funasp.ast.StatementShowNothing
+    | clingo_funasp.ast.StatementShowSignature
+    | clingo_funasp.ast.StatementProject
+    | clingo_funasp.ast.StatementProjectSignature
+    | clingo_funasp.ast.StatementDefined
+    | clingo_funasp.ast.StatementExternal
+    | clingo_funasp.ast.StatementEdge
+    | clingo_funasp.ast.StatementHeuristic
+    | clingo_funasp.ast.StatementScript
+    | clingo_funasp.ast.StatementInclude
+    | clingo_funasp.ast.StatementProgram
+    | clingo_funasp.ast.StatementParts
+    | clingo_funasp.ast.StatementConst
+    | clingo_funasp.ast.StatementComment
 )
 Term: typing.TypeAlias = (
-    clingo.ast.TermVariable
-    | clingo.ast.TermSymbolic
-    | clingo.ast.TermAbsolute
-    | clingo.ast.TermUnaryOperation
-    | clingo.ast.TermBinaryOperation
-    | clingo.ast.TermTuple
-    | clingo.ast.TermFunction
-    | clingo.ast.TermFormatString
+    clingo_funasp.ast.TermVariable
+    | clingo_funasp.ast.TermSymbolic
+    | clingo_funasp.ast.TermAbsolute
+    | clingo_funasp.ast.TermUnaryOperation
+    | clingo_funasp.ast.TermBinaryOperation
+    | clingo_funasp.ast.TermTuple
+    | clingo_funasp.ast.TermFunction
+    | clingo_funasp.ast.TermFormatString
 )
 TermOrArgumentTuple: typing.TypeAlias = (
-    clingo.ast.TermVariable
-    | clingo.ast.TermSymbolic
-    | clingo.ast.TermAbsolute
-    | clingo.ast.TermUnaryOperation
-    | clingo.ast.TermBinaryOperation
-    | clingo.ast.TermTuple
-    | clingo.ast.TermFunction
-    | clingo.ast.TermFormatString
-    | clingo.ast.ArgumentTuple
+    clingo_funasp.ast.TermVariable
+    | clingo_funasp.ast.TermSymbolic
+    | clingo_funasp.ast.TermAbsolute
+    | clingo_funasp.ast.TermUnaryOperation
+    | clingo_funasp.ast.TermBinaryOperation
+    | clingo_funasp.ast.TermTuple
+    | clingo_funasp.ast.TermFunction
+    | clingo_funasp.ast.TermFormatString
+    | clingo_funasp.ast.ArgumentTuple
 )
 TermOrProjection: typing.TypeAlias = (
-    clingo.ast.TermVariable
-    | clingo.ast.TermSymbolic
-    | clingo.ast.TermAbsolute
-    | clingo.ast.TermUnaryOperation
-    | clingo.ast.TermBinaryOperation
-    | clingo.ast.TermTuple
-    | clingo.ast.TermFunction
-    | clingo.ast.TermFormatString
-    | clingo.ast.Projection
+    clingo_funasp.ast.TermVariable
+    | clingo_funasp.ast.TermSymbolic
+    | clingo_funasp.ast.TermAbsolute
+    | clingo_funasp.ast.TermUnaryOperation
+    | clingo_funasp.ast.TermBinaryOperation
+    | clingo_funasp.ast.TermTuple
+    | clingo_funasp.ast.TermFunction
+    | clingo_funasp.ast.TermFormatString
+    | clingo_funasp.ast.Projection
 )
 TheoryTerm: typing.TypeAlias = (
-    clingo.ast.TheoryTermVariable
-    | clingo.ast.TheoryTermSymbolic
-    | clingo.ast.TheoryTermTuple
-    | clingo.ast.TheoryTermFunction
-    | clingo.ast.TheoryTermUnparsed
+    clingo_funasp.ast.TheoryTermVariable
+    | clingo_funasp.ast.TheoryTermSymbolic
+    | clingo_funasp.ast.TheoryTermTuple
+    | clingo_funasp.ast.TheoryTermFunction
+    | clingo_funasp.ast.TheoryTermUnparsed
 )

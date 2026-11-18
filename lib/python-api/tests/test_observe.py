@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.backend module.
+Unit tests for clingo_funasp.backend module.
 """
 
 from typing import Sequence
 
-from clingo.backend import ExternalType, HeuristicType, Observer
-from clingo.base import Base
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import Function, Symbol
+from clingo_funasp.backend import ExternalType, HeuristicType, Observer
+from clingo_funasp.base import Base
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import Function, Symbol
 
 
 class ExampleObserver(Observer):

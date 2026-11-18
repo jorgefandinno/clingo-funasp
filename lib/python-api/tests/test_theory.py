@@ -1,5 +1,5 @@
 """
-Unit tests for the clingo.theory module.
+Unit tests for the clingo_funasp.theory module.
 """
 
 import ctypes
@@ -9,14 +9,14 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from clingo.app import AppOptions
-from clingo.ast import Program, Statement, parse_string
-from clingo.control import Control
-from clingo.core import Library
-from clingo.solve import Model
-from clingo.stats import Stats
-from clingo.symbol import Function, Number
-from clingo.theory import Theory
+from clingo_funasp.app import AppOptions
+from clingo_funasp.ast import Program, Statement, parse_string
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.solve import Model
+from clingo_funasp.stats import Stats
+from clingo_funasp.symbol import Function, Number
+from clingo_funasp.theory import Theory
 
 CAPSULE_NAME_GOOD = b"clingo_theory_create"
 CAPSULE_NAME_BAD = b"wrong_name"

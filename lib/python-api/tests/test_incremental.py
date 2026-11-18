@@ -2,9 +2,9 @@
 Unit tests for incremental solving.
 """
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import parse_term
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import parse_term
 from util import MCB
 
 
