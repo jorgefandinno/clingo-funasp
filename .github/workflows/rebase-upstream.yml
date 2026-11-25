@@ -59,7 +59,9 @@ jobs:
     timeout-minutes: 180
     defaults:
       run:
-        shell: bash -l {0}
+        # -l for conda activation; -eo pipefail because a custom shell drops
+        # the default -e, and a failed rebase.sh must stop the job.
+        shell: bash -leo pipefail {0}
 
     steps:
       - name: Checkout
