@@ -1,6 +1,7 @@
 import tempfile, os
 
 from clingo_funasp import core, ast
+from clingo_funasp.ast.statements import StatementProgram
 
 class TestParseString():
 
@@ -43,7 +44,7 @@ class TestParseString():
     def parse_string(self, s):
         statements = []
         ast.parse_string(self.lib, s, lambda x: statements.append(x))
-        if isinstance(statements[0], ast.StatementProgram):
+        if isinstance(statements[0], StatementProgram):
             statements = statements[1:]
         self.assert_location(statements[0])
         return "\n".join(map(str, statements))
@@ -56,7 +57,7 @@ class TestParseString():
                 temp_file.write("\n")
             statements = []
             ast.parse_files(self.lib, [path], lambda x: statements.append(x))
-            if statements and isinstance(statements[0], ast.StatementProgram):
+            if statements and isinstance(statements[0], StatementProgram):
                 statements = statements[1:]
             self.assert_location(statements[0], file_name=path)
             return "\n".join(map(str, statements))
