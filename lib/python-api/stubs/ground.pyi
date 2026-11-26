@@ -6,9 +6,9 @@ Functions and classes related to grounding.
 The example shows how call external functions during grounding:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Number
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Number
+>>> from clingo_funasp.control import Control
 >>>
 >>> class Context:
 ...     def __init__(self, lib):
@@ -34,8 +34,8 @@ The example below shows how to start grounding in the background and wait for
 grounding to finish:
 
 ```python
->>> from clingo.control import Control
->>> from clingo.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -55,8 +55,8 @@ The example below shows how to ground with asyncio:
 
 ```python
 >>> import asyncio
->>> from clingo.control import Control
->>> from clingo.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
 >>>
 >>> async def main():
 ...     lib = Library()
@@ -104,7 +104,7 @@ class GroundHandle:
     Blocking functions in this object release the GIL. They are not thread-safe
     though.
 
-    See also: `clingo.control.Control.ground`, `clingo.control.Control.start_ground`
+    See also: `clingo_funasp.control.Control.ground`, `clingo_funasp.control.Control.start_ground`
     """
 
     def __enter__(self) -> Self:
@@ -137,7 +137,7 @@ class GroundHandle:
         """
         Cancel the running grounding.
 
-        See also: `clingo.control.Control.interrupt`
+        See also: `clingo_funasp.control.Control.interrupt`
         """
 
     def close(self) -> None:
@@ -149,9 +149,9 @@ class GroundHandle:
         """
         Request grounding to stop without waiting for it.
 
-        Use `clingo.ground.GroundHandle.wait` or `clingo.ground.GroundHandle.get`
+        Use `clingo_funasp.ground.GroundHandle.wait` or `clingo_funasp.ground.GroundHandle.get`
         to wait until grounding has stopped. The result is then
-        `clingo.ground.GroundResult.Interrupted` unless grounding finished before.
+        `clingo_funasp.ground.GroundResult.Interrupted` unless grounding finished before.
         """
 
     def get(self) -> GroundResult:
@@ -187,7 +187,7 @@ class AsyncGroundHandle:
     An object to await grounding running in the background.
 
     The functions of the context passed to
-    `clingo.control.Control.ground_async` are called on the grounding thread
+    `clingo_funasp.control.Control.ground_async` are called on the grounding thread
     and must not interact with the event loop.
 
     Cancelling an awaiting task requests grounding to stop without waiting for
@@ -195,7 +195,7 @@ class AsyncGroundHandle:
     result. The control object must not be used before grounding stopped.
     Dropping the handle does not stop grounding.
 
-    See also: `clingo.control.Control.ground_async`
+    See also: `clingo_funasp.control.Control.ground_async`
     """
 
     def __await__(self) -> Generator[Any, None, GroundResult]:

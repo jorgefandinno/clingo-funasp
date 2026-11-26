@@ -8,10 +8,10 @@
 
 namespace PyClingo {
 
-//! Get the `clingo.control.Control` type (new reference).
+//! Get the `clingo_funasp.control.Control` type (new reference).
 auto py_control_type() -> PyObject *;
 
-//! Get the clingo control object of a `clingo.control.Control` object.
+//! Get the clingo control object of a `clingo_funasp.control.Control` object.
 //!
 //! Returns nullptr with a Python error set if the object is not a control
 //! object of the given type or if it is no longer valid.
@@ -22,7 +22,7 @@ enum class ControlRef : uint8_t { share, claim };
 
 //! Begin using a `clingo_control_t` object from Python.
 //!
-//! Returns a new reference to a `clingo.control.Control` object that must be
+//! Returns a new reference to a `clingo_funasp.control.Control` object that must be
 //! passed to `py_control_end` with the same reference type.
 //!
 //! If the reference type is claim, the control must not have a Python owner;
@@ -65,9 +65,9 @@ class ControlGuard {
     ControlRef ref_type_;
 };
 
-//! Create the clingo.control module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.control module with its own types and functions (first registration phase).
 auto create_control(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.control module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.control module (second registration phase).
 auto link_control(PyObject *mod) -> bool;
 
 } // namespace PyClingo

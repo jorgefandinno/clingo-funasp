@@ -362,7 +362,7 @@ auto py_handle_slots = std::array{
 };
 
 auto py_handle_spec = PyType_Spec{
-    "clingo.ground.GroundHandle",
+    "clingo_funasp.ground.GroundHandle",
     sizeof(PyGroundHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -493,7 +493,7 @@ auto py_async_slots = std::array{
 };
 
 auto py_async_spec = PyType_Spec{
-    "clingo.ground.AsyncGroundHandle",
+    "clingo_funasp.ground.AsyncGroundHandle",
     sizeof(PyAsyncGroundHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -532,7 +532,7 @@ void ground_module_free(void *module) {
 
 PyModuleDef ground_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.ground",
+    "clingo_funasp.ground",
     PyDoc_STR("Functions and classes related to grounding."),
     static_cast<Py_ssize_t>(sizeof(GroundModuleState)),
     nullptr,
@@ -545,7 +545,7 @@ PyModuleDef ground_def = {
 } // namespace
 
 auto py_ground_handle_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.ground"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.ground"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -554,7 +554,7 @@ auto py_ground_handle_type() -> PyObject * {
         return nullptr;
     }
     if (state->handle_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.ground module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.ground module is not initialized");
         return nullptr;
     }
     return Py_NewRef(state->handle_type);

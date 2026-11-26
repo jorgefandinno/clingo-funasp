@@ -7,8 +7,8 @@ import tempfile
 from contextlib import contextmanager
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 from util import MCB
 
 

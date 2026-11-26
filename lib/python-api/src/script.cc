@@ -23,7 +23,7 @@ namespace {
 // Ownership
 //
 // Scripts registered from Python (`register`, `enable_python`) are
-// represented by a `_ScriptHandle` whose address is passed to clingo. The
+// represented by a `_ScriptHandle` whose address is passed to clingo_funasp. The
 // library object keeps the handle alive via its keeper list. Because the
 // library releases the clingo library only in tp_dealloc (and not in
 // tp_clear), all objects referenced by the script (e.g., symbols) are
@@ -200,7 +200,7 @@ auto py_handle_slots = std::array{
 };
 
 auto py_handle_spec = PyType_Spec{
-    "clingo.script._ScriptHandle",
+    "clingo_funasp.script._ScriptHandle",
     sizeof(PyScriptHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -382,13 +382,13 @@ auto external_init(ExternalScript *ext) -> bool {
         return true;
     }
     auto gil = GILGuard{};
-    auto clingo = steal(PyImport_ImportModule("clingo"));
+    auto clingo = steal(PyImport_ImportModule("clingo_funasp"));
     if (clingo.get() == nullptr) {
         return store_python_error("importing clingo failed");
     }
-    auto mod = steal(PyImport_ImportModule("clingo.script"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.script"));
     if (mod.get() == nullptr) {
-        return store_python_error("importing clingo.script failed");
+        return store_python_error("importing clingo_funasp.script failed");
     }
     auto *state = get_state(mod.get());
     if (state == nullptr) {
@@ -668,7 +668,7 @@ auto py_script_slots = std::array{
 };
 
 auto py_script_spec = PyType_Spec{
-    "clingo.script.Script", sizeof(PyObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, py_script_slots.data(),
+    "clingo_funasp.script.Script", sizeof(PyObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, py_script_slots.data(),
 };
 
 // module functions
@@ -728,7 +728,7 @@ auto py_register(PyObject *module, PyObject *const *args, Py_ssize_t nargs, PyOb
         return nullptr;
     }
     if (is_script == 0) {
-        PyErr_SetString(PyExc_TypeError, "script must be an instance of clingo.script.Script");
+        PyErr_SetString(PyExc_TypeError, "script must be an instance of clingo_funasp.script.Script");
         return nullptr;
     }
     auto handle = steal(handle_new(state, script, nullptr));
@@ -806,7 +806,7 @@ void script_module_free(void *module) {
 
 PyModuleDef script_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.script",
+    "clingo_funasp.script",
     PyDoc_STR("Module to add custom scripts that can be embedded into logic programs."),
     static_cast<Py_ssize_t>(sizeof(ScriptModuleState)),
     script_module_methods.data(),

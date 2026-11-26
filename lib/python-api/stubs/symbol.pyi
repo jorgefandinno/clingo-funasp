@@ -5,8 +5,8 @@ Examples
 --------
 
 ```python
->>> from clingo.core import Library
->>> from clingo.symbol import Function, Number, parse_term
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.symbol import Function, Number, parse_term
 >>>
 >>> lib = Library()
 >>>
@@ -29,7 +29,7 @@ import enum
 import typing
 from collections.abc import Sequence
 
-from clingo.core import Library
+from clingo_funasp.core import Library
 
 __all__: list[str] = [
     "Function",
@@ -54,7 +54,7 @@ def Function(
 
     This includes constants and tuples. Constants have an empty argument list and
     tuples have an empty name. Functions can represent classically negated atoms.
-    Argument `clingo.symbol.Symbol.is_positive` has to be set to `False` to
+    Argument `clingo_funasp.symbol.Symbol.is_positive` has to be set to `False` to
     represent such atoms.
 
     Args:
@@ -166,13 +166,13 @@ class Symbol:
     constants with `len(arguments) == 0`.
 
     Symbol objects implement Python's rich comparison operators and are ordered
-    like in clingo. They can also be used as keys in dictionaries. Their string
+    like in clingo_funasp. They can also be used as keys in dictionaries. Their string
     representation corresponds to their clingo representation.
 
     Note that this class does not have a constructor. Instead there are the
-    preconstructed symbols `clingo.symbol.Infimum` and `clingo.symbol.Supremum` and
-    the functions `clingo.symbol.Number`, `clingo.symbol.String`,
-    `clingo.symbol.Tuple_`, and `clingo.symbol.Function` to construct symbol
+    preconstructed symbols `clingo_funasp.symbol.Infimum` and `clingo_funasp.symbol.Supremum` and
+    the functions `clingo_funasp.symbol.Number`, `clingo_funasp.symbol.String`,
+    `clingo_funasp.symbol.Tuple_`, and `clingo_funasp.symbol.Function` to construct symbol
     objects.
     """
 

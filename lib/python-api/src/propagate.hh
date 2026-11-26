@@ -7,7 +7,7 @@
 
 namespace PyClingo {
 
-//! Get the `clingo.propagate.Propagator` type (new reference).
+//! Get the `clingo_funasp.propagate.Propagator` type (new reference).
 auto py_propagator_type() -> PyObject *;
 
 //! Register a propagator with the given control object.
@@ -20,9 +20,9 @@ auto py_propagator_type() -> PyObject *;
 auto py_register_propagator(PyObject *type, clingo_control_t *ctl, PyObject *keeper, PyObject *library,
                             PyObject *propagator) -> bool;
 
-//! Create the clingo.propagate module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.propagate module with its own types and functions (first registration phase).
 auto create_propagate(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.propagate module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.propagate module (second registration phase).
 auto link_propagate(PyObject *mod) -> bool;
 
 } // namespace PyClingo

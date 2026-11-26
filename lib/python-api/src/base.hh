@@ -7,23 +7,23 @@
 
 namespace PyClingo {
 
-//! Create the clingo.base module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.base module with its own types and functions (first registration phase).
 auto create_base(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.base module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.base module (second registration phase).
 auto link_base(PyObject *mod) -> bool;
 
 auto py_base_type() -> PyObject *;
-//! Create a `clingo.base.Base` object (new reference).
+//! Create a `clingo_funasp.base.Base` object (new reference).
 //!
 //! The owner is kept alive by the base object. If valid is not nullptr, it is
 //! the address of a pointer of the owner that is null once the owner is no
 //! longer valid; accessing the base then raises an error. Otherwise, the base
 //! is valid until py_base_invalidate() is called.
 auto py_base_new(PyObject *owner, void const *valid, PyObject *type, clingo_base_t const *base) -> PyObject *;
-//! Invalidate a `clingo.base.Base` object; accessing it or objects obtained from it then raises an error.
+//! Invalidate a `clingo_funasp.base.Base` object; accessing it or objects obtained from it then raises an error.
 void py_base_invalidate(PyObject *obj) noexcept;
 
-//! Creates a `clingo.base.Base` object for a scope and invalidates it at the end.
+//! Creates a `clingo_funasp.base.Base` object for a scope and invalidates it at the end.
 class BaseGuard {
   public:
     BaseGuard(PyObject *owner, PyObject *type, clingo_base_t const *base)

@@ -8,8 +8,8 @@ numbers, have arbitrary precision and use floor division.
 from collections.abc import Callable
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 
 # values around the boundaries of 32bit integers
 VALUES = [

@@ -6,9 +6,9 @@
 
 namespace PyClingo {
 
-//! Create the clingo.symbol module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.symbol module with its own types and functions (first registration phase).
 auto create_symbol(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.symbol module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.symbol module (second registration phase).
 auto link_symbol(PyObject *mod) -> bool;
 
 auto py_symbol_type() -> PyObject *;

@@ -7,8 +7,8 @@ The example shows the most straightforward way to ground and solve a
 small test program:
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib)
@@ -32,16 +32,16 @@ from collections.abc import (
 from enum import IntEnum
 from typing import Any, ClassVar, TypeVar, overload
 
-from clingo.ast import Program
-from clingo.backend import BackendManager, Observer
-from clingo.base import Base
-from clingo.config import Config
-from clingo.core import EventLoop, Library
-from clingo.ground import AsyncGroundHandle, GroundHandle, GroundResult
-from clingo.propagate import Propagator
-from clingo.solve import AsyncSolveHandle, Model, SolveHandle, SolveResult
-from clingo.stats import Stats, StatsView
-from clingo.symbol import Symbol
+from clingo_funasp.ast import Program
+from clingo_funasp.backend import BackendManager, Observer
+from clingo_funasp.base import Base
+from clingo_funasp.config import Config
+from clingo_funasp.core import EventLoop, Library
+from clingo_funasp.ground import AsyncGroundHandle, GroundHandle, GroundResult
+from clingo_funasp.propagate import Propagator
+from clingo_funasp.solve import AsyncSolveHandle, Model, SolveHandle, SolveResult
+from clingo_funasp.stats import Stats, StatsView
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = ["ConstMap", "Control", "ControlMode"]
 
@@ -236,7 +236,7 @@ class Control:
             parts: A sequence of tuples, each containing a section name and a
                 sequence of symbols. The name identifies the program section to
                 ground, and the symbols bind its parameters. If `None`, the parts
-                set via `clingo.control.Control.parts` are grounded or, if there
+                set via `clingo_funasp.control.Control.parts` are grounded or, if there
                 are none, the implicit base section without arguments.
             context: An optional object providing functions that can be called
                 during grounding.
@@ -252,7 +252,7 @@ class Control:
         Ground the given program parts in the background and return an awaitable handle.
 
         Awaiting the handle returns the ground result. See
-        `clingo.control.Control.ground` for details on grounding program parts.
+        `clingo_funasp.control.Control.ground` for details on grounding program parts.
 
         Args:
             loop: The event loop of the awaiting task.
@@ -272,7 +272,7 @@ class Control:
         """
         Interrupt the active solve call.
 
-        This function is thread-safe. Prefer using `clingo.solve.SolveHandle.cancel`
+        This function is thread-safe. Prefer using `clingo_funasp.solve.SolveHandle.cancel`
         if possible.
         """
 
@@ -281,7 +281,7 @@ class Control:
         Extend the logic program with the given non-ground program.
 
         After extending the logic program, the corresponding program parts are
-        typically grounded with `clingo.control.Control.ground`.
+        typically grounded with `clingo_funasp.control.Control.ground`.
 
         Args:
             program: The non-ground program to add.
@@ -299,7 +299,7 @@ class Control:
            or rewritten program is printed.
         3. Otherwise, if the program includes `<incmode>`, incremental grounding and
            solving is performed.
-        4. Otherwise, the program parts in `clingo.control.Control.parts` (or the
+        4. Otherwise, the program parts in `clingo_funasp.control.Control.parts` (or the
            base part if none are set) are grounded, followed by a single solve call
            in `ControlMode.Solve`.
 
@@ -336,7 +336,7 @@ class Control:
         """
         Register the given propagator for theory propagation.
 
-        See the `clingo.propagate` module for an example.
+        See the `clingo_funasp.propagate` module for an example.
 
         Args:
             propagator: The propagator to register.
@@ -361,7 +361,7 @@ class Control:
             return hnd.get()
         ```
 
-        See `clingo.control.Control.start_solve` for a detailed description of the
+        See `clingo_funasp.control.Control.start_solve` for a detailed description of the
         arguments.
 
         Args:
@@ -394,7 +394,7 @@ class Control:
 
         The callbacks are called on the solver thread. Their arguments are only
         valid during the call and they must not interact with the event loop.
-        See `clingo.control.Control.start_solve` for a description of the
+        See `clingo_funasp.control.Control.start_solve` for a description of the
         callbacks.
 
         Args:
@@ -413,7 +413,7 @@ class Control:
             Asynchronous solving requires compiling clingo with thread support.
 
         See Also:
-            `clingo.solve.AsyncSolveHandle`
+            `clingo_funasp.solve.AsyncSolveHandle`
         """
 
     def start_ground(
@@ -425,7 +425,7 @@ class Control:
         """
         Start grounding the given program parts in the background.
 
-        See `clingo.control.Control.ground` for details on grounding program
+        See `clingo_funasp.control.Control.ground` for details on grounding program
         parts.
 
         Args:
@@ -455,7 +455,7 @@ class Control:
 
         This function runs the solver on the current ground program, optionally
         using assumptions, callbacks, or asynchronous execution. It returns a
-        `clingo.solve.SolveHandle`, allowing interaction with the solving process.
+        `clingo_funasp.solve.SolveHandle`, allowing interaction with the solving process.
 
         If asynchronous solving (`async_`) is enabled, the function returns
         immediately, and solving runs in the background. Otherwise, if yielding
@@ -465,24 +465,24 @@ class Control:
 
         Args:
             assumptions: The assumptions that constrain the search. Each assumption
-                is either a `tuple[clingo.symbol.Symbol, bool]` indicating an atom's
-                truth value or a program literal (see `clingo.base.Atom.literal`).
-                For example, using `[(clingo.symbol.Function(lib, "a"), True)]` only
+                is either a `tuple[clingo_funasp.symbol.Symbol, bool]` indicating an atom's
+                truth value or a program literal (see `clingo_funasp.base.Atom.literal`).
+                For example, using `[(clingo_funasp.symbol.Function(lib, "a"), True)]` only
                 admits answer sets that contain atom `a`.
-            on_model: An optional callback that receives a `clingo.solve.Model`
+            on_model: An optional callback that receives a `clingo_funasp.solve.Model`
                 object when a model is found. Returning `False` from the callback
                 stops solving.
             on_unsat: An optional callback to intercept lower bounds during
                 optimization.
             on_stats: An optional callback that receives statistics updates after
-                each step. Two `clingo.stats.Stats` objects are passed: the
+                each step. Two `clingo_funasp.stats.Stats` objects are passed: the
                 step-specific and the accumulated stats.
             on_finish: An optional callback called once the search has finished.
-                A `clingo.solve.SolveResult` is passed to the callback. Exceptions
+                A `clingo_funasp.solve.SolveResult` is passed to the callback. Exceptions
                 raised by the callback are not propagated but reported via
                 `sys.unraisablehook`.
-            yield_: If `True`, the returned `clingo.solve.SolveHandle` is iterable,
-                yielding `clingo.solve.Model` objects during solving.
+            yield_: If `True`, the returned `clingo_funasp.solve.SolveHandle` is iterable,
+                yielding `clingo_funasp.solve.Model` objects during solving.
             async_: If `True`, solving runs asynchronously in a separate thread.
                 Callbacks (`on_model`, `on_stats`, etc.) are then also called from a
                 separate thread.
@@ -492,11 +492,11 @@ class Control:
 
         Notes:
             Asynchronous solving requires compiling clingo with thread support.
-            Blocking methods on `clingo.solve.SolveHandle` release the GIL but are
+            Blocking methods on `clingo_funasp.solve.SolveHandle` release the GIL but are
             not thread-safe.
 
         See Also:
-            `clingo.solve`
+            `clingo_funasp.solve`
         """
 
     def write_aspif(
@@ -511,7 +511,7 @@ class Control:
         Write the current logic program in aspif format.
 
         If `path` is `None`, the program is written to clingo's internal output
-        buffer, which is available via `clingo.control.Control.buffer`. Otherwise,
+        buffer, which is available via `clingo_funasp.control.Control.buffer`. Otherwise,
         it is written to the given file, which is created if it does not exist.
 
         If `append` is false, an existing file is overwritten. Output to the buffer
@@ -548,15 +548,15 @@ class Control:
         """
         Get or set the content of the output buffer.
 
-        The buffer receives the output of `clingo.control.Control.write_aspif`
-        without a path and the program printed by `clingo.control.Control.main` in
+        The buffer receives the output of `clingo_funasp.control.Control.write_aspif`
+        without a path and the program printed by `clingo_funasp.control.Control.main` in
         `ControlMode.Parse` and `ControlMode.Rewrite`. It is only filled for
         standalone control objects; control objects of an application regularly
         flush it to stdout.
 
         Assigning an empty string clears the buffer, which avoids accumulating
         output over multiple steps. When appending to the buffer, an empty buffer
-        also makes `clingo.control.Control.write_aspif` write the preamble again.
+        also makes `clingo_funasp.control.Control.write_aspif` write the preamble again.
         """
 
     @buffer.setter
@@ -584,7 +584,7 @@ class Control:
         """
         Get or set the program parts to ground.
 
-        The parts are grounded by `clingo.control.Control.ground` if no parts are
+        The parts are grounded by `clingo_funasp.control.Control.ground` if no parts are
         passed explicitly. If `None`, no parts are set.
         """
 

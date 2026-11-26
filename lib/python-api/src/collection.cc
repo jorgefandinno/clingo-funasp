@@ -315,15 +315,15 @@ auto values_view_slots = std::array{
 constexpr auto view_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC;
 
 auto keys_view_spec = PyType_Spec{
-    "clingo.core._KeysView", sizeof(PyViewObject), 0, view_flags, keys_view_slots.data(),
+    "clingo_funasp.core._KeysView", sizeof(PyViewObject), 0, view_flags, keys_view_slots.data(),
 };
 
 auto values_view_spec = PyType_Spec{
-    "clingo.core._ValuesView", sizeof(PyViewObject), 0, view_flags, values_view_slots.data(),
+    "clingo_funasp.core._ValuesView", sizeof(PyViewObject), 0, view_flags, values_view_slots.data(),
 };
 
 auto items_view_spec = PyType_Spec{
-    "clingo.core._ItemsView", sizeof(PyViewObject), 0, view_flags, items_view_slots.data(),
+    "clingo_funasp.core._ItemsView", sizeof(PyViewObject), 0, view_flags, items_view_slots.data(),
 };
 
 //! Convert an optional bound of the index method like collections.abc.Sequence.index.

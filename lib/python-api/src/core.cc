@@ -271,7 +271,7 @@ auto check_type(PyObject *type, PyObject *obj, char const *msg) -> bool {
 }
 
 auto import_core_state() -> CoreModuleState * {
-    auto mod = steal(PyImport_ImportModule("clingo.core"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.core"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -287,7 +287,7 @@ auto get_type(PyObject *CoreModuleState::*member) -> PyObject * {
     }
     auto *type = state->*member;
     if (type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.core module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.core module is not initialized");
         return nullptr;
     }
     return Py_NewRef(type);
@@ -529,7 +529,7 @@ auto py_library_slots = std::array{
 };
 
 auto py_library_spec = PyType_Spec{
-    "clingo.core.Library", sizeof(PyLibraryObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_library_slots.data(),
+    "clingo_funasp.core.Library", sizeof(PyLibraryObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_library_slots.data(),
 };
 
 // Position
@@ -651,7 +651,7 @@ auto py_position_slots = std::array{
 };
 
 auto py_position_spec = PyType_Spec{
-    "clingo.core.Position", sizeof(PyPositionObject), 0, Py_TPFLAGS_DEFAULT, py_position_slots.data(),
+    "clingo_funasp.core.Position", sizeof(PyPositionObject), 0, Py_TPFLAGS_DEFAULT, py_position_slots.data(),
 };
 
 // Location
@@ -678,7 +678,7 @@ auto py_location_tp_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) ->
     if (state == nullptr) {
         return nullptr;
     }
-    static constexpr char const *msg = "expected clingo.core.Position";
+    static constexpr char const *msg = "expected clingo_funasp.core.Position";
     if (!check_type(state->position_type, begin, msg) || !check_type(state->position_type, end, msg)) {
         return nullptr;
     }
@@ -765,7 +765,7 @@ auto py_location_slots = std::array{
 };
 
 auto py_location_spec = PyType_Spec{
-    "clingo.core.Location", sizeof(PyLocationObject), 0, Py_TPFLAGS_DEFAULT, py_location_slots.data(),
+    "clingo_funasp.core.Location", sizeof(PyLocationObject), 0, Py_TPFLAGS_DEFAULT, py_location_slots.data(),
 };
 
 // module
@@ -836,7 +836,7 @@ void core_module_free(void *module) {
 
 PyModuleDef core_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.core",
+    "clingo_funasp.core",
     PyDoc_STR("Core functionality used throughout the clingo package."),
     static_cast<Py_ssize_t>(sizeof(CoreModuleState)),
     core_methods.data(),
@@ -853,7 +853,7 @@ auto py_library_type() -> PyObject * {
 }
 
 auto py_library_get(PyObject *type, PyObject *obj) -> clingo_lib_t * {
-    if (!check_type(type, obj, "expected clingo.core.Library")) {
+    if (!check_type(type, obj, "expected clingo_funasp.core.Library")) {
         return nullptr;
     }
     return library_get(obj);
@@ -881,7 +881,7 @@ auto py_library_attach(PyObject *type, clingo_lib_t *lib) -> PyObject * {
 }
 
 auto py_library_keep(PyObject *type, PyObject *library, PyObject *obj) -> bool {
-    if (!check_type(type, library, "expected clingo.core.Library")) {
+    if (!check_type(type, library, "expected clingo_funasp.core.Library")) {
         return false;
     }
     auto *keep = library_cast(library)->keep;
@@ -905,7 +905,7 @@ auto py_location_new(PyObject *type, clingo_location_t const *loc) -> PyObject *
 }
 
 auto py_location_get(PyObject *type, PyObject *obj) -> clingo_location_t const * {
-    if (!check_type(type, obj, "expected clingo.core.Location")) {
+    if (!check_type(type, obj, "expected clingo_funasp.core.Location")) {
         return nullptr;
     }
     return location_cast(obj)->loc;

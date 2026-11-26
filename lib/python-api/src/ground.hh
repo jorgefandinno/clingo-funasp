@@ -11,7 +11,7 @@ auto py_ground_handle_type() -> PyObject *;
 auto py_ground(PyObject *type, clingo_control_t *ctl, clingo_part_t const *parts, size_t size, PyObject *ctx) -> bool;
 auto py_ground_start(PyObject *type, clingo_control_t *ctl, PyObject *owner, clingo_part_t const *parts, size_t size,
                      PyObject *ctx, PyObject *finish) -> PyObject *;
-//! Start grounding in the background and return a new `clingo.ground.AsyncGroundHandle`.
+//! Start grounding in the background and return a new `clingo_funasp.ground.AsyncGroundHandle`.
 //!
 //! The type must be the one returned by `py_ground_handle_type`. The context
 //! can be Py_None and its functions are called on the grounding thread. The
@@ -20,9 +20,9 @@ auto py_ground_start(PyObject *type, clingo_control_t *ctl, PyObject *owner, cli
 auto py_ground_async(PyObject *type, clingo_control_t *ctl, PyObject *owner, clingo_part_t const *parts, size_t size,
                      PyObject *ctx, PyObject *loop) -> PyObject *;
 
-//! Create the clingo.ground module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.ground module with its own types and functions (first registration phase).
 auto create_ground(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.ground module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.ground module (second registration phase).
 auto link_ground(PyObject *mod) -> bool;
 
 } // namespace PyClingo

@@ -6,13 +6,13 @@ Examples
 
 The examples below show various ways to intercept models. The asynchronous
 variants leave room for additional computation before calling blocking
-functions like `clingo.solve.SolveHandle.get` or
-`clingo.solve.SolveHandle.model`.
+functions like `clingo_funasp.solve.SolveHandle.get` or
+`clingo_funasp.solve.SolveHandle.model`.
 
 The following example shows how to intercept models with a callback:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -25,8 +25,8 @@ The following example shows how to intercept models with a callback:
 
 The following example shows how to yield models:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -43,8 +43,8 @@ The following example shows how to yield models:
 
 The following example shows how to solve asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -60,8 +60,8 @@ The following example shows how to solve asynchronously:
 
 This example shows how to solve both iteratively and asynchronously:
 
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> lib = Library()
     >>> ctl = Control(lib, ["0"])
@@ -82,8 +82,8 @@ This example shows how to solve both iteratively and asynchronously:
 The following example shows how to solve with asyncio:
 
     >>> import asyncio
-    >>> from clingo.core import Library
-    >>> from clingo.control import Control
+    >>> from clingo_funasp.core import Library
+    >>> from clingo_funasp.control import Control
     >>>
     >>> async def main():
     ...     lib = Library()
@@ -107,8 +107,8 @@ from enum import IntEnum
 from types import TracebackType
 from typing import Any, Self
 
-from clingo.base import Base
-from clingo.symbol import Symbol
+from clingo_funasp.base import Base
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = [
     "AsyncSolveHandle",
@@ -328,7 +328,7 @@ class SolveHandle:
     Blocking functions in this object release the GIL. They are not thread-safe
     though.
 
-    See also: `clingo.control.Control.solve`, `clingo.control.Control.start_solve`
+    See also: `clingo_funasp.control.Control.solve`, `clingo_funasp.control.Control.start_solve`
     """
 
     def __enter__(self) -> Self:
@@ -366,23 +366,23 @@ class SolveHandle:
         """
         Stop the search closing the handle.
 
-        See also: `clingo.solve.SolveHandle.__exit__`
+        See also: `clingo_funasp.solve.SolveHandle.__exit__`
         """
 
     def cancel(self) -> None:
         """
         Cancel the running search.
 
-        See also: `clingo.control.Control.interrupt`
+        See also: `clingo_funasp.control.Control.interrupt`
         """
 
     def interrupt(self) -> None:
         """
         Request the search to stop without waiting for it.
 
-        Use `clingo.solve.SolveHandle.wait` or `clingo.solve.SolveHandle.get`
+        Use `clingo_funasp.solve.SolveHandle.wait` or `clingo_funasp.solve.SolveHandle.get`
         to wait until the search has stopped. The result is then interrupted
-        unless the search finished before. Like `clingo.solve.SolveHandle.resume`,
+        unless the search finished before. Like `clingo_funasp.solve.SolveHandle.resume`,
         this invalidates the current model.
         """
 
@@ -451,7 +451,7 @@ class AsyncSolveHandle:
     cancels a search whose result has not been awaited and closes the handle.
     Afterward, the last model is no longer available.
 
-    The callbacks passed to `clingo.control.Control.solve_async` are called on
+    The callbacks passed to `clingo_funasp.control.Control.solve_async` are called on
     the solver thread. Their arguments are only valid during the call and they
     must not interact with the event loop.
 
@@ -462,7 +462,7 @@ class AsyncSolveHandle:
     afterward waits until it stopped. Until then, callbacks might still be
     called and the control object must not be used.
 
-    See also: `clingo.control.Control.solve_async`
+    See also: `clingo_funasp.control.Control.solve_async`
     """
 
     def __await__(self) -> Generator[Any, None, SolveResult]:

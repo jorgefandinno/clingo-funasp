@@ -380,7 +380,7 @@ auto py_step_slots = std::array{
 } // namespace
 
 PyType_Spec async_step_spec = {
-    "clingo._AsyncStep",
+    "clingo_funasp._AsyncStep",
     sizeof(PyAsyncStepObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,

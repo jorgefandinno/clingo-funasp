@@ -1,9 +1,9 @@
 """
-Unit tests for clingo.control.Control.profile.
+Unit tests for clingo_funasp.control.Control.profile.
 """
 
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 
 
 class TestProfile:

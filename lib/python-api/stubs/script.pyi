@@ -8,10 +8,10 @@ from the main context (just like the embedded one in the standalone clingo).
 
 ```python
 >>> import __main__
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.script import Script, register
->>> from clingo.symbol import Number, Symbol
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.script import Script, register
+>>> from clingo_funasp.symbol import Number, Symbol
 ...
 >>> class PyScript(Script):
 ...     def execute(self, code) -> None:
@@ -36,7 +36,7 @@ from the main context (just like the embedded one in the standalone clingo).
 >>> ctl.parse_string(\"\"\"\\
 ... #script (python)
 ...
-... from clingo.symbol import Number, Symbol
+... from clingo_funasp.symbol import Number, Symbol
 ...
 ... def g(lib, x):
 ...     return Number(lib, x.number * 4)
@@ -60,9 +60,9 @@ q(8).
 from abc import abstractmethod
 from collections.abc import Sequence
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.symbol import Symbol
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = ["Script", "enable_python", "register"]
 

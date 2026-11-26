@@ -106,7 +106,7 @@ auto get_state_from_self(PyObject *self) -> TheoryModuleState * {
     return get_state(mod);
 }
 
-//! Get the clingo control object of a `clingo.control.Control` argument.
+//! Get the clingo control object of a `clingo_funasp.control.Control` argument.
 auto control_arg(PyObject *self, PyObject *obj) -> clingo_control_t * {
     auto *state = get_state_from_self(self);
     if (state == nullptr) {
@@ -115,7 +115,7 @@ auto control_arg(PyObject *self, PyObject *obj) -> clingo_control_t * {
     return py_control_get(state->control_type, obj);
 }
 
-//! Get the clingo library of a `clingo.core.Library` argument.
+//! Get the clingo library of a `clingo_funasp.core.Library` argument.
 auto library_arg(PyObject *self, PyObject *obj) -> clingo_lib_t * {
     auto *state = get_state_from_self(self);
     if (state == nullptr) {
@@ -278,7 +278,7 @@ auto py_theory_assignment_iter_slots = std::array{
 };
 
 auto py_theory_assignment_iter_spec = PyType_Spec{
-    "clingo.theory._TheoryAssignmentIter",
+    "clingo_funasp.theory._TheoryAssignmentIter",
     sizeof(PyTheoryAssignmentIterObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -941,7 +941,7 @@ auto py_theory_assignment_slots = std::array{
 };
 
 auto py_theory_assignment_spec = PyType_Spec{
-    "clingo.theory.TheoryAssignment",
+    "clingo_funasp.theory.TheoryAssignment",
     sizeof(PyTheoryAssignmentObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -997,7 +997,7 @@ auto py_theory_slots = std::array{
 };
 
 auto py_theory_spec = PyType_Spec{
-    "clingo.theory.Theory", sizeof(PyTheoryObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_theory_slots.data(),
+    "clingo_funasp.theory.Theory", sizeof(PyTheoryObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_theory_slots.data(),
 };
 
 auto theory_module_traverse(PyObject *module, visitproc visit, void *arg) -> int {
@@ -1042,7 +1042,7 @@ void theory_module_free(void *module) {
 
 PyModuleDef theory_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.theory",
+    "clingo_funasp.theory",
     PyDoc_STR("This module allows for using theories implemented in C from Python."),
     static_cast<Py_ssize_t>(sizeof(TheoryModuleState)),
     nullptr,

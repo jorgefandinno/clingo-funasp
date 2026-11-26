@@ -6,9 +6,9 @@ This module provides functions to work with Abstract Syntax Trees of logic progr
 The following example shows how to parse individual statements and add them to a control object.
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
->>> from clingo import ast
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp import ast
 >>>
 >>> lib = Library()
 >>> ctl = Control(lib, ["--convert=text"])
@@ -35,9 +35,9 @@ The next example shows how to visit an AST and collect variables.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
-from clingo import ast
-from clingo.ast import terms, theory
+from clingo_funasp.core import Library
+from clingo_funasp import ast
+from clingo_funasp.ast import terms, theory
 
 @singledispatch
 def collect(stm, vars):
@@ -70,9 +70,9 @@ The last example shows how to use a transformer to modify an AST.
 ```python
 from functools import singledispatch
 
-from clingo.core import Library
-from clingo import ast
-from clingo.ast import terms
+from clingo_funasp.core import Library
+from clingo_funasp import ast
+from clingo_funasp.ast import terms
 
 @singledispatch
 def rename(stm, lib):
@@ -108,14 +108,14 @@ from collections.abc import Callable, Sequence
 from enum import IntEnum
 from typing import Self
 
-from clingo.ast.body import BodyLiteral
-from clingo.ast.head import HeadLiteral
-from clingo.ast.literals import Literal
-from clingo.ast.statements import Statement, StatementTheory
-from clingo.ast.terms import Term
-from clingo.ast.theory import TheoryTerm
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.ast.body import BodyLiteral
+from clingo_funasp.ast.head import HeadLiteral
+from clingo_funasp.ast.literals import Literal
+from clingo_funasp.ast.statements import Statement, StatementTheory
+from clingo_funasp.ast.terms import Term
+from clingo_funasp.ast.theory import TheoryTerm
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 
 __all__: list[str] = [
     "AST",

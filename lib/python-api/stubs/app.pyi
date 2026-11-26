@@ -10,9 +10,9 @@ The following example shows how to run clingo without customization:
 
 ```python
 import sys
-from clingo.app import clingo_main
-from clingo.core import Library
-from clingo.script import enable_python
+from clingo_funasp.app import clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.script import enable_python
 
 lib = Library()
 enable_python(lib)
@@ -25,10 +25,10 @@ an option to print atoms in models in order:
 ```python
 from typing import Callable, Sequence
 import sys
-from clingo.app import App, AppOptions, Flag, clingo_main
-from clingo.core import Library
-from clingo.control import Control
-from clingo.solve import Model
+from clingo_funasp.app import App, AppOptions, Flag, clingo_main
+from clingo_funasp.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.solve import Model
 
 class MyApp(App):
     def __init__(self) -> None:
@@ -56,9 +56,9 @@ sys.exit(clingo_main(Library(), sys.argv[1:], MyApp()))
 
 from collections.abc import Callable, Sequence
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.solve import Model
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.solve import Model
 
 __all__: list[str] = ["App", "AppOptions", "Flag", "clingo_main"]
 
