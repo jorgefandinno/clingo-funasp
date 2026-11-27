@@ -14,9 +14,9 @@ enum class StatsType : uint8_t {
     map = clingo_stats_type_map,
 };
 
-//! Create the clingo.stats module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.stats module with its own types and functions (first registration phase).
 auto create_stats(PyObject *parent) -> PyObject *;
-//! Store the types of other modules in the state of the clingo.stats module (second registration phase).
+//! Store the types of other modules in the state of the clingo_funasp.stats module (second registration phase).
 auto link_stats(PyObject *mod) -> bool;
 
 auto py_stats_type() -> PyObject *;

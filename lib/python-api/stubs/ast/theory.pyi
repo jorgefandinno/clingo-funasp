@@ -6,10 +6,10 @@ from collections.abc import Sequence
 from enum import IntEnum
 from typing import TypeAlias, final
 
-from clingo.ast import AST
-from clingo.ast.literals import Literal
-from clingo.core import Library, Location
-from clingo.symbol import Symbol
+from clingo_funasp.ast import AST
+from clingo_funasp.ast.literals import Literal
+from clingo_funasp.core import Library, Location
+from clingo_funasp.symbol import Symbol
 
 __all__: list[str] = [
     "TheoryAtomElement",

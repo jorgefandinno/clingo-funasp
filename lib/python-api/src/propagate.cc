@@ -673,7 +673,7 @@ auto py_assignment_slots = std::array{
 };
 
 auto py_assignment_spec = PyType_Spec{
-    "clingo.propagate.Assignment",
+    "clingo_funasp.propagate.Assignment",
     sizeof(PyAssignmentObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -857,7 +857,7 @@ auto py_trail_slots = std::array{
 };
 
 auto py_trail_spec = PyType_Spec{
-    "clingo.propagate.Trail", sizeof(PyTrailObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.propagate.Trail", sizeof(PyTrailObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_trail_slots.data(),
 };
 
@@ -937,7 +937,7 @@ auto py_view_slots = std::array{
 };
 
 auto py_view_spec = PyType_Spec{
-    "clingo.propagate._TrailView", sizeof(PyTrailViewObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.propagate._TrailView", sizeof(PyTrailViewObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_view_slots.data(),
 };
 
@@ -1171,7 +1171,7 @@ auto py_control_slots = std::array{
 };
 
 auto py_control_spec = PyType_Spec{
-    "clingo.propagate.PropagateControl",
+    "clingo_funasp.propagate.PropagateControl",
     sizeof(PyPropagateControlObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_BASETYPE,
@@ -1421,7 +1421,7 @@ auto py_init_slots = std::array{
 };
 
 auto py_init_spec = PyType_Spec{
-    "clingo.propagate.PropagateInit",
+    "clingo_funasp.propagate.PropagateInit",
     sizeof(PyPropagateInitObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1540,7 +1540,7 @@ auto py_propagator_slots = std::array{
 };
 
 auto py_propagator_spec = PyType_Spec{
-    "clingo.propagate.Propagator", sizeof(PyObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    "clingo_funasp.propagate.Propagator", sizeof(PyObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     py_propagator_slots.data(),
 };
 
@@ -1589,7 +1589,7 @@ auto py_handle_slots = std::array{
 };
 
 auto py_handle_spec = PyType_Spec{
-    "clingo.propagate._PropagatorHandle",
+    "clingo_funasp.propagate._PropagatorHandle",
     sizeof(PyPropagatorHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1912,7 +1912,7 @@ void propagate_module_free(void *module) {
 
 PyModuleDef propagate_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.propagate",
+    "clingo_funasp.propagate",
     PyDoc_STR("Functions and classes to implement custom propagators."),
     static_cast<Py_ssize_t>(sizeof(PropagateModuleState)),
     nullptr,
@@ -1944,7 +1944,7 @@ auto intern_names(PropagateModuleState *state) -> bool {
 } // namespace
 
 auto py_propagator_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.propagate"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.propagate"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1953,7 +1953,7 @@ auto py_propagator_type() -> PyObject * {
         return nullptr;
     }
     if (state->propagator_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.propagate module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.propagate module is not initialized");
         return nullptr;
     }
     return Py_NewRef(state->propagator_type);
@@ -1970,7 +1970,7 @@ auto py_register_propagator(PyObject *type, clingo_control_t *ctl, PyObject *kee
         return false;
     }
     if (is_prop == 0) {
-        PyErr_SetString(PyExc_TypeError, "propagator must be an instance of clingo.propagate.Propagator");
+        PyErr_SetString(PyExc_TypeError, "propagator must be an instance of clingo_funasp.propagate.Propagator");
         return false;
     }
     auto obj = steal(alloc_object(state->handle_type));

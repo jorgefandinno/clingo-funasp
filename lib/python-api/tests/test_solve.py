@@ -1,15 +1,15 @@
 """
-Unit tests for clingo.solve module.
+Unit tests for clingo_funasp.solve module.
 """
 
 import sys
 import threading
 import time
 
-from clingo.control import Control
-from clingo.core import Library
-from clingo.solve import Model, ModelType
-from clingo.symbol import Function, Symbol
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.solve import Model, ModelType
+from clingo_funasp.symbol import Function, Symbol
 from util import MCB, needs_threads
 
 

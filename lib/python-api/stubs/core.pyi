@@ -5,7 +5,7 @@ Examples
 --------
 
 ```python
->>> from clingo.core import version
+>>> from clingo_funasp.core import version
 >>> version()
 (6, 0, 0)
 ```
@@ -394,8 +394,8 @@ class EventLoop(Protocol):
     create futures and to notify the loop from background threads, so that
     event loops of other frameworks can be adapted.
 
-    See also: `clingo.control.Control.solve_async`,
-    `clingo.control.Control.ground_async`
+    See also: `clingo_funasp.control.Control.solve_async`,
+    `clingo_funasp.control.Control.ground_async`
     """
 
     def create_future(self) -> Future[Any]: ...

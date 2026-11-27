@@ -231,7 +231,7 @@ auto py_result_slots = std::array{
 };
 
 auto py_result_spec = PyType_Spec{
-    "clingo.solve.SolveResult", sizeof(PyResultObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.solve.SolveResult", sizeof(PyResultObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_result_slots.data(),
 };
 
@@ -756,7 +756,7 @@ auto py_model_slots = std::array{
 };
 
 auto py_model_spec = PyType_Spec{
-    "clingo.solve.Model",
+    "clingo_funasp.solve.Model",
     sizeof(PyModelObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -851,7 +851,7 @@ auto py_control_slots = std::array{
 };
 
 auto py_control_spec = PyType_Spec{
-    "clingo.solve.SolveControl", sizeof(PyControlObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.solve.SolveControl", sizeof(PyControlObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_control_slots.data(),
 };
 
@@ -1294,7 +1294,7 @@ auto py_handle_slots = std::array{
 };
 
 auto py_handle_spec = PyType_Spec{
-    "clingo.solve.SolveHandle",
+    "clingo_funasp.solve.SolveHandle",
     sizeof(PyHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1722,7 +1722,7 @@ auto py_async_slots = std::array{
 };
 
 auto py_async_spec = PyType_Spec{
-    "clingo.solve.AsyncSolveHandle",
+    "clingo_funasp.solve.AsyncSolveHandle",
     sizeof(PyAsyncHandleObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -1779,7 +1779,7 @@ void solve_module_free(void *module) {
 
 PyModuleDef solve_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.solve",
+    "clingo_funasp.solve",
     PyDoc_STR("Functions and classes related to solving."),
     static_cast<Py_ssize_t>(sizeof(SolveModuleState)),
     nullptr,
@@ -1792,7 +1792,7 @@ PyModuleDef solve_def = {
 } // namespace
 
 auto py_solve_handle_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.solve"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.solve"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1801,14 +1801,14 @@ auto py_solve_handle_type() -> PyObject * {
         return nullptr;
     }
     if (state->handle_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.solve module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.solve module is not initialized");
         return nullptr;
     }
     return Py_NewRef(state->handle_type);
 }
 
 auto py_model_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.solve"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.solve"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1817,7 +1817,7 @@ auto py_model_type() -> PyObject * {
         return nullptr;
     }
     if (state->model_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.solve module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.solve module is not initialized");
         return nullptr;
     }
     return Py_NewRef(state->model_type);

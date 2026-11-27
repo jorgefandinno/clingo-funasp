@@ -5,8 +5,8 @@ Unit tests for the --convert option.
 from textwrap import dedent
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
 
 
 def param(value: str, arg_name="ctl") -> pytest.MarkDecorator:

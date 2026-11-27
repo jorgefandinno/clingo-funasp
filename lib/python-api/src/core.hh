@@ -26,7 +26,7 @@ auto py_handle_error() -> std::nullptr_t;
 //! clingo error is set.
 auto report_main_error(bool res, int code, clingo_string_t name) -> bool;
 
-//! Create the clingo.core module with its own types and functions (first registration phase).
+//! Create the clingo_funasp.core module with its own types and functions (first registration phase).
 auto create_core(PyObject *parent) -> PyObject *;
 
 // C API to access the mapping views (see collection.hh).
@@ -40,28 +40,28 @@ auto py_values_view_type() -> PyObject *;
 //! Get the type of items views (new reference).
 auto py_items_view_type() -> PyObject *;
 
-//! Get collections.abc.Set from the state of the clingo.core module owning the type (borrowed reference).
+//! Get collections.abc.Set from the state of the clingo_funasp.core module owning the type (borrowed reference).
 auto py_set_abc(PyTypeObject *type) -> PyObject *;
 
-//! Get collections.abc.Mapping from the state of the clingo.core module owning the type (borrowed reference).
+//! Get collections.abc.Mapping from the state of the clingo_funasp.core module owning the type (borrowed reference).
 auto py_mapping_abc(PyTypeObject *type) -> PyObject *;
 
-// C API to access `clingo.core.Library` objects.
+// C API to access `clingo_funasp.core.Library` objects.
 //
 // NOTE: Library objects release their clingo library in tp_dealloc and not in
 // tp_clear so that objects in reference cycles with the library (e.g., scripts
 // holding symbols) are released before the clingo library is freed.
 
-//! Get the `clingo.core.Library` type (new reference).
+//! Get the `clingo_funasp.core.Library` type (new reference).
 auto py_library_type() -> PyObject *;
 
-//! Get the clingo library of a `clingo.core.Library` object.
+//! Get the clingo library of a `clingo_funasp.core.Library` object.
 //!
 //! Returns nullptr with a Python error set if the object is not a library or
 //! has been invalidated.
 auto py_library_get(PyObject *type, PyObject *obj) -> clingo_lib_t *;
 
-//! Get the `clingo.core.Library` object for a `clingo_lib_t` object.
+//! Get the `clingo_funasp.core.Library` object for a `clingo_lib_t` object.
 //!
 //! Each clingo library is represented by at most one library object, which is
 //! registered as its owner. If there is one, it is returned. Otherwise, Python
@@ -78,9 +78,9 @@ auto py_library_attach(PyObject *type, clingo_lib_t *lib) -> PyObject *;
 //! Python error set on failure.
 auto py_library_keep(PyObject *type, PyObject *library, PyObject *obj) -> bool;
 
-// C API to access `clingo.core.Location` objects.
+// C API to access `clingo_funasp.core.Location` objects.
 
-//! Get the `clingo.core.Location` type (new reference).
+//! Get the `clingo_funasp.core.Location` type (new reference).
 auto py_location_type() -> PyObject *;
 
 //! Create a location object holding a copy of the given location.
@@ -88,7 +88,7 @@ auto py_location_type() -> PyObject *;
 //! Returns a new reference or nullptr with a Python error set.
 auto py_location_new(PyObject *type, clingo_location_t const *loc) -> PyObject *;
 
-//! Get the clingo location of a `clingo.core.Location` object.
+//! Get the clingo location of a `clingo_funasp.core.Location` object.
 //!
 //! The location is owned by the object. Returns nullptr with a Python error
 //! set if the object is not a location.

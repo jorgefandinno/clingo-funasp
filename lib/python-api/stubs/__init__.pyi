@@ -13,13 +13,13 @@ programmatically.
 ## Terms
 
 Terms without variables and interpreted functions are called symbols in the
-following. They are wrapped in the `clingo.symbol.Symbol` class.
+following. They are wrapped in the `clingo_funasp.symbol.Symbol` class.
 
 ## Symbolic Atoms and Literals
 
 *Symbolic atoms* without variables and interpreted functions, which appear in
-ground logic programs, are captured using the `clingo.symbol.Symbol` class.
-They must be of type `clingo.symbol.SymbolType.Function`. Furthermore, some
+ground logic programs, are captured using the `clingo_funasp.symbol.Symbol` class.
+They must be of type `clingo_funasp.symbol.SymbolType.Function`. Furthermore, some
 functions accept *symbolic literals*, which are represented as pairs of symbols
 and Booleans. The Boolean stands for the sign of the literal (`True` for
 positive and `False` for negative).
@@ -33,15 +33,15 @@ with symbolic atoms, theory atoms, and also without any association if they are
 used to translate complex language constructs not directly representable in
 aspif format. The sign of a program literal is used to represent default
 negation. Symbolic and theory atoms can be mapped to program literals using the
-`clingo.base` module. Note that symbolic and theory atoms can share the same
-program literals. Finally, the `clingo.backend` module can also be used to
+`clingo_funasp.base` module. Note that symbolic and theory atoms can share the same
+program literals. Finally, the `clingo_funasp.backend` module can also be used to
 introduce fresh symbolic atoms and program literals.
 
 ## Solver Literals
 
 Before solving, programs in aspif format are translated to an internal solver
 representation, where program literals are again mapped to non-zero integers,
-so called *solver literals*. The `clingo.propagate.PropagateInit.solver_literal`
+so called *solver literals*. The `clingo_funasp.propagate.PropagateInit.solver_literal`
 function can be used to map program literals to solver literals. Note that
 different program literals can share the same solver literal.
 
@@ -61,9 +61,9 @@ The first example shows how to use Python code from clingo:
 #script (python)
 
 from typing import Sequence
-from clingo.core import Library
-from clingo.control import Control
-from clingo.symbol import Number, Symbol
+from clingo_funasp.core import Library
+from clingo_funasp.control import Control
+from clingo_funasp.symbol import Number, Symbol
 
 Parts = Sequence[Sequence[tuple[str, Sequence[Symbol]]]]
 
@@ -83,13 +83,13 @@ q(@f(X)) :- p(X).
 
 The second example shows how to use the `clingo` module from Python. Note the
 use of a context object here. In fact, it is not possible (by default) to call
-functions from the main scope. See the `clingo.script` module for more
+functions from the main scope. See the `clingo_funasp.script` module for more
 information.
 
 ```python
->>> from clingo.core import Library
->>> from clingo.control import Control
->>> from clingo.symbol import Number, Symbol
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.symbol import Number, Symbol
 ...
 >>> class Context:
 ...     def __init__(self, lib: Library) -> None:

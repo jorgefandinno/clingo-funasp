@@ -7,10 +7,10 @@ import gc
 import threading
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
-from clingo.ground import GroundResult
-from clingo.symbol import Function, Number
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.ground import GroundResult
+from clingo_funasp.symbol import Function, Number
 from util import MCB, needs_threads
 
 # a program with too many models to enumerate

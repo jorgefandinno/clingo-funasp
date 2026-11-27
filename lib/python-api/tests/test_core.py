@@ -1,14 +1,14 @@
 """
-Unit tests for clingo.core module.
+Unit tests for clingo_funasp.core module.
 """
 
 import pytest
-from clingo.core import Library, LogLevel, MessageType, version
+from clingo_funasp.core import Library, LogLevel, MessageType, version
 
 
 class TestCore:
     """
-    Unit tests for clingo.core module.
+    Unit tests for clingo_funasp.core module.
     """
 
     def test_version(self):

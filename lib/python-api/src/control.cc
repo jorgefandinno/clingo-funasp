@@ -1222,7 +1222,7 @@ auto py_control_slots = std::array{
 };
 
 auto py_control_spec = PyType_Spec{
-    "clingo.control.Control", sizeof(PyControlObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    "clingo_funasp.control.Control", sizeof(PyControlObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
     py_control_slots.data(),
 };
 
@@ -1401,7 +1401,7 @@ auto py_const_map_slots = std::array{
 };
 
 auto py_const_map_spec = PyType_Spec{
-    "clingo.control.ConstMap", sizeof(PyConstMapObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
+    "clingo_funasp.control.ConstMap", sizeof(PyConstMapObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
     py_const_map_slots.data(),
 };
 
@@ -1457,7 +1457,7 @@ auto py_const_map_iter_slots = std::array{
 };
 
 auto py_const_map_iter_spec = PyType_Spec{
-    "clingo.control._ConstMapIter",
+    "clingo_funasp.control._ConstMapIter",
     sizeof(PyConstMapIterObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -1501,7 +1501,7 @@ void control_module_free(void *module) {
 
 PyModuleDef control_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.control",
+    "clingo_funasp.control",
     PyDoc_STR("Functions and classes to ground and solve logic programs."),
     static_cast<Py_ssize_t>(sizeof(ControlModuleState)),
     nullptr,
@@ -1514,7 +1514,7 @@ PyModuleDef control_def = {
 } // namespace
 
 auto py_control_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.control"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.control"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -1523,7 +1523,7 @@ auto py_control_type() -> PyObject * {
         return nullptr;
     }
     if (state->control_type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.control module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.control module is not initialized");
         return nullptr;
     }
     return Py_NewRef(state->control_type);
@@ -1531,7 +1531,7 @@ auto py_control_type() -> PyObject * {
 
 auto py_control_get(PyObject *type, PyObject *obj) -> clingo_control_t * {
     if (PyObject_TypeCheck(obj, reinterpret_cast<PyTypeObject *>(type)) == 0) {
-        PyErr_SetString(PyExc_TypeError, "expected clingo.control.Control");
+        PyErr_SetString(PyExc_TypeError, "expected clingo_funasp.control.Control");
         return nullptr;
     }
     return control_get(obj);
@@ -1613,7 +1613,7 @@ auto link_control(PyObject *mod) -> bool {
     if (state == nullptr || !import_types(state, imports)) {
         return false;
     }
-    state->backend_module = PyImport_ImportModule("clingo.backend");
+    state->backend_module = PyImport_ImportModule("clingo_funasp.backend");
     return state->backend_module != nullptr;
 }
 

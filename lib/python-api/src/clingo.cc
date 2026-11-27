@@ -54,7 +54,7 @@ void remove_submodules() {
     PyObject *trace = nullptr;
     PyErr_Fetch(&type, &value, &trace);
     auto *modules = PyImport_GetModuleDict();
-    auto prefix = steal(PyUnicode_FromString("clingo."));
+    auto prefix = steal(PyUnicode_FromString("clingo_funasp."));
     auto keys = steal(modules != nullptr ? PyDict_Keys(modules) : nullptr);
     if (prefix.get() != nullptr && keys.get() != nullptr) {
         auto size = PyList_Size(keys.get());
@@ -104,7 +104,7 @@ auto clingo_slots = std::array{
 // NOTE: the documentation of the package is maintained in the stubs
 PyModuleDef clingo_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo",
+    "clingo_funasp",
     PyDoc_STR("Functions and classes to control the grounding and solving process of Answer Set Programming."),
     0,
     nullptr,

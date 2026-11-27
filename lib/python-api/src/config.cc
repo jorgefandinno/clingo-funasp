@@ -700,7 +700,7 @@ auto py_config_slots = std::array{
 };
 
 auto py_config_spec = PyType_Spec{
-    "clingo.config.Config",
+    "clingo_funasp.config.Config",
     sizeof(PyConfigObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_DISALLOW_INSTANTIATION | Py_TPFLAGS_HAVE_GC,
@@ -731,7 +731,7 @@ void config_module_free(void *module) {
 
 PyModuleDef config_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.config",
+    "clingo_funasp.config",
     PyDoc_STR("Functions and classes related to configuration."),
     static_cast<Py_ssize_t>(sizeof(ConfigModuleState)),
     nullptr,
@@ -744,7 +744,7 @@ PyModuleDef config_def = {
 } // namespace
 
 auto py_config_type() -> PyObject * {
-    auto mod = steal(PyImport_ImportModule("clingo.config"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.config"));
     if (mod.get() == nullptr) {
         return nullptr;
     }

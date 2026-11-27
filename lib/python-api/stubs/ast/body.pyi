@@ -5,12 +5,12 @@ AST nodes for body literals.
 from collections.abc import Sequence
 from typing import TypeAlias, final
 
-from clingo.ast import AST
-from clingo.ast.aggregates import AggregateFunction, SetAggregateElement
-from clingo.ast.literals import LeftGuard, Literal, RightGuard, Sign
-from clingo.ast.terms import Term
-from clingo.ast.theory import TheoryAtomElement, TheoryRightGuard
-from clingo.core import Library, Location
+from clingo_funasp.ast import AST
+from clingo_funasp.ast.aggregates import AggregateFunction, SetAggregateElement
+from clingo_funasp.ast.literals import LeftGuard, Literal, RightGuard, Sign
+from clingo_funasp.ast.terms import Term
+from clingo_funasp.ast.theory import TheoryAtomElement, TheoryRightGuard
+from clingo_funasp.core import Library, Location
 
 __all__: list[str] = [
     "BodyAggregate",

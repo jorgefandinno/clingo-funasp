@@ -5,10 +5,10 @@ Functions and classes to implement custom propagators.
 
 ```python
 >>> from collections.abc import Sequence
->>> from clingo.control import Control
->>> from clingo.core import Library
->>> from clingo.propagate import Assignment, PropagateControl, PropagateInit, Propagator
->>> from clingo.symbol import Function
+>>> from clingo_funasp.control import Control
+>>> from clingo_funasp.core import Library
+>>> from clingo_funasp.propagate import Assignment, PropagateControl, PropagateInit, Propagator
+>>> from clingo_funasp.symbol import Function
 >>>
 >>> LIB = Library()
 >>>
@@ -58,8 +58,8 @@ from collections.abc import Iterator, Sequence
 from enum import IntEnum
 from typing import overload
 
-from clingo.base import Base
-from clingo.core import Library
+from clingo_funasp.base import Base
+from clingo_funasp.core import Library
 
 __all__: list[str] = [
     "Assignment",
@@ -97,20 +97,20 @@ class CheckMode(IntEnum):
 
     Both = 3
     """
-    Call `clingo.propagate.Propagator.check` on propagation fixpoints and total
+    Call `clingo_funasp.propagate.Propagator.check` on propagation fixpoints and total
     assignments.
     """
     Fixpoint = 2
     """
-    Call `clingo.propagate.Propagator.check` on propagation fixpoints.
+    Call `clingo_funasp.propagate.Propagator.check` on propagation fixpoints.
     """
     Off = 0
     """
-    Do not call `clingo.propagate.Propagator.check`.
+    Do not call `clingo_funasp.propagate.Propagator.check`.
     """
     Total = 1
     """
-    Call `clingo.propagate.Propagator.check` on total assignments.
+    Call `clingo_funasp.propagate.Propagator.check` on total assignments.
 
     Total checks are subject to the lock when a model is found, i.e., information
     from previously found models can be used to discard assignments in check calls.
@@ -123,11 +123,11 @@ class UndoMode(IntEnum):
 
     Always = 1
     """
-    Also call `clingo.propagate.Propagator.undo` when check has been called.
+    Also call `clingo_funasp.propagate.Propagator.undo` when check has been called.
     """
     Default = 0
     """
-    Call `clingo.propagate.Propagator.undo` for non-empty changes only.
+    Call `clingo_funasp.propagate.Propagator.undo` for non-empty changes only.
     """
 
 class Trail(Sequence[int]):
@@ -523,7 +523,7 @@ class PropagateControl:
     This class provides methods for adding clauses, literals, and nogoods, as well
     as managing watches and performing propagation.
 
-    If a method adding constraints or `clingo.propagate.PropagateControl.propagate`
+    If a method adding constraints or `clingo_funasp.propagate.PropagateControl.propagate`
     returns `False`, no further methods must be called on the control object or the
     assignment, and the propagator must return from the current callback
     immediately.
@@ -541,7 +541,7 @@ class PropagateControl:
         Tagged clauses are deleted after the current solve call finishes while locked
         clauses are exempt from the solver's clause deletion strategy.
 
-        See `clingo.propagate.PropagateControl.propagate` for how to handle the case
+        See `clingo_funasp.propagate.PropagateControl.propagate` for how to handle the case
         that the function returns false.
 
         Args:
@@ -589,7 +589,7 @@ class PropagateControl:
         """
         Add a watch for the given solver literal.
 
-        If called on a `clingo.propagate.PropagateInit` object, the watch is added
+        If called on a `clingo_funasp.propagate.PropagateInit` object, the watch is added
         to all current and future solver threads. Otherwise, it is only added to
         the active solver thread.
 
@@ -611,7 +611,7 @@ class PropagateControl:
         sum of the weights of the true literals in `literals`. Depending on `type`,
         the connective `<=>` can also be a left or right implication.
 
-        See `clingo.propagate.PropagateControl.add_clause` for how to interpret the
+        See `clingo_funasp.propagate.PropagateControl.add_clause` for how to interpret the
         return value.
 
         Args:
@@ -630,7 +630,7 @@ class PropagateControl:
         Check if a watch exists for the given solver literal.
 
         The check refers to the current context, i.e., the active solver thread or,
-        for a `clingo.propagate.PropagateInit` object, the initialization.
+        for a `clingo_funasp.propagate.PropagateInit` object, the initialization.
 
         Args:
             literal: The literal to check.
@@ -645,8 +645,8 @@ class PropagateControl:
 
         If this function returns `False`, the propagator must add no further
         clauses or literals and immediately return from the corresponding
-        `clingo.propagate.Propagator.init`, `clingo.propagate.Propagator.propagate`,
-        or `clingo.propagate.Propagator.check` call.
+        `clingo_funasp.propagate.Propagator.init`, `clingo_funasp.propagate.Propagator.propagate`,
+        or `clingo_funasp.propagate.Propagator.check` call.
 
         Returns:
             Whether propagation finished without conflict.
@@ -657,7 +657,7 @@ class PropagateControl:
         Remove the watch for the given literal.
 
         This function has no effect if the literal is not watched. If called on a
-        `clingo.propagate.PropagateInit` object, the watch is removed from all
+        `clingo_funasp.propagate.PropagateInit` object, the watch is removed from all
         current and future solver threads. Otherwise, it is only removed from the
         active solver thread.
 
@@ -669,15 +669,15 @@ class PropagateInit(PropagateControl):
     """
     Class for initializing a propagator.
 
-    This class extends `clingo.propagate.PropagateControl` and additionally provides
+    This class extends `clingo_funasp.propagate.PropagateControl` and additionally provides
     methods for freezing and looking up literals, adding constraints, and
     configuring the propagator's behavior.
 
-    Methods inherited from `clingo.propagate.PropagateControl` affect all current
+    Methods inherited from `clingo_funasp.propagate.PropagateControl` affect all current
     and future solver threads. Watched literals are frozen automatically.
 
     An init object is only valid during the call to
-    `clingo.propagate.Propagator.init` in which it was obtained.
+    `clingo_funasp.propagate.Propagator.init` in which it was obtained.
     """
 
     def add_minimize(self, literal: int, weight: int, priority: int = 0) -> None:
@@ -765,12 +765,12 @@ class Propagator:
     Only the methods overridden in the class of a propagator are called by the
     solver. Methods that are not overridden are not registered with the solver at
     all, which avoids the overhead of calling into Python. This matters, for
-    example, for `clingo.propagate.Propagator.decide`, which is called very often
+    example, for `clingo_funasp.propagate.Propagator.decide`, which is called very often
     during search. The overridden methods are determined when the propagator is
     registered; methods assigned to an instance are ignored.
 
     The default implementations, which can be called via `super()`, do nothing
-    except `clingo.propagate.Propagator.decide`, which returns the fallback literal.
+    except `clingo_funasp.propagate.Propagator.decide`, which returns the fallback literal.
     """
 
     def __init__(self) -> None:
@@ -800,7 +800,7 @@ class Propagator:
         Check if the current assignment is valid.
 
         This method is called on propagation fixpoints or total assignments (see
-        `clingo.propagate.PropagateInit.check_mode`). A propagator should add clauses
+        `clingo_funasp.propagate.PropagateInit.check_mode`). A propagator should add clauses
         to implement its constraints here. The method is called even if no watches
         have been added.
 
@@ -836,7 +836,7 @@ class Propagator:
         literals, and initialize the propagator's internal state.
 
         This is the last point to access symbolic and theory atoms via
-        `clingo.propagate.PropagateInit.base`. Once the search has started, they are
+        `clingo_funasp.propagate.PropagateInit.base`. Once the search has started, they are
         no longer accessible.
 
         Args:
@@ -855,7 +855,7 @@ class Propagator:
 
         This method is called during propagation with a non-empty list of watched
         literals that have become true since the last call to
-        `clingo.propagate.Propagator.propagate` or `clingo.propagate.Propagator.undo`,
+        `clingo_funasp.propagate.Propagator.propagate` or `clingo_funasp.propagate.Propagator.undo`,
         or since the start of the search. A propagator should add clauses to
         propagate literals and to implement its constraints. If adding a clause or
         propagating returns `False`, the method must return immediately.
@@ -879,7 +879,7 @@ class Propagator:
         watched literals. It is meant to update assignment-dependent state in the
         propagator.
 
-        See also `clingo.propagate.PropagateInit.undo_mode`.
+        See also `clingo_funasp.propagate.PropagateInit.undo_mode`.
 
         Args:
             assignment: The current assignment.

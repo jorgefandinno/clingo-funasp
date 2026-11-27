@@ -26,8 +26,8 @@ namespace {
 //
 // The AST types are created during registration from the description of the
 // AST structure (see clingo_ast_info()): records become subtypes of
-// `clingo.ast.AST`, unions become `types.UnionType` objects, and enumerations
-// become `enum.IntEnum` types. They are added to the submodules of `clingo.ast`
+// `clingo_funasp.ast.AST`, unions become `types.UnionType` objects, and enumerations
+// become `enum.IntEnum` types. They are added to the submodules of `clingo_funasp.ast`
 // given by their groups. AST objects own their clingo AST and do not reference
 // other Python objects.
 //
@@ -1091,7 +1091,7 @@ auto py_ast_slots = std::array{
 };
 
 auto py_ast_spec = PyType_Spec{
-    "clingo.ast.AST",
+    "clingo_funasp.ast.AST",
     sizeof(PyASTObject),
     0,
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_DISALLOW_INSTANTIATION,
@@ -1193,7 +1193,7 @@ auto py_program_slots = std::array{
 };
 
 auto py_program_spec = PyType_Spec{
-    "clingo.ast.Program", sizeof(PyProgramObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_program_slots.data(),
+    "clingo_funasp.ast.Program", sizeof(PyProgramObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, py_program_slots.data(),
 };
 
 // RewriteContext
@@ -1400,7 +1400,7 @@ auto py_context_slots = std::array{
 };
 
 auto py_context_spec = PyType_Spec{
-    "clingo.ast.RewriteContext", sizeof(PyRewriteContextObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    "clingo_funasp.ast.RewriteContext", sizeof(PyRewriteContextObject), 0, Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
     py_context_slots.data(),
 };
 
@@ -1829,7 +1829,7 @@ void ast_module_free(void *module) {
 
 PyModuleDef ast_def = {
     PyModuleDef_HEAD_INIT,
-    "clingo.ast",
+    "clingo_funasp.ast",
     PyDoc_STR("Functions and classes to work with abstract syntax trees of logic programs."),
     static_cast<Py_ssize_t>(sizeof(ASTModuleState)),
     ast_module_methods.data(),
@@ -1871,7 +1871,7 @@ auto add_group_data(char const *group) -> bool {
     }
     auto &data = groups.back();
     data.name = group;
-    if (!concat({"clingo.ast.", group}, data.qualified_name)) {
+    if (!concat({"clingo_funasp.ast.", group}, data.qualified_name)) {
         return false;
     }
     data.doc = "AST nodes.";
@@ -1914,7 +1914,7 @@ auto add_record_data(size_t index) -> bool {
     if (!camel_case(record.name, data.name)) {
         return false;
     }
-    if (!concat({"clingo.ast.", record.group, ".", data.name.data()}, data.qualified_name)) {
+    if (!concat({"clingo_funasp.ast.", record.group, ".", data.name.data()}, data.qualified_name)) {
         return false;
     }
     if (!summary(record.doc, data.doc)) {
@@ -2129,7 +2129,7 @@ auto add_types(ASTModuleState *state, PyObject *ast_mod) -> bool {
 }
 
 auto import_state() -> ASTModuleState * {
-    auto mod = steal(PyImport_ImportModule("clingo.ast"));
+    auto mod = steal(PyImport_ImportModule("clingo_funasp.ast"));
     if (mod.get() == nullptr) {
         return nullptr;
     }
@@ -2144,7 +2144,7 @@ auto get_type(PyObject *ASTModuleState::*member) -> PyObject * {
     }
     auto *type = state->*member;
     if (type == nullptr) {
-        PyErr_SetString(PyExc_RuntimeError, "clingo.ast module is not initialized");
+        PyErr_SetString(PyExc_RuntimeError, "clingo_funasp.ast module is not initialized");
         return nullptr;
     }
     return Py_NewRef(type);
@@ -2166,7 +2166,7 @@ auto py_ast_new(PyObject *type, clingo_ast_t *ast) -> PyObject * {
 }
 
 auto py_ast_get(PyObject *type, PyObject *obj) -> clingo_ast_t * {
-    if (!check_type(type, obj, "expected clingo.ast.AST")) {
+    if (!check_type(type, obj, "expected clingo_funasp.ast.AST")) {
         return nullptr;
     }
     return ast_cast(obj)->ast;
@@ -2177,7 +2177,7 @@ auto py_ast_program_type() -> PyObject * {
 }
 
 auto py_ast_program_get(PyObject *type, PyObject *obj) -> clingo_program_t * {
-    if (!check_type(type, obj, "expected clingo.ast.Program")) {
+    if (!check_type(type, obj, "expected clingo_funasp.ast.Program")) {
         return nullptr;
     }
     return program_get(obj);

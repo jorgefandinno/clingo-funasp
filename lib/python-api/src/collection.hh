@@ -11,7 +11,7 @@ namespace PyClingo {
 // The views implement the protocols of collections.abc.KeysView, ValuesView,
 // and ItemsView. They hold a reference to their mapping and iterate it with
 // the iterator function of the mapping. The view types are owned by the
-// clingo.core module.
+// clingo_funasp.core module.
 
 //! A function returning a new iterator over the keys, values, or items of a mapping.
 using ViewIter = PyObject *(*)(PyObject *mapping);
@@ -25,7 +25,7 @@ auto py_view_new(PyObject *type, PyObject *mapping, ViewIter iter) -> PyObject *
 //! Compare a mapping with another object like collections.abc.Mapping.
 //!
 //! The items of the mapping are iterated with the given function. The view type
-//! gives access to the state of the clingo.core module.
+//! gives access to the state of the clingo_funasp.core module.
 auto py_mapping_richcompare(PyObject *view_type, PyObject *self, PyObject *other, int op, ViewIter items) -> PyObject *;
 
 //! The kinds of mapping views.

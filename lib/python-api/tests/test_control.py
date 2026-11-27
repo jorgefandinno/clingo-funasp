@@ -1,5 +1,5 @@
 """
-Unit tests for clingo.control module.
+Unit tests for clingo_funasp.control module.
 """
 
 import subprocess
@@ -8,11 +8,11 @@ from collections.abc import Mapping
 from textwrap import dedent
 
 import pytest
-from clingo import ast
-from clingo.control import Control
-from clingo.core import Library
-from clingo.ground import GroundResult
-from clingo.symbol import Function, Number
+from clingo_funasp import ast
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.ground import GroundResult
+from clingo_funasp.symbol import Function, Number
 from util import MCB, needs_threads
 
 
@@ -154,8 +154,8 @@ class TestControl:
         """
         # the lambda's globals form a cycle with the handle owning the control
         code = dedent("""\
-            from clingo.control import Control
-            from clingo.core import Library
+            from clingo_funasp.control import Control
+            from clingo_funasp.core import Library
             ctl = Control(Library())
             ctl.parse_string("a.")
             ctl.ground()

@@ -5,8 +5,8 @@ Utilities for testing.
 import sys
 
 import pytest
-from clingo.solve import Model
-from clingo.symbol import Symbol
+from clingo_funasp.solve import Model
+from clingo_funasp.symbol import Symbol
 
 # WebAssembly platforms like Pyodide support neither threads nor processes.
 WASM = sys.platform in ("emscripten", "wasi")

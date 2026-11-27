@@ -1,13 +1,13 @@
 """
-Unit tests for the clingo.stats module.
+Unit tests for the clingo_funasp.stats module.
 """
 
 from collections.abc import ItemsView, KeysView, Mapping, Sequence
 
 import pytest
-from clingo.control import Control
-from clingo.core import Library
-from clingo.stats import (
+from clingo_funasp.control import Control
+from clingo_funasp.core import Library
+from clingo_funasp.stats import (
     Stats,
     StatsArray,
     StatsArrayView,
